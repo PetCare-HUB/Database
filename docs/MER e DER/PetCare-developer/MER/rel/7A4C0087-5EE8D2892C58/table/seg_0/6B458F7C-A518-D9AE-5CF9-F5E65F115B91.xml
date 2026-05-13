@@ -1,0 +1,190 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="6B458F7C-A518-D9AE-5CF9-F5E65F115B91" name="CONSULTA">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_consulta" id="C9035E1E-7B63-9370-8156-2129C5F28DC2">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="id_pet" id="6AF48251-21AB-C7F8-E668-E4BD05FCD4AB">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="EF7CBFE0-743B-FEF6-984A-F4DBC5D2EC81" referredColumn="C391B7FA-F0F4-29E3-E7B9-9BB10BC903B2"/>
+</associations>
+</Column>
+<Column name="id_clinica" id="B29B7D95-1506-2514-D6D1-F670CB5D37D5">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="D334F844-FD57-2F64-3D6D-C92A88546B4B" referredColumn="398544D8-EC25-5B6C-B91A-2347C29F354A"/>
+</associations>
+</Column>
+<Column name="data_consulta" id="4B38B765-E58D-8AE3-0DC0-DAD8936E88B9">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<domain>4615DBCC-A419-29DB-ECC4-682F8D45AF1F</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="tipo_consulta" id="FB4665B4-7543-CE3C-8A64-C71A2D13EBEC">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>816BD412-ABED-66FD-6393-C51E3AC0C1C9</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="descricao" id="6441B35C-E77B-368A-99DC-3561BEF791A9">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>E26404A0-C080-3032-50C1-D27C0CD11675</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="diagnostico" id="E38807F7-D1C5-CB4B-7AE4-8F9AC3D2C539">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>E26404A0-C080-3032-50C1-D27C0CD11675</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="valor" id="A3B03A61-6DE8-BD0D-C437-E04A40B2599A">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>46474D42-F84D-F2A6-FAB0-DE2D27C6F85B</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="retorno_recomendado" id="224E1C72-F638-6A1A-4700-904F507D36E9">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<domain>EAEB3E3C-C2F5-049A-66E3-65D33A466B19</domain>
+<defaultValue>&apos;N&apos;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="data_retorno" id="A4EB826C-D977-D5FF-4D02-BBE233D9B98F">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<domain>4615DBCC-A419-29DB-ECC4-682F8D45AF1F</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="F5B39055-6C8B-BBAF-3CEC-2C285C92D95C" name="pk_consulta">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="C9035E1E-7B63-9370-8156-2129C5F28DC2"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="EF063E84-EDED-87F1-DD72-35AFB022A236" name="fk_consulta_pet">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="6AF48251-21AB-C7F8-E668-E4BD05FCD4AB"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="A060B776-E720-3178-B809-9CB8E4F82E46" name="fk_consulta_clinica">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="B29B7D95-1506-2514-D6D1-F670CB5D37D5"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="ck_consulta_tipo" directorySegmentName="seg_0" id="D8156769-7048-0C7A-C0EA-20B7DEBEFE7D">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<rule><![CDATA[tipo_consulta IN ('CHECKUP', 'VACINA', 'EMERGENCIA', 'RETORNO', 'EXAME')]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="ck_consulta_retorno" directorySegmentName="seg_0" id="2B69D985-3D3A-1D65-B8AD-2E39EAEC6CEA">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<rule><![CDATA[retorno_recomendado IN ('S', 'N')]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="ck_consulta_valor" directorySegmentName="seg_0" id="0A381D20-85DF-7AB3-A5CC-8BE7D1743D83">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<rule><![CDATA[valor IS NULL OR valor >= 0]]></rule>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

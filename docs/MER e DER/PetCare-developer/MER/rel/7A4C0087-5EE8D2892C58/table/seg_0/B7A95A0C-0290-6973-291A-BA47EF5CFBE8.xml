@@ -1,0 +1,195 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="B7A95A0C-0290-6973-291A-BA47EF5CFBE8" name="ALERTA_SAUDE">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_alerta" id="9A8445BA-23A5-10A6-6AE8-A4258A869C70">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="id_pet" id="60034840-2105-F77E-9F67-8CD5F9253251">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="E1F7D938-3ADB-E556-F3E0-50845F9EEDA5" referredColumn="C391B7FA-F0F4-29E3-E7B9-9BB10BC903B2"/>
+</associations>
+</Column>
+<Column name="id_leitura" id="35320080-762C-07C4-DAB6-0C641DB770DC">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="CC045073-238C-C9DD-6EBC-044F7B8E600C" referredColumn="FDB3305A-AEE6-243C-C024-C5A6215A73A8"/>
+</associations>
+</Column>
+<Column name="tipo_alerta" id="4750BDFA-D119-7FB0-EC57-6531716F1E74">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>ED3AF978-0C5A-259E-1721-2D9CA302C7A9</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="nivel_alerta" id="7177254B-2C5A-462A-378F-489260A7B58E">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>11570F08-E3F5-BFB1-300E-0988B033730D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="mensagem" id="FA0D8D17-420F-1F56-30D9-1F181AC2EB6C">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>792BDE9B-7F89-EB73-73A3-E37A70807A4C</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="valor_detectado" id="45560E5D-DF59-D7AA-ED1A-75A4DAE8B7C8">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>46474D42-F84D-F2A6-FAB0-DE2D27C6F85B</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="limite_referencia" id="7E30ACD2-93D6-F1F1-7B9B-D408FF0E26ED">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>46474D42-F84D-F2A6-FAB0-DE2D27C6F85B</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="resolvido" id="FEDBED92-0F27-395D-2141-3BFAC3D8F731">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<domain>EAEB3E3C-C2F5-049A-66E3-65D33A466B19</domain>
+<defaultValue>&apos;N&apos;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="data_alerta" id="2EF89E26-66FF-DC70-C5B4-6194B0F069F7">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT015</logicalDatatype>
+<domain>4C6E8AAC-83EA-CD18-3730-7B9778CB6D5F</domain>
+<defaultValue>SYSTIMESTAMP</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="data_resolucao" id="1D90C0D8-AE2B-381D-ACED-242096D222A9">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT015</logicalDatatype>
+<domain>4C6E8AAC-83EA-CD18-3730-7B9778CB6D5F</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="05E96AEB-F250-2371-E892-A0C8BD677A8A" name="pk_alerta_saude">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9A8445BA-23A5-10A6-6AE8-A4258A869C70"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="06552E5F-7845-B079-2237-555252C250B4" name="fk_alerta_pet">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="60034840-2105-F77E-9F67-8CD5F9253251"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="DD068A06-DB23-B231-E6F3-8D697B1D394F" name="fk_alerta_leitura">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="35320080-762C-07C4-DAB6-0C641DB770DC"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="ck_alerta_nivel" directorySegmentName="seg_0" id="28859754-8B57-5D3A-7443-8EF3198D6FE5">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<rule><![CDATA[nivel_alerta IN ('BAIXO', 'MEDIO', 'ALTO', 'CRITICO')]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="ck_alerta_resolvido" directorySegmentName="seg_0" id="F0F4235F-9AA0-0607-4902-46C40FBFCCF9">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<rule><![CDATA[resolvido IN ('S', 'N')]]></rule>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

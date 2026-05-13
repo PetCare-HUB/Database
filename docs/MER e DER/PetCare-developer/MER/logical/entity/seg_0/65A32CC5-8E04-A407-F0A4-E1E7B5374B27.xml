@@ -1,0 +1,188 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="65A32CC5-8E04-A407-F0A4-E1E7B5374B27" name="ALERTA SAUDE">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>B7A95A0C-0290-6973-291A-BA47EF5CFBE8</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="id alerta" id="F8F1312D-B69C-C69C-C104-697E2C1D300B">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>92FD5C5E-AA08-1A70-ABCB-A3E3885A17D3</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id pet" id="8CD94E2C-F2D5-1C10-3016-2515CCBC1AC2">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>89E6D9D7-9083-8551-DDFD-75C5D5A0FA7B</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>17B23E0E-74DF-F09B-0273-F13B3AB17C92</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<referedAttribute>78CD90C7-34D7-19DC-FE7A-5B83AD7567B8</referedAttribute>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id leitura" id="277FBC03-B689-A035-08B1-445A8E50E700">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>6C185E70-2500-4B2E-231F-9000AFF1FD13</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>861B4947-48B4-0B18-6EAE-DF92966808A8</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<referedAttribute>BDC0D85E-E480-ABDF-3671-415A63CD2D61</referedAttribute>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="tipo alerta" id="39EBD317-8E18-79D3-E7F3-9E424DA37A51">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>155726F3-B8FC-461A-C0AE-0B10B474C2F3</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>ED3AF978-0C5A-259E-1721-2D9CA302C7A9</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="nivel alerta" id="881DAF72-0315-F4C7-0B95-A2BDA939C7B8">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>C763579E-E8FC-6BF9-85B9-2BABBA1C8284</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>11570F08-E3F5-BFB1-300E-0988B033730D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="mensagem" id="0B41FB95-F187-54CF-3E56-DEDBC4380B59">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>1834AD46-1300-EC7B-17ED-420F3DC83EF9</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>792BDE9B-7F89-EB73-73A3-E37A70807A4C</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="valor detectado" id="9C78FD68-7FBA-D9C6-5BD9-41F698161B78">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>6A2F390F-9B99-8502-7933-FB26BCC58B62</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>46474D42-F84D-F2A6-FAB0-DE2D27C6F85B</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="limite referencia" id="0A0F0788-BEDE-61CD-22F0-F32F00579011">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>4B339D65-77FE-619C-2138-A118D2BECC12</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>46474D42-F84D-F2A6-FAB0-DE2D27C6F85B</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="resolvido" id="6CE13B6A-3432-F6B7-7FD6-1AEA5D9AEBAD">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>A96B68B5-C44A-B2FE-D791-11483860693F</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<domain>EAEB3E3C-C2F5-049A-66E3-65D33A466B19</domain>
+<defaultValue>&apos;N&apos;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="data alerta" id="E8A4D1FA-6922-45FA-8BE4-DA3902D4507D">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>BC2283FD-C160-8FD8-7B8E-31A805733AB3</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT015</logicalDatatype>
+<domain>4C6E8AAC-83EA-CD18-3730-7B9778CB6D5F</domain>
+<defaultValue>SYSTIMESTAMP</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="data resolucao" id="7292486F-6883-629B-8E0E-F5CE68A5DAB5">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>5913388C-D446-E013-DFC1-833887A541AD</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT015</logicalDatatype>
+<domain>4C6E8AAC-83EA-CD18-3730-7B9778CB6D5F</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="3A92D322-508D-E744-D650-5E0570E0D790" name="pk alerta saude">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>05E96AEB-F250-2371-E892-A0C8BD677A8A</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>F8F1312D-B69C-C69C-C104-697E2C1D300B</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

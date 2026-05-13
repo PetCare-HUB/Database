@@ -1,0 +1,85 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxyOraclev20c class="oracle.dbtools.crest.model.design.storage.oracle.v20c.TableProxyOraclev20c" name="EVENTO_PREVENTIVO" directorySegmentName="seg_0" id="EFF51F9F-52D5-F724-E307-197FC20E24DA">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<partitionedRowMovement>DISABLE</partitionedRowMovement>
+<temporaryChanged>false</temporaryChanged>
+<accessDriverType>oracle_loader</accessDriverType>
+<rejectLimit></rejectLimit>
+<columnProxies itemClass="oracle.dbtools.crest.model.design.storage.oracle.v12c.ColumnProxyOraclev12c">
+<ColumnProxy name="id_protocolo" id="0AC383DD-972D-99B8-BBB4-D444AD73E97C">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="id_pet" id="327166E7-0ACC-4363-EF8C-9722F79A0DDF">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="tipo_evento" id="3CF7CE66-1AA2-5F2A-0F4C-CCC271ED1353">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="data_realizacao" id="3D497EE7-68DB-6888-6FAF-AB48F4D21E2C">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="data_prevista" id="4A986081-7F93-FF81-B61E-D6A11940A682">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="id_evento" id="785DD613-97FF-8542-3176-BE5F2CAABC93">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="status" id="D2E22A16-B3C1-0C51-CD48-2BB2B262228B">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<defaultValue>&apos;PENDENTE&apos;</defaultValue>
+</ColumnProxy>
+<ColumnProxy name="descricao" id="D5916C13-1876-1E29-030B-BD0DDA5E397C">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="fk_evento_pet" id="59105F7A-B31A-B2E2-0205-3B73327A8E28">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="fk_evento_protocolo" id="AF5040C4-9A67-88C0-D897-990A94601846">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.PKProxyOraclev10g" name="pk_evento_preventivo" id="3ADB0B25-A4BF-9CB5-D831-08BDD050FE46">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexSort>SORTED</indexSort>
+</PrimaryKey>
+</primaryKeys>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.storage.oracle.TableCheckConstraintOracle">
+<TableCheckConstraint name="ck_evento_status" id="4D8F341A-A88F-78F2-6857-6DDF52D6992F">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+<TableCheckConstraint name="ck_evento_tipo" id="7683D3D2-B75C-17D7-2E8B-C0CC94AED37A">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+</tableCheckConstraints>
+</TableProxyOraclev20c>

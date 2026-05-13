@@ -1,0 +1,174 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="B45C146B-8F29-5484-6D51-2E6BED4A6335" name="CONSULTA">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>6B458F7C-A518-D9AE-5CF9-F5E65F115B91</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="id consulta" id="2F58A61E-A752-F6D1-F67C-0CA6EB9E385B">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>FA6CE455-DEF8-7A4F-11BD-D69D8F06386E</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id pet" id="DC98D4E6-EF1C-55F3-E9D5-1856A4E854E4">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>67C848B5-8281-5B9F-010D-D48776D0965E</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>5DCF7872-161B-471A-B431-5A30CAF5ACE9</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<referedAttribute>78CD90C7-34D7-19DC-FE7A-5B83AD7567B8</referedAttribute>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id clinica" id="CBF60467-D568-CCB5-B1B4-8A5B08ED3360">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>8C8FB736-255B-D44E-1E81-1888C6413275</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>969738E1-FCB6-5726-D27B-54441CCE179C</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<referedAttribute>47A10785-1E4A-F6E3-0DE5-8CD2AB60C518</referedAttribute>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="data consulta" id="E69AFDA4-1D65-1039-F203-59E4D11690A3">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>924481E7-4B41-5734-9C59-E8D43DBADD66</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<domain>4615DBCC-A419-29DB-ECC4-682F8D45AF1F</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="tipo consulta" id="9768F5FC-4499-6BB4-C83E-BDBEABA59CCF">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>6072F271-F1FC-27D6-2547-CBBD8B8F8070</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>816BD412-ABED-66FD-6393-C51E3AC0C1C9</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="descricao" id="25553512-AE0A-8E70-58D7-12DE14B42721">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>8020789C-1BF7-A761-6405-7232866B00DB</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>E26404A0-C080-3032-50C1-D27C0CD11675</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="diagnostico" id="522B3536-2735-5332-9BFB-2FF158BFDD30">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>3850760F-7F6D-C6C6-F893-977A01C99C1F</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>E26404A0-C080-3032-50C1-D27C0CD11675</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="valor" id="91E17EE0-50D0-E821-1D97-9A2E32E51A82">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>A4CDC726-BDB9-9A9E-87FE-7631496014B0</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>46474D42-F84D-F2A6-FAB0-DE2D27C6F85B</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="retorno recomendado" id="77A5CAFD-5683-0A61-1ABD-C67044F47326">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>1C18D4DD-EDFD-D907-70C9-02C4880B0C25</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<domain>EAEB3E3C-C2F5-049A-66E3-65D33A466B19</domain>
+<defaultValue>&apos;N&apos;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="data retorno" id="1AEEC2DA-0B3A-8BAA-66D8-A4A49E080E75">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>4F3E0608-6090-A966-5F31-76AD0E901068</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<domain>4615DBCC-A419-29DB-ECC4-682F8D45AF1F</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="104EDC09-D06C-8D19-2A6C-6F05053B3FFC" name="pk consulta">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>F5B39055-6C8B-BBAF-3CEC-2C285C92D95C</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>2F58A61E-A752-F6D1-F67C-0CA6EB9E385B</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

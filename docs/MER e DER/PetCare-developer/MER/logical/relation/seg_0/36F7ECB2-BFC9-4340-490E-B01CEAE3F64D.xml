@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="AGENDA" directorySegmentName="seg_0" id="36F7ECB2-BFC9-4340-490E-B01CEAE3F64D">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<sourcePk>C0444AFC-D104-62E5-E8B9-28799FAED6EA</sourcePk>
+<identifying>false</identifying>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>9D880AB3-95B2-EA10-4DC5-48C78607F416</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>ECE200AE-86C4-B2F1-AAB8-7A9182E85F8A</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

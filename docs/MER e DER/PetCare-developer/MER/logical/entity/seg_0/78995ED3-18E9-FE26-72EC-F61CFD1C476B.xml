@@ -1,0 +1,143 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="78995ED3-18E9-FE26-72EC-F61CFD1C476B" name="PROTOCOLO PREVENTIVO">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>DA59BE31-E356-95C0-D99A-CFFC2C1DC8A9</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="id protocolo" id="D8C223BE-1B60-5B55-29DA-5402267177A1">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>D30A7EED-805A-7A76-5D63-D5F044CA9EF8</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="especie" id="568C75C8-ED11-6DDE-8A47-799AD1A76B11">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>B523FFEC-0E64-1D0B-6F6A-55AE0F9DEE93</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>11570F08-E3F5-BFB1-300E-0988B033730D</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="raca" id="243FECAD-BBD5-D513-605A-CA2B4EB41609">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>D818C038-D1BD-0A16-0FF2-9206FD77B046</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>36C30E50-4189-4F38-1908-0A695CAADE75</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="tipo evento" id="06D9A01F-99E0-C0DF-2314-AF11ECBD9063">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>9F25D13D-EA70-C3F5-D1B6-963353D03852</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>816BD412-ABED-66FD-6393-C51E3AC0C1C9</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="descricao" id="70EA933D-4605-566F-37FD-909CC9DCB9F0">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>5EB28E6D-5EF5-D271-172A-A54BFB604EE9</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>792BDE9B-7F89-EB73-73A3-E37A70807A4C</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="idade meses recomendada" id="4E978655-5197-4A60-6A00-68EA000F890E">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>5966B51D-B384-7CC5-2208-6B675BD86809</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>CBA6F7F9-E38F-293D-EF2E-7962C71BAE26</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="intervalo dias" id="B216D729-017A-E30E-400D-A401F5BE3414">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>6047820F-401D-590B-BF02-47EE5E3086A9</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E7319E67-0AC8-E2C0-A5BB-5A06CBCD408C</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="ativo" id="173CD427-1FB6-1E29-CCF9-395030425F23">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<importedID>D3DEB403-2B0E-27A1-41E3-9DB44C9F8916</importedID>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<use>0</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<domain>EAEB3E3C-C2F5-049A-66E3-65D33A466B19</domain>
+<defaultValue>&apos;S&apos;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="DD4D4167-32A3-8518-6FEE-820320BD4390" name="pk protocolo preventivo">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<generatorID>31D8D3FB-2CDA-717F-BE6C-39EAEFE5DD62</generatorID>
+<ownerDesignName>MER</ownerDesignName>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>D8C223BE-1B60-5B55-29DA-5402267177A1</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

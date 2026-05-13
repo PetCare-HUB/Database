@@ -1,0 +1,134 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="CDD29E2B-06F9-5C95-D121-0621B09CDBC1" name="DISPOSITIVO_IOT">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_dispositivo" id="9B1B37EE-20AD-E72A-7890-F72E16F9143C">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="id_pet" id="E7D71556-4FBE-3574-EB02-BB777D81666D">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="E8C91B27-69DF-7C2C-13A8-074CF188EF28" referredColumn="C391B7FA-F0F4-29E3-E7B9-9BB10BC903B2"/>
+</associations>
+</Column>
+<Column name="tipo_dispositivo" id="124A60AA-B304-7DB6-0F94-9E8960529ED7">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>816BD412-ABED-66FD-6393-C51E3AC0C1C9</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="codigo_serie" id="076CD194-11C7-F026-8E8F-DEB48EBD3F49">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<domain>36C30E50-4189-4F38-1908-0A695CAADE75</domain>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="data_ativacao" id="89D0D914-8F4B-E27F-C777-36840352090D">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<domain>4615DBCC-A419-29DB-ECC4-682F8D45AF1F</domain>
+<defaultValue>SYSDATE</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ativo" id="7B1F432F-5437-4210-569C-F54A6D2E130F">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<use>0</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<domain>EAEB3E3C-C2F5-049A-66E3-65D33A466B19</domain>
+<defaultValue>&apos;S&apos;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="B2A59AF6-E4F5-6D73-A660-DFF688B446C3" name="pk_dispositivo_iot">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9B1B37EE-20AD-E72A-7890-F72E16F9143C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="21AE5AA7-D0F5-BE58-FA02-CFF87674BDBC" name="uk_dispositivo_codigo">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexState>Unique Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="076CD194-11C7-F026-8E8F-DEB48EBD3F49"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="04D4BCCE-51CB-5856-7946-C2BBE3A5C8C6" name="fk_dispositivo_pet">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="E7D71556-4FBE-3574-EB02-BB777D81666D"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
+<tableCheckConstraint name="ck_dispositivo_tipo" directorySegmentName="seg_0" id="72DC1A3B-3764-2FF6-A324-C165A199BDC2">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<rule><![CDATA[tipo_dispositivo IN ('COLEIRA', 'COMEDOURO', 'AMBIENTE')]]></rule>
+</tableCheckConstraint>
+<tableCheckConstraint name="ck_dispositivo_ativo" directorySegmentName="seg_0" id="7DD818F4-B5F2-BEE4-5CC3-28CEAD3E778D">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<rule><![CDATA[ativo IN ('S', 'N')]]></rule>
+</tableCheckConstraint>
+</tableCheckConstraints>
+</Table>

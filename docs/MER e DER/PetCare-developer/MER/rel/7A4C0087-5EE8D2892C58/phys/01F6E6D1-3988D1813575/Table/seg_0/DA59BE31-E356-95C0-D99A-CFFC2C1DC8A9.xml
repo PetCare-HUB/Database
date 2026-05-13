@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxyOraclev20c class="oracle.dbtools.crest.model.design.storage.oracle.v20c.TableProxyOraclev20c" name="PROTOCOLO_PREVENTIVO" directorySegmentName="seg_0" id="DA59BE31-E356-95C0-D99A-CFFC2C1DC8A9">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<partitionedRowMovement>DISABLE</partitionedRowMovement>
+<temporaryChanged>false</temporaryChanged>
+<accessDriverType>oracle_loader</accessDriverType>
+<rejectLimit></rejectLimit>
+<columnProxies itemClass="oracle.dbtools.crest.model.design.storage.oracle.v12c.ColumnProxyOraclev12c">
+<ColumnProxy name="intervalo_dias" id="03B49605-C14E-6424-718B-DD001E3651E6">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="descricao" id="139A9EAE-D25B-BA19-D53F-B779E8171A43">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="tipo_evento" id="4EBF0809-925C-F0CB-63BD-CFB038D719D5">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="raca" id="4FD08ADF-88C2-1A81-CBDA-D417D7E607B9">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="ativo" id="753338FF-C279-54B1-B164-02E0BFBA6563">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<defaultValue>&apos;S&apos;</defaultValue>
+</ColumnProxy>
+<ColumnProxy name="id_protocolo" id="BAB79EF0-9F1F-4B5F-35CF-4B3B3BAA176B">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="especie" id="BD070F10-8ABB-F273-F6F1-A15375607C20">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="idade_meses_recomendada" id="C90347BF-C9EB-547D-6F86-44AA1B520FD1">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.PKProxyOraclev10g" name="pk_protocolo_preventivo" id="31D8D3FB-2CDA-717F-BE6C-39EAEFE5DD62">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexSort>SORTED</indexSort>
+</PrimaryKey>
+</primaryKeys>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.storage.oracle.TableCheckConstraintOracle">
+<TableCheckConstraint name="ck_protocolo_ativo" id="043F7351-4EAD-E927-C725-E4E81E1DF243">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+<TableCheckConstraint name="ck_protocolo_intervalo" id="48572524-2D39-3D91-7702-944C673B0FE9">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+<TableCheckConstraint name="ck_protocolo_idade" id="D33F0945-ECD4-8455-A3F4-7786F61FE95F">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+<TableCheckConstraint name="ck_protocolo_tipo" id="DBC09859-5A85-7BDF-FD81-16034D5F9885">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+<TableCheckConstraint name="ck_protocolo_especie" id="E84D7EBF-DBD3-F4EE-4676-E6CED31F2F60">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+</tableCheckConstraints>
+</TableProxyOraclev20c>

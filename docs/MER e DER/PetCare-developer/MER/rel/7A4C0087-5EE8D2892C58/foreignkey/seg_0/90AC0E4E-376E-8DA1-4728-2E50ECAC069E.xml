@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="90AC0E4E-376E-8DA1-4728-2E50ECAC069E" containerWithKeyObject="EFF51F9F-52D5-F724-E307-197FC20E24DA" localFKIndex="AF5040C4-9A67-88C0-D897-990A94601846" name="fk_evento_protocolo">
+<sourceDDLFile>01_create_tables.sql</sourceDDLFile>
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<referredTableLongName>PROTOCOLO_PREVENTIVO</referredTableLongName>
+<deleteRule>NO ACTION</deleteRule>
+<referredTableID>DA59BE31-E356-95C0-D99A-CFFC2C1DC8A9</referredTableID>
+<keyObject>31D8D3FB-2CDA-717F-BE6C-39EAEFE5DD62</keyObject>
+<referredKeyID>31D8D3FB-2CDA-717F-BE6C-39EAEFE5DD62</referredKeyID>
+<mandatory>false</mandatory>
+<refColNames>id_protocolo</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

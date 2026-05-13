@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxyOraclev20c class="oracle.dbtools.crest.model.design.storage.oracle.v20c.TableProxyOraclev20c" name="CONSULTA" directorySegmentName="seg_0" id="6B458F7C-A518-D9AE-5CF9-F5E65F115B91">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<partitionedRowMovement>DISABLE</partitionedRowMovement>
+<temporaryChanged>false</temporaryChanged>
+<accessDriverType>oracle_loader</accessDriverType>
+<rejectLimit></rejectLimit>
+<columnProxies itemClass="oracle.dbtools.crest.model.design.storage.oracle.v12c.ColumnProxyOraclev12c">
+<ColumnProxy name="retorno_recomendado" id="224E1C72-F638-6A1A-4700-904F507D36E9">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<defaultValue>&apos;N&apos;</defaultValue>
+</ColumnProxy>
+<ColumnProxy name="data_consulta" id="4B38B765-E58D-8AE3-0DC0-DAD8936E88B9">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="descricao" id="6441B35C-E77B-368A-99DC-3561BEF791A9">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="id_pet" id="6AF48251-21AB-C7F8-E668-E4BD05FCD4AB">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="valor" id="A3B03A61-6DE8-BD0D-C437-E04A40B2599A">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="data_retorno" id="A4EB826C-D977-D5FF-4D02-BBE233D9B98F">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="id_clinica" id="B29B7D95-1506-2514-D6D1-F670CB5D37D5">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="id_consulta" id="C9035E1E-7B63-9370-8156-2129C5F28DC2">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="diagnostico" id="E38807F7-D1C5-CB4B-7AE4-8F9AC3D2C539">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="tipo_consulta" id="FB4665B4-7543-CE3C-8A64-C71A2D13EBEC">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="fk_consulta_clinica" id="A060B776-E720-3178-B809-9CB8E4F82E46">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="fk_consulta_pet" id="EF063E84-EDED-87F1-DD72-35AFB022A236">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.PKProxyOraclev10g" name="pk_consulta" id="F5B39055-6C8B-BBAF-3CEC-2C285C92D95C">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<indexSort>SORTED</indexSort>
+</PrimaryKey>
+</primaryKeys>
+<tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.storage.oracle.TableCheckConstraintOracle">
+<TableCheckConstraint name="ck_consulta_valor" id="0A381D20-85DF-7AB3-A5CC-8BE7D1743D83">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+<TableCheckConstraint name="ck_consulta_retorno" id="2B69D985-3D3A-1D65-B8AD-2E39EAEC6CEA">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+<TableCheckConstraint name="ck_consulta_tipo" id="D8156769-7048-0C7A-C0EA-20B7DEBEFE7D">
+<createdBy>user</createdBy>
+<createdTime>2026-05-11 22:38:41 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+</TableCheckConstraint>
+</tableCheckConstraints>
+</TableProxyOraclev20c>

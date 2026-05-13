@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="CAPTURA" directorySegmentName="seg_0" id="518CE51D-D60A-0952-F771-674C4937CACD">
+<createdBy>user</createdBy>
+<createdTime>2026-05-12 13:41:23 UTC</createdTime>
+<ownerDesignName>MER</ownerDesignName>
+<engineerTo>
+<item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
+</engineerTo>
+<sourcePk>D6C55518-13B4-903F-9801-B459AE04D7F4</sourcePk>
+<identifying>false</identifying>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>A6FA1D87-81F4-8756-AB7A-BD48D5F06B46</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>0F3ECFE5-984D-DBB6-54E7-F957902B13D5</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

@@ -66,7 +66,7 @@ END;
 /
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE TUTOR CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE RESPONSAVEL CASCADE CONSTRAINTS';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
@@ -78,11 +78,11 @@ END;
 /
 
 ------------------------------------------------------------
--- 1. TUTOR
+-- 1. RESPONSAVEL
 ------------------------------------------------------------
 
-CREATE TABLE TUTOR (
-    id_tutor       NUMBER(10)      NOT NULL,
+CREATE TABLE RESPONSAVEL (
+    id_responsavel  NUMBER(10)      NOT NULL,
     nome           VARCHAR2(100)   NOT NULL,
     email          VARCHAR2(120)   NOT NULL,
     telefone       VARCHAR2(20),
@@ -90,10 +90,10 @@ CREATE TABLE TUTOR (
     data_cadastro  DATE            DEFAULT SYSDATE NOT NULL,
     ativo          CHAR(1)         DEFAULT 'S' NOT NULL,
 
-    CONSTRAINT pk_tutor PRIMARY KEY (id_tutor),
-    CONSTRAINT uk_tutor_email UNIQUE (email),
-    CONSTRAINT uk_tutor_cpf UNIQUE (cpf),
-    CONSTRAINT ck_tutor_ativo CHECK (ativo IN ('S', 'N'))
+    CONSTRAINT pk_responsavel PRIMARY KEY (id_responsavel),
+    CONSTRAINT uk_responsavel_email UNIQUE (email),
+    CONSTRAINT uk_responsavel_cpf UNIQUE (cpf),
+    CONSTRAINT ck_responsavel_ativo CHECK (ativo IN ('S', 'N'))
 );
 
 ------------------------------------------------------------
@@ -120,7 +120,7 @@ CREATE TABLE CLINICA (
 
 CREATE TABLE PET (
     id_pet              NUMBER(10)      NOT NULL,
-    id_tutor            NUMBER(10)      NOT NULL,
+    id_responsavel      NUMBER(10)      NOT NULL,
     id_clinica          NUMBER(10)      NOT NULL,
     nome                VARCHAR2(80)    NOT NULL,
     especie             VARCHAR2(20)    NOT NULL,
@@ -134,8 +134,8 @@ CREATE TABLE PET (
 
     CONSTRAINT pk_pet PRIMARY KEY (id_pet),
 
-    CONSTRAINT fk_pet_tutor FOREIGN KEY (id_tutor)
-        REFERENCES TUTOR (id_tutor),
+    CONSTRAINT fk_pet_responsavel FOREIGN KEY (id_responsavel)
+        REFERENCES RESPONSAVEL (id_responsavel),
 
     CONSTRAINT fk_pet_clinica FOREIGN KEY (id_clinica)
         REFERENCES CLINICA (id_clinica),
@@ -394,7 +394,7 @@ CREATE TABLE LOG_ERROS (
 SELECT table_name
 FROM user_tables
 WHERE table_name IN (
-    'TUTOR',
+    'RESPONSAVEL',
     'CLINICA',
     'PET',
     'CONSULTA',

@@ -11,7 +11,7 @@ SET SERVEROUTPUT ON;
 ------------------------------------------------------------
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP INDEX idx_pet_tutor';
+    EXECUTE IMMEDIATE 'DROP INDEX idx_pet_responsavel';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
@@ -104,8 +104,8 @@ END;
 -- ÍNDICES DE RELACIONAMENTO
 ------------------------------------------------------------
 
-CREATE INDEX idx_pet_tutor
-ON PET (id_tutor);
+CREATE INDEX idx_pet_responsavel
+ON PET (id_responsavel);
 
 CREATE INDEX idx_pet_clinica
 ON PET (id_clinica);
@@ -160,7 +160,7 @@ ON SCORE_SAUDE (categoria);
 SELECT index_name, table_name
 FROM user_indexes
 WHERE index_name IN (
-    'IDX_PET_TUTOR',
+    'IDX_PET_RESPONSAVEL',
     'IDX_PET_CLINICA',
     'IDX_CONSULTA_PET',
     'IDX_CONSULTA_CLINICA',

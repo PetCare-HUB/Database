@@ -11,7 +11,7 @@ SET SERVEROUTPUT ON;
 ------------------------------------------------------------
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_tutor';
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_responsavel';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
@@ -80,7 +80,7 @@ END;
 -- CRIAÇÃO DAS SEQUENCES
 ------------------------------------------------------------
 
-CREATE SEQUENCE seq_tutor
+CREATE SEQUENCE seq_responsavel
 START WITH 1
 INCREMENT BY 1
 NOCACHE
@@ -153,7 +153,7 @@ NOCYCLE;
 SELECT sequence_name
 FROM user_sequences
 WHERE sequence_name IN (
-    'SEQ_TUTOR',
+    'SEQ_RESPONSAVEL',
     'SEQ_CLINICA',
     'SEQ_PET',
     'SEQ_CONSULTA',

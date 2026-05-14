@@ -6,10 +6,10 @@ SET SERVEROUTPUT ON;
 ------------------------------------------------------------
 
 ------------------------------------------------------------
--- 1. PROCEDURE: INSERIR TUTOR
+-- 1. PROCEDURE: INSERIR RESPONSAVEL
 ------------------------------------------------------------
 
-CREATE OR REPLACE PROCEDURE prc_ins_tutor (
+CREATE OR REPLACE PROCEDURE prc_ins_responsavel (
     p_nome      IN VARCHAR2,
     p_email     IN VARCHAR2,
     p_telefone  IN VARCHAR2,
@@ -17,11 +17,11 @@ CREATE OR REPLACE PROCEDURE prc_ins_tutor (
 ) AS
 BEGIN
     IF p_nome IS NULL OR p_email IS NULL THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Nome e email do tutor sao obrigatorios.');
+        RAISE_APPLICATION_ERROR(-20001, 'Nome e email do responsavel sao obrigatorios.');
     END IF;
 
-    INSERT INTO TUTOR (
-        id_tutor,
+    INSERT INTO RESPONSAVEL (
+        id_responsavel,
         nome,
         email,
         telefone,
@@ -29,7 +29,7 @@ BEGIN
         data_cadastro,
         ativo
     ) VALUES (
-        seq_tutor.NEXTVAL,
+        seq_responsavel.NEXTVAL,
         p_nome,
         p_email,
         p_telefone,
@@ -42,13 +42,13 @@ BEGIN
 
 EXCEPTION
     WHEN DUP_VAL_ON_INDEX THEN
-        prc_registrar_log_erro('PRC_INS_TUTOR', SQLCODE, SQLERRM);
+        prc_registrar_log_erro('PRC_INS_RESPONSAVEL', SQLCODE, SQLERRM);
 
     WHEN VALUE_ERROR THEN
-        prc_registrar_log_erro('PRC_INS_TUTOR', SQLCODE, SQLERRM);
+        prc_registrar_log_erro('PRC_INS_RESPONSAVEL', SQLCODE, SQLERRM);
 
     WHEN OTHERS THEN
-        prc_registrar_log_erro('PRC_INS_TUTOR', SQLCODE, SQLERRM);
+        prc_registrar_log_erro('PRC_INS_RESPONSAVEL', SQLCODE, SQLERRM);
 END;
 /
 
@@ -105,7 +105,7 @@ END;
 ------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE prc_ins_pet (
-    p_id_tutor            IN NUMBER,
+    p_id_responsavel      IN NUMBER,
     p_id_clinica          IN NUMBER,
     p_nome                IN VARCHAR2,
     p_especie             IN VARCHAR2,
@@ -115,21 +115,21 @@ CREATE OR REPLACE PROCEDURE prc_ins_pet (
     p_sexo                IN CHAR,
     p_condicoes_cronicas  IN VARCHAR2
 ) AS
-    v_total_tutor    NUMBER;
+    v_total_responsavel  NUMBER;
     v_total_clinica  NUMBER;
 BEGIN
     SELECT COUNT(*)
-    INTO v_total_tutor
-    FROM TUTOR
-    WHERE id_tutor = p_id_tutor;
+    INTO v_total_responsavel
+    FROM RESPONSAVEL
+    WHERE id_responsavel = p_id_responsavel;
 
     SELECT COUNT(*)
     INTO v_total_clinica
     FROM CLINICA
     WHERE id_clinica = p_id_clinica;
 
-    IF v_total_tutor = 0 THEN
-        RAISE_APPLICATION_ERROR(-20003, 'Tutor nao encontrado.');
+    IF v_total_responsavel = 0 THEN
+        RAISE_APPLICATION_ERROR(-20003, 'Responsavel nao encontrado.');
     END IF;
 
     IF v_total_clinica = 0 THEN
@@ -142,7 +142,7 @@ BEGIN
 
     INSERT INTO PET (
         id_pet,
-        id_tutor,
+        id_responsavel,
         id_clinica,
         nome,
         especie,
@@ -155,7 +155,7 @@ BEGIN
         ativo
     ) VALUES (
         seq_pet.NEXTVAL,
-        p_id_tutor,
+        p_id_responsavel,
         p_id_clinica,
         p_nome,
         p_especie,
@@ -780,7 +780,7 @@ END;
 SELECT object_name, object_type, status
 FROM user_objects
 WHERE object_name IN (
-    'PRC_INS_TUTOR',
+    'PRC_INS_RESPONSAVEL',
     'PRC_INS_CLINICA',
     'PRC_INS_PET',
     'PRC_INS_CONSULTA',

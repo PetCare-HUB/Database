@@ -125,7 +125,7 @@ BEGIN
             v_acao := 'Acionar a clínica imediatamente';
 
         ELSIF r.nivel_alerta = 'ALTO' THEN
-            v_acao := 'Priorizar contato com o tutor';
+            v_acao := 'Priorizar contato com o responsavel';
 
         ELSIF r.nivel_alerta = 'MEDIO' THEN
             v_acao := 'Monitorar nas próximas horas';
@@ -175,7 +175,7 @@ BEGIN
     FOR r IN c_eventos LOOP
 
         IF r.status = 'ATRASADO' THEN
-            v_situacao := 'Evento atrasado. Tutor deve ser notificado.';
+            v_situacao := 'Evento atrasado. Responsavel deve ser notificado.';
 
         ELSIF r.status = 'PENDENTE'
               AND r.data_prevista <= SYSDATE + 30 THEN

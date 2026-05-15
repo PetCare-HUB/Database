@@ -2,7 +2,7 @@
 
 ## Objetivo do Banco
 
-O banco de dados do PetCare Hub tem como objetivo armazenar informações de tutores, clínicas, pets, consultas, protocolos preventivos, eventos preventivos, dispositivos IoT, leituras de sensores, alertas de saúde e scores de saúde.
+O banco de dados do PetCare Hub tem como objetivo armazenar informações de responsáveis, clínicas, pets, consultas, protocolos preventivos, eventos preventivos, dispositivos IoT, leituras de sensores, alertas de saúde e scores de saúde.
 
 A estrutura foi pensada para apoiar a jornada contínua de cuidado do pet, permitindo histórico clínico estruturado, monitoramento preventivo, geração de alertas e acompanhamento por clínicas parceiras.
 
@@ -10,7 +10,7 @@ A estrutura foi pensada para apoiar a jornada contínua de cuidado do pet, permi
 
 | Tabela | Função | Usada no Java | Usada no .NET | Usada no Banco |
 |---|---|---|---|---|
-| TUTOR | Armazena os responsáveis pelos pets | Sim | Não diretamente | Sim |
+| RESPONSAVEL | Armazena os responsáveis pelos pets | Sim | Não diretamente | Sim |
 | CLINICA | Armazena clínicas parceiras | Sim | Sim | Sim |
 | PET | Armazena os pets cadastrados | Sim | Sim | Sim |
 | CONSULTA | Armazena histórico de consultas clínicas | Sim | Sim | Sim |
@@ -24,7 +24,7 @@ A estrutura foi pensada para apoiar a jornada contínua de cuidado do pet, permi
 
 ## Justificativa das Tabelas
 
-### TUTOR
+### RESPONSAVEL
 
 Representa o responsável pelo pet. É necessário para vincular cada animal a uma pessoa responsável pelo acompanhamento.
 
@@ -54,7 +54,7 @@ Representa dispositivos conectados ao pet, como coleira, comedouro ou sensor de 
 
 ### LEITURA_SENSOR
 
-Armazena os dados coletados pelos sensores IoT, como atividade, nível de ração, umidade e qualidade do ar.
+Armazena os dados coletados pelos sensores IoT, como atividade, nível de ração, temperatura ambiente, umidade e qualidade do ar.
 
 ### ALERTA_SAUDE
 
@@ -70,7 +70,7 @@ Armazena erros ocorridos durante a execução das procedures PL/SQL, contendo pr
 
 ## Relacionamentos Iniciais
 
-- Um tutor pode possuir vários pets.
+- Um responsável pode possuir vários pets.
 - Uma clínica pode acompanhar vários pets.
 - Um pet pode possuir várias consultas.
 - Uma clínica pode possuir várias consultas.
@@ -85,7 +85,7 @@ Armazena erros ocorridos durante a execução das procedures PL/SQL, contendo pr
 
 ## Integração com Java
 
-A API Java será responsável por cadastrar tutores, clínicas e pets, registrar leituras de sensores, calcular score de saúde, gerar alertas e consultar o histórico do pet.
+A API Java será responsável por cadastrar responsáveis, clínicas e pets, registrar leituras de sensores, calcular score de saúde, gerar alertas e consultar o histórico do pet.
 
 ## Integração com .NET
 

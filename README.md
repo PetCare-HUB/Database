@@ -2,7 +2,7 @@
 
 Projeto de banco de dados relacional desenvolvido para o Challenge FIAP 2026 — CLYVO VET.
 
-A proposta do PetCare Hub é apoiar a jornada contínua de cuidado do pet, armazenando dados de tutores, clínicas, pets, consultas, protocolos preventivos, dispositivos IoT, leituras de sensores, alertas de saúde e score de saúde.
+A proposta do PetCare Hub é apoiar a jornada contínua de cuidado do pet, armazenando dados de responsaveis, clínicas, pets, consultas, protocolos preventivos, dispositivos IoT, leituras de sensores, alertas de saúde e score de saúde.
 
 O banco foi modelado para servir como base para as APIs Java e .NET do projeto.
 
@@ -12,7 +12,7 @@ O banco foi modelado para servir como base para as APIs Java e .NET do projeto.
 
 O banco de dados tem como objetivo centralizar as informações do ecossistema PetCare Hub, permitindo:
 
-- Cadastro de tutores, clínicas e pets;
+- Cadastro de responsaveis, clínicas e pets;
 - Registro de consultas veterinárias;
 - Controle de protocolos e eventos preventivos;
 - Armazenamento de leituras vindas de dispositivos IoT;
@@ -53,7 +53,6 @@ O PetCare Hub contribui com esse objetivo ao estruturar dados clínicos, prevent
 PETCARE-HUB-DATABASE
 ├── docs
 │   └── modelo-descritivo.md
-├── modelagem
 │   └── arquivos do Oracle Data Modeler
 ├── sql
 │   ├── ddl
@@ -80,12 +79,12 @@ O banco possui 11 tabelas principais:
 
 | Tabela | Descrição |
 |---|---|
-| `TUTOR` | Armazena os responsáveis pelos pets |
+| `RESPONSAVEL` | Armazena os responsáveis pelos pets |
 | `CLINICA` | Armazena as clínicas veterinárias parceiras |
 | `PET` | Armazena os dados dos animais acompanhados |
 | `CONSULTA` | Armazena o histórico de consultas clínicas |
 | `PROTOCOLO_PREVENTIVO` | Armazena regras preventivas por espécie e raça |
-| `EVENTO_PREVENTIVO` | Armazena eventos como vacinas, check-ups e retoarnos |
+| `EVENTO_PREVENTIVO` | Armazena eventos como vacinas, check-ups e retornos |
 | `DISPOSITIVO_IOT` | Armazena dispositivos vinculados aos pets |
 | `LEITURA_SENSOR` | Armazena dados coletados por sensores IoT |
 | `ALERTA_SAUDE` | Armazena alertas gerados por risco |
@@ -97,7 +96,7 @@ O banco possui 11 tabelas principais:
 ## Relacionamentos Principais
 
 ```txt
-TUTOR 1:N PET
+RESPONSAVEL 1:N PET
 
 CLINICA 1:N PET
 
@@ -123,7 +122,7 @@ PET 1:N SCORE_SAUDE
 
 A API Java será responsável pela regra principal do sistema, incluindo:
 
-- Cadastro de tutor;
+- Cadastro do responsavel;
 - Cadastro de clínica;
 - Cadastro de pet;
 - Registro de leituras de sensores;
@@ -134,7 +133,7 @@ A API Java será responsável pela regra principal do sistema, incluindo:
 Entidades esperadas na API Java:
 
 ```txt
-Tutor
+Responsave
 Clinica
 Pet
 Consulta
@@ -329,7 +328,7 @@ Responsável por registrar erros na tabela `LOG_ERROS`.
 ### Procedures de carga
 
 ```txt
-PRC_INS_TUTOR
+PRC_INS_RESPONSAVEIS
 PRC_INS_CLINICA
 PRC_INS_PET
 PRC_INS_CONSULTA
@@ -348,15 +347,6 @@ As procedures recebem dados por parâmetro e possuem tratamento de exceções.
 ## Regras Automáticas Implementadas
 
 Algumas procedures possuem regras de negócio simples para simular o funcionamento do PetCare Hub.
-
-### Leitura de temperatura corporal
-
-Quando uma leitura do tipo `TEMPERATURA_CORPORAL` possui valor maior que `39.5`, o sistema gera um alerta automático:
-
-```txt
-TEMPERATURA_ALTA
-Nível: CRITICO
-```
 
 ### Leitura de nível de ração
 
@@ -385,7 +375,7 @@ O script de inserts cria dados iniciais para testar o banco.
 São cadastrados:
 
 ```txt
-3 tutores
+3 responsaveis
 2 clínicas
 3 pets
 4 protocolos preventivos
@@ -400,7 +390,7 @@ alertas gerados automaticamente
 Após executar a carga, é possível conferir os totais com:
 
 ```sql
-SELECT 'TUTOR' AS tabela, COUNT(*) AS total FROM TUTOR
+SELECT 'RESPONSAVEL' AS tabela, COUNT(*) AS total FROM RESPONSAVEL
 UNION ALL
 SELECT 'CLINICA', COUNT(*) FROM CLINICA
 UNION ALL
@@ -462,7 +452,7 @@ Valor atual
 Próximo valor
 ```
 
-Esse relatório usa as leituras de temperatura corporal do pet Rex.
+Esse relatório usa as leituras de atividade do pet Rex.
 
 ### Relatórios com Cursores Explícitos
 

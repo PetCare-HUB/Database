@@ -116,7 +116,7 @@ CREATE OR REPLACE PROCEDURE prc_ins_pet (
     p_condicoes_cronicas  IN VARCHAR2
 ) AS
     v_total_responsavel  NUMBER;
-    v_total_clinica  NUMBER;
+    v_total_clinica      NUMBER;
 BEGIN
     SELECT COUNT(*)
     INTO v_total_responsavel
@@ -561,10 +561,7 @@ BEGIN
 
     v_status := 'NORMAL';
 
-    IF p_tipo_leitura = 'TEMPERATURA_CORPORAL' AND p_valor > 39.5 THEN
-        v_status := 'CRITICO';
-
-    ELSIF p_tipo_leitura = 'NIVEL_RACAO' AND p_valor < 20 THEN
+    IF p_tipo_leitura = 'NIVEL_RACAO' AND p_valor < 20 THEN
         v_status := 'ATENCAO';
 
     ELSIF p_tipo_leitura = 'QUALIDADE_AR' AND p_valor > 500 THEN
@@ -574,6 +571,9 @@ BEGIN
         v_status := 'ATENCAO';
 
     ELSIF p_tipo_leitura = 'ATIVIDADE' AND p_valor < 20 THEN
+        v_status := 'ATENCAO';
+
+    ELSIF p_tipo_leitura = 'TEMPERATURA_AMBIENTE' AND (p_valor < 10 OR p_valor > 35) THEN
         v_status := 'ATENCAO';
     END IF;
 
@@ -599,34 +599,7 @@ BEGIN
         v_status
     );
 
-    IF p_tipo_leitura = 'TEMPERATURA_CORPORAL' AND p_valor > 39.5 THEN
-        INSERT INTO ALERTA_SAUDE (
-            id_alerta,
-            id_pet,
-            id_leitura,
-            tipo_alerta,
-            nivel_alerta,
-            mensagem,
-            valor_detectado,
-            limite_referencia,
-            resolvido,
-            data_alerta,
-            data_resolucao
-        ) VALUES (
-            seq_alerta_saude.NEXTVAL,
-            p_id_pet,
-            v_id_leitura,
-            'TEMPERATURA_ALTA',
-            'CRITICO',
-            'Temperatura corporal acima do limite recomendado.',
-            p_valor,
-            39.5,
-            'N',
-            SYSTIMESTAMP,
-            NULL
-        );
-
-    ELSIF p_tipo_leitura = 'NIVEL_RACAO' AND p_valor < 20 THEN
+    IF p_tipo_leitura = 'NIVEL_RACAO' AND p_valor < 20 THEN
         INSERT INTO ALERTA_SAUDE (
             id_alerta,
             id_pet,
@@ -648,6 +621,120 @@ BEGIN
             'Nivel de racao abaixo do recomendado.',
             p_valor,
             20,
+            'N',
+            SYSTIMESTAMP,
+            NULL
+        );
+
+    ELSIF p_tipo_leitura = 'ATIVIDADE' AND p_valor < 20 THEN
+        INSERT INTO ALERTA_SAUDE (
+            id_alerta,
+            id_pet,
+            id_leitura,
+            tipo_alerta,
+            nivel_alerta,
+            mensagem,
+            valor_detectado,
+            limite_referencia,
+            resolvido,
+            data_alerta,
+            data_resolucao
+        ) VALUES (
+            seq_alerta_saude.NEXTVAL,
+            p_id_pet,
+            v_id_leitura,
+            'ATIVIDADE_BAIXA',
+            'ALTO',
+            'Nivel de atividade abaixo do esperado.',
+            p_valor,
+            20,
+            'N',
+            SYSTIMESTAMP,
+            NULL
+        );
+
+    ELSIF p_tipo_leitura = 'TEMPERATURA_AMBIENTE' AND (p_valor < 10 OR p_valor > 35) THEN
+        INSERT INTO ALERTA_SAUDE (
+            id_alerta,
+            id_pet,
+            id_leitura,
+            tipo_alerta,
+            nivel_alerta,
+            mensagem,
+            valor_detectado,
+            limite_referencia,
+            resolvido,
+            data_alerta,
+            data_resolucao
+        ) VALUES (
+            seq_alerta_saude.NEXTVAL,
+            p_id_pet,
+            v_id_leitura,
+            'AMBIENTE_INADEQUADO',
+            'MEDIO',
+            'Temperatura ambiente fora da faixa recomendada.',
+            p_valor,
+            CASE
+                WHEN p_valor < 10 THEN 10
+                ELSE 35
+            END,
+            'N',
+            SYSTIMESTAMP,
+            NULL
+        );
+
+    ELSIF p_tipo_leitura = 'QUALIDADE_AR' AND p_valor > 500 THEN
+        INSERT INTO ALERTA_SAUDE (
+            id_alerta,
+            id_pet,
+            id_leitura,
+            tipo_alerta,
+            nivel_alerta,
+            mensagem,
+            valor_detectado,
+            limite_referencia,
+            resolvido,
+            data_alerta,
+            data_resolucao
+        ) VALUES (
+            seq_alerta_saude.NEXTVAL,
+            p_id_pet,
+            v_id_leitura,
+            'QUALIDADE_AR_RUIM',
+            'MEDIO',
+            'Qualidade do ar acima do limite recomendado.',
+            p_valor,
+            500,
+            'N',
+            SYSTIMESTAMP,
+            NULL
+        );
+
+    ELSIF p_tipo_leitura = 'UMIDADE' AND (p_valor < 30 OR p_valor > 80) THEN
+        INSERT INTO ALERTA_SAUDE (
+            id_alerta,
+            id_pet,
+            id_leitura,
+            tipo_alerta,
+            nivel_alerta,
+            mensagem,
+            valor_detectado,
+            limite_referencia,
+            resolvido,
+            data_alerta,
+            data_resolucao
+        ) VALUES (
+            seq_alerta_saude.NEXTVAL,
+            p_id_pet,
+            v_id_leitura,
+            'UMIDADE_INADEQUADA',
+            'MEDIO',
+            'Umidade ambiente fora da faixa recomendada.',
+            p_valor,
+            CASE
+                WHEN p_valor < 30 THEN 30
+                ELSE 80
+            END,
             'N',
             SYSTIMESTAMP,
             NULL

@@ -35,8 +35,8 @@ END;
 
 DECLARE
     v_responsavel_ana    NUMBER;
-    v_responsavel_bruno   NUMBER;
-    v_responsavel_carla   NUMBER;
+    v_responsavel_bruno  NUMBER;
+    v_responsavel_carla  NUMBER;
 
     v_clinica_vida       NUMBER;
     v_clinica_hospital   NUMBER;
@@ -400,54 +400,58 @@ BEGIN
 
     --------------------------------------------------------
     -- 8. LEITURAS DE SENSOR
-    -- Algumas leituras geram alerta automaticamente.
+    -- Leituras de movimento, alimentação e ambiente.
+    -- Não há medição de temperatura corporal do animal.
     --------------------------------------------------------
 
+    -- Leituras de movimento/atividade pela coleira do Rex
     prc_ins_leitura_sensor(
         v_pet_rex,
         v_disp_rex_coleira,
-        'TEMPERATURA_CORPORAL',
-        38.20,
-        'C',
+        'ATIVIDADE',
+        68.00,
+        '%',
         TO_TIMESTAMP('2026-05-01 08:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
     prc_ins_leitura_sensor(
         v_pet_rex,
         v_disp_rex_coleira,
-        'TEMPERATURA_CORPORAL',
-        38.70,
-        'C',
+        'ATIVIDADE',
+        72.00,
+        '%',
         TO_TIMESTAMP('2026-05-01 10:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
     prc_ins_leitura_sensor(
         v_pet_rex,
         v_disp_rex_coleira,
-        'TEMPERATURA_CORPORAL',
-        39.10,
-        'C',
+        'ATIVIDADE',
+        65.00,
+        '%',
         TO_TIMESTAMP('2026-05-01 12:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
+    -- Leituras de temperatura ambiente pelo módulo do comedouro
     prc_ins_leitura_sensor(
         v_pet_rex,
-        v_disp_rex_coleira,
-        'TEMPERATURA_CORPORAL',
-        39.80,
+        v_disp_rex_comedouro,
+        'TEMPERATURA_AMBIENTE',
+        24.50,
         'C',
         TO_TIMESTAMP('2026-05-01 14:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
     prc_ins_leitura_sensor(
         v_pet_rex,
-        v_disp_rex_coleira,
-        'TEMPERATURA_CORPORAL',
-        38.90,
+        v_disp_rex_comedouro,
+        'TEMPERATURA_AMBIENTE',
+        25.10,
         'C',
         TO_TIMESTAMP('2026-05-01 16:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
+    -- Leitura de nível de ração pelo comedouro
     prc_ins_leitura_sensor(
         v_pet_rex,
         v_disp_rex_comedouro,
@@ -457,6 +461,7 @@ BEGIN
         TO_TIMESTAMP('2026-05-01 08:30:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
+    -- Leituras de movimento/atividade dos outros pets
     prc_ins_leitura_sensor(
         v_pet_luna,
         v_disp_luna_coleira,

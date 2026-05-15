@@ -292,7 +292,6 @@ CREATE TABLE LEITURA_SENSOR (
 
     CONSTRAINT ck_leitura_tipo CHECK (
         tipo_leitura IN (
-            'TEMPERATURA_CORPORAL',
             'ATIVIDADE',
             'NIVEL_RACAO',
             'PESO_CONSUMIDO',

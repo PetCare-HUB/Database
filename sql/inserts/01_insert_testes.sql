@@ -63,21 +63,21 @@ BEGIN
         'Ana Souza',
         'ana.souza@email.com',
         '11999990001',
-        '111.111.111-11'
+        '11111111111'
     );
 
     prc_ins_responsavel(
         'Bruno Lima',
         'bruno.lima@email.com',
         '11999990002',
-        '222.222.222-22'
+        '22222222222'
     );
 
     prc_ins_responsavel(
         'Carla Mendes',
         'carla.mendes@email.com',
         '11999990003',
-        '333.333.333-33'
+        '33333333333'
     );
 
     SELECT id_responsavel INTO v_responsavel_ana
@@ -98,7 +98,7 @@ BEGIN
 
     prc_ins_clinica(
         'Clinica Vida Pet',
-        '11.111.111/0001-11',
+        '11111111000111',
         'contato@vidapet.com',
         '1130000001',
         'Rua A, 100'
@@ -106,7 +106,7 @@ BEGIN
 
     prc_ins_clinica(
         'Hospital Animal Care',
-        '22.222.222/0001-22',
+        '22222222000122',
         'contato@animalcare.com',
         '1130000002',
         'Rua B, 200'
@@ -114,11 +114,11 @@ BEGIN
 
     SELECT id_clinica INTO v_clinica_vida
     FROM CLINICA
-    WHERE cnpj = '11.111.111/0001-11';
+    WHERE cnpj = '11111111000111';
 
     SELECT id_clinica INTO v_clinica_hospital
     FROM CLINICA
-    WHERE cnpj = '22.222.222/0001-22';
+    WHERE cnpj = '22222222000122';
 
     --------------------------------------------------------
     -- 3. PETS

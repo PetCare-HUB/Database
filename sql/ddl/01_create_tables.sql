@@ -86,7 +86,7 @@ CREATE TABLE RESPONSAVEL (
     nome           VARCHAR2(100)   NOT NULL,
     email          VARCHAR2(120)   NOT NULL,
     telefone       VARCHAR2(20),
-    cpf            VARCHAR2(14),
+    cpf            VARCHAR2(11),
     data_cadastro  DATE            DEFAULT SYSDATE NOT NULL,
     ativo          CHAR(1)         DEFAULT 'S' NOT NULL,
 
@@ -103,7 +103,7 @@ CREATE TABLE RESPONSAVEL (
 CREATE TABLE CLINICA (
     id_clinica     NUMBER(10)      NOT NULL,
     nome           VARCHAR2(120)   NOT NULL,
-    cnpj           VARCHAR2(18)    NOT NULL,
+    cnpj           VARCHAR2(14)    NOT NULL,
     email          VARCHAR2(120),
     telefone       VARCHAR2(20),
     endereco       VARCHAR2(200),

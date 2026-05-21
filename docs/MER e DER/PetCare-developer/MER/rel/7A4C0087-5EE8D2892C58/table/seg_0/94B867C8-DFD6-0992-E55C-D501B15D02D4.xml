@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
-<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="94B867C8-DFD6-0992-E55C-D501B15D02D4" name="TUTOR">
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="94B867C8-DFD6-0992-E55C-D501B15D02D4" name="RESPONSAVEL">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
 <createdBy>user</createdBy>
 <createdTime>2026-05-11 22:38:41 UTC</createdTime>
@@ -8,7 +8,7 @@
 <existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
 <parsed>true</parsed>
 <columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
-<Column name="id_tutor" id="AC54384F-3674-AE71-9109-E15D365DEE21">
+<Column name="RESPONSAVEL_ID" id="AC54384F-3674-AE71-9109-E15D365DEE21">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
 <createdBy>user</createdBy>
 <createdTime>2026-05-11 22:38:41 UTC</createdTime>
@@ -18,6 +18,7 @@
 <domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
+<notNullConstraintName>NNC_RESPONSAVEL_RESPONSAVEL_ID</notNullConstraintName>
 </Column>
 <Column name="nome" id="075B4B2E-5069-1213-525C-90BE812C0E66">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
@@ -29,6 +30,7 @@
 <domain>EC426F61-4F39-5A9C-31A5-3F0A99AE200E</domain>
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
+<notNullConstraintName>NNC_RESPONSAVEL_nome</notNullConstraintName>
 </Column>
 <Column name="email" id="D912199B-FC63-64A7-8A1B-1A0F4891FFC6">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
@@ -40,6 +42,7 @@
 <domain>D46033E2-3125-6EA9-1AA4-4F7C88BD0FC3</domain>
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
+<notNullConstraintName>NNC_RESPONSAVEL_email</notNullConstraintName>
 </Column>
 <Column name="telefone" id="E1E8E839-9FD8-828F-501C-D3E80CF520C5">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
@@ -76,6 +79,7 @@
 <defaultValue>SYSDATE</defaultValue>
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
+<notNullConstraintName>NNC_RESPONSAVEL_data_cadastro</notNullConstraintName>
 </Column>
 <Column name="ativo" id="120FD9FD-72CC-5C84-5827-23CD4161514E">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
@@ -88,10 +92,11 @@
 <defaultValue>&apos;S&apos;</defaultValue>
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
+<notNullConstraintName>NNC_RESPONSAVEL_ativo</notNullConstraintName>
 </Column>
 </columns>
 <indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
-<ind_PK_UK id="625D268A-AD41-409F-9683-A940A63A0270" name="pk_tutor">
+<ind_PK_UK id="625D268A-AD41-409F-9683-A940A63A0270" name="RESPONSAVEL_PK">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
 <createdBy>user</createdBy>
 <createdTime>2026-05-11 22:38:41 UTC</createdTime>
@@ -103,7 +108,7 @@
 <colUsage columnID="AC54384F-3674-AE71-9109-E15D365DEE21"/>
 </indexColumnUsage>
 </ind_PK_UK>
-<ind_PK_UK id="F9003619-23BC-5B23-7CFC-72752DE87296" name="uk_tutor_email">
+<ind_PK_UK id="F9003619-23BC-5B23-7CFC-72752DE87296" name="RESPONSAVEL_email_UN">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
 <createdBy>user</createdBy>
 <createdTime>2026-05-11 22:38:41 UTC</createdTime>
@@ -114,7 +119,7 @@
 <colUsage columnID="D912199B-FC63-64A7-8A1B-1A0F4891FFC6"/>
 </indexColumnUsage>
 </ind_PK_UK>
-<ind_PK_UK id="352D6745-1AC5-8F81-407F-A0CF0FA47A4E" name="uk_tutor_cpf">
+<ind_PK_UK id="352D6745-1AC5-8F81-407F-A0CF0FA47A4E" name="RESPONSAVEL_cpf_UN">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
 <createdBy>user</createdBy>
 <createdTime>2026-05-11 22:38:41 UTC</createdTime>
@@ -127,7 +132,7 @@
 </ind_PK_UK>
 </indexes>
 <tableCheckConstraints itemClass="oracle.dbtools.crest.model.design.constraint.TableLevelConstraint">
-<tableCheckConstraint name="ck_tutor_ativo" directorySegmentName="seg_0" id="F1B663C7-DB28-006E-FF7C-81C4C9B5C698">
+<tableCheckConstraint name="RESPONSAVEL_CK" directorySegmentName="seg_0" id="F1B663C7-DB28-006E-FF7C-81C4C9B5C698">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
 <createdBy>user</createdBy>
 <createdTime>2026-05-11 22:38:41 UTC</createdTime>

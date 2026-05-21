@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
-<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="23CCDEAB-47DA-DE63-CD2F-8C5890BD10C5" name="TUTOR">
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="23CCDEAB-47DA-DE63-CD2F-8C5890BD10C5" name="RESPONSAVEL">
 <createdBy>user</createdBy>
 <createdTime>2026-05-12 13:41:23 UTC</createdTime>
 <generatorID>94B867C8-DFD6-0992-E55C-D501B15D02D4</generatorID>
@@ -16,7 +16,7 @@
 <minVolumes>0</minVolumes>
 <normalForm>Third</normalForm>
 <attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
-<Attribute name="id tutor" id="2ABDD97C-9711-3B11-62E6-31E0C4D0E2A0">
+<Attribute name="id responsavel" id="2ABDD97C-9711-3B11-62E6-31E0C4D0E2A0">
 <createdBy>user</createdBy>
 <createdTime>2026-05-12 13:41:23 UTC</createdTime>
 <ownerDesignName>MER</ownerDesignName>
@@ -113,7 +113,7 @@
 </Attribute>
 </attributes>
 <identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
-<identifier id="BF00F3FD-C73A-E51F-1A0C-FCDFE6979E0F" name="pk tutor">
+<identifier id="BF00F3FD-C73A-E51F-1A0C-FCDFE6979E0F" name="pk responsavel">
 <createdBy>user</createdBy>
 <createdTime>2026-05-12 13:41:23 UTC</createdTime>
 <generatorID>625D268A-AD41-409F-9683-A940A63A0270</generatorID>
@@ -122,11 +122,12 @@
 <item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
 </engineerTo>
 <pk>true</pk>
+<newElementsIDs>2ABDD97C-9711-3B11-62E6-31E0C4D0E2A0</newElementsIDs>
 <usedAttributes>
 <attributeRef>2ABDD97C-9711-3B11-62E6-31E0C4D0E2A0</attributeRef>
 </usedAttributes>
 </identifier>
-<identifier id="55C1F134-4715-8CDA-E31F-B208E9E4AC41" name="uk tutor email">
+<identifier id="55C1F134-4715-8CDA-E31F-B208E9E4AC41" name="uk responsavel email">
 <createdBy>user</createdBy>
 <createdTime>2026-05-12 13:41:23 UTC</createdTime>
 <generatorID>F9003619-23BC-5B23-7CFC-72752DE87296</generatorID>
@@ -134,11 +135,12 @@
 <engineerTo>
 <item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
 </engineerTo>
+<newElementsIDs>04870789-8EC8-079F-361F-15CAB6518882</newElementsIDs>
 <usedAttributes>
 <attributeRef>04870789-8EC8-079F-361F-15CAB6518882</attributeRef>
 </usedAttributes>
 </identifier>
-<identifier id="B0E22967-DAD1-B911-FDD1-B49D356B58AD" name="uk tutor cpf">
+<identifier id="B0E22967-DAD1-B911-FDD1-B49D356B58AD" name="uk responsavel cpf">
 <createdBy>user</createdBy>
 <createdTime>2026-05-12 13:41:23 UTC</createdTime>
 <generatorID>352D6745-1AC5-8F81-407F-A0CF0FA47A4E</generatorID>
@@ -146,6 +148,7 @@
 <engineerTo>
 <item key="7A4C0087-1128-F466-88C0-5EE8D2892C58" value="true"/>
 </engineerTo>
+<newElementsIDs>66D75EB7-87D1-33C5-BC08-F08A18F43462</newElementsIDs>
 <usedAttributes>
 <attributeRef>66D75EB7-87D1-33C5-BC08-F08A18F43462</attributeRef>
 </usedAttributes>

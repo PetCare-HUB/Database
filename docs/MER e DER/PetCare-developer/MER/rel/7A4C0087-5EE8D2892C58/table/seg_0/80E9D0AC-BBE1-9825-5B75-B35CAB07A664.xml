@@ -19,7 +19,7 @@
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
-<Column name="id_tutor" id="4648DA2C-7A13-17C9-30A6-F744AD5B57B7">
+<Column name="id_responsavel" id="4648DA2C-7A13-17C9-30A6-F744AD5B57B7">
 <sourceDDLFile>01_create_tables.sql</sourceDDLFile>
 <createdBy>user</createdBy>
 <createdTime>2026-05-11 22:38:41 UTC</createdTime>
@@ -166,7 +166,7 @@
 <colUsage columnID="C391B7FA-F0F4-29E3-E7B9-9BB10BC903B2"/>
 </indexColumnUsage>
 </ind_PK_UK>
-<ind_PK_UK id="A8B87D23-3AF6-6B1D-9D04-A6B6E1B496C8" name="fk_pet_tutor">
+<ind_PK_UK id="A8B87D23-3AF6-6B1D-9D04-A6B6E1B496C8" name="fk_pet_responsavel">
 <createdBy>user</createdBy>
 <createdTime>2026-05-11 22:38:41 UTC</createdTime>
 <ownerDesignName>MER</ownerDesignName>

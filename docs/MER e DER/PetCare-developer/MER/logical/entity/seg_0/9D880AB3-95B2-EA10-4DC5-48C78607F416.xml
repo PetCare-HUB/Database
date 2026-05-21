@@ -29,7 +29,7 @@
 <domain>E2A95471-951A-A4C3-AA62-14C47F51353E</domain>
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 </Attribute>
-<Attribute name="id tutor" id="835BE02D-68EF-B725-E213-E9FAF7E5238A">
+<Attribute name="id responsavel" id="835BE02D-68EF-B725-E213-E9FAF7E5238A">
 <createdBy>user</createdBy>
 <createdTime>2026-05-12 13:41:23 UTC</createdTime>
 <generatorID>8B8D8A1B-EC5E-D243-5847-B587D4C1363D</generatorID>

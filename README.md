@@ -328,7 +328,7 @@ Responsável por registrar erros na tabela `LOG_ERROS`.
 ### Procedures de carga
 
 ```txt
-PRC_INS_RESPONSAVEIS
+PRC_INS_RESPONSAVEL
 PRC_INS_CLINICA
 PRC_INS_PET
 PRC_INS_CONSULTA

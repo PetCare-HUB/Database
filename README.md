@@ -77,19 +77,19 @@ PETCARE-HUB-DATABASE
 
 O banco possui 11 tabelas principais:
 
-| Tabela | Descrição |
-|---|---|
-| `RESPONSAVEL` | Armazena os responsavel pelos pets |
-| `CLINICA` | Armazena as clínicas veterinárias parceiras |
-| `PET` | Armazena os dados dos animais acompanhados |
-| `CONSULTA` | Armazena o histórico de consultas clínicas |
-| `PROTOCOLO_PREVENTIVO` | Armazena regras preventivas por espécie e raça |
-| `EVENTO_PREVENTIVO` | Armazena eventos como vacinas, check-ups e retornos |
-| `DISPOSITIVO_IOT` | Armazena dispositivos vinculados aos pets |
-| `LEITURA_SENSOR` | Armazena dados coletados por sensores IoT |
-| `ALERTA_SAUDE` | Armazena alertas gerados por risco |
-| `SCORE_SAUDE` | Armazena o score de saúde calculado do pet |
-| `LOG_ERROS` | Armazena erros gerados durante execução das procedures |
+| Tabela                 | Descrição                                              |
+| ---------------------- | ------------------------------------------------------ |
+| `RESPONSAVEL`          | Armazena os responsavel pelos pets                     |
+| `CLINICA`              | Armazena as clínicas veterinárias parceiras            |
+| `PET`                  | Armazena os dados dos animais acompanhados             |
+| `CONSULTA`             | Armazena o histórico de consultas clínicas             |
+| `PROTOCOLO_PREVENTIVO` | Armazena regras preventivas por espécie e raça         |
+| `EVENTO_PREVENTIVO`    | Armazena eventos como vacinas, check-ups e retornos    |
+| `DISPOSITIVO_IOT`      | Armazena dispositivos vinculados aos pets              |
+| `LEITURA_SENSOR`       | Armazena dados coletados por sensores IoT              |
+| `ALERTA_SAUDE`         | Armazena alertas gerados por risco                     |
+| `SCORE_SAUDE`          | Armazena o score de saúde calculado do pet             |
+| `LOG_ERROS`            | Armazena erros gerados durante execução das procedures |
 
 ---
 
@@ -122,7 +122,8 @@ PET 1:N SCORE_SAUDE
 
 A API Java será responsável pela regra principal do sistema, incluindo:
 
-	- Cadastro do responsavel;
+    - Cadastro do responsavel;
+
 - Cadastro de clínica;
 - Cadastro de pet;
 - Registro de leituras de sensores;
@@ -133,7 +134,7 @@ A API Java será responsável pela regra principal do sistema, incluindo:
 Entidades esperadas na API Java:
 
 ```txt
-Responsave
+Responsavel
 Clinica
 Pet
 Consulta
@@ -382,7 +383,7 @@ São cadastrados:
 5 consultas
 5 eventos preventivos
 4 dispositivos IoT
-8 leituras de sensores
+10 leituras de sensores
 3 scores de saúde
 alertas gerados automaticamente
 ```
@@ -508,10 +509,10 @@ Para a entrega acadêmica, o modelo deverá ser representado também no Oracle D
 
 ## 👥 Integrantes da Equipe
 
-| Nome | RM | Turma | GitHub | LinkedIn |
-|---|---|---|---|---|
+| Nome                           | RM     | Turma  | GitHub                                        | LinkedIn                                                            |
+| ------------------------------ | ------ | ------ | --------------------------------------------- | ------------------------------------------------------------------- |
 | Alexander Dennis Isidro Mamani | 565554 | 2TDSPG | [alex-isidro](https://github.com/alex-isidro) | [LinkedIn](https://www.linkedin.com/in/alexander-dennis-a3b48824b/) |
-| Kelson Zhang | 563748 | 2TDSPG | [KelsonZh0](https://github.com/KelsonZh0) | [LinkedIn](https://www.linkedin.com/in/kelson-zhang-211456323/) |
+| Kelson Zhang                   | 563748 | 2TDSPG | [KelsonZh0](https://github.com/KelsonZh0)     | [LinkedIn](https://www.linkedin.com/in/kelson-zhang-211456323/)     |
 
 ---
 

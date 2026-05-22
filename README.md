@@ -2,7 +2,7 @@
 
 Projeto de banco de dados relacional desenvolvido para o Challenge FIAP 2026 — CLYVO VET.
 
-A proposta do PetCare Hub é apoiar a jornada contínua de cuidado do pet, armazenando dados de responsaveis, clínicas, pets, consultas, protocolos preventivos, dispositivos IoT, leituras de sensores, alertas de saúde e score de saúde.
+A proposta do PetCare Hub é apoiar a jornada contínua de cuidado do pet, armazenando dados de responsavel, clínicas, pets, consultas, protocolos preventivos, dispositivos IoT, leituras de sensores, alertas de saúde e score de saúde.
 
 O banco foi modelado para servir como base para as APIs Java e .NET do projeto.
 
@@ -12,7 +12,7 @@ O banco foi modelado para servir como base para as APIs Java e .NET do projeto.
 
 O banco de dados tem como objetivo centralizar as informações do ecossistema PetCare Hub, permitindo:
 
-- Cadastro de responsaveis, clínicas e pets;
+- Cadastro do responsavel, clínicas e pets;
 - Registro de consultas veterinárias;
 - Controle de protocolos e eventos preventivos;
 - Armazenamento de leituras vindas de dispositivos IoT;
@@ -79,7 +79,7 @@ O banco possui 11 tabelas principais:
 
 | Tabela | Descrição |
 |---|---|
-| `RESPONSAVEL` | Armazena os responsáveis pelos pets |
+| `RESPONSAVEL` | Armazena os responsavel pelos pets |
 | `CLINICA` | Armazena as clínicas veterinárias parceiras |
 | `PET` | Armazena os dados dos animais acompanhados |
 | `CONSULTA` | Armazena o histórico de consultas clínicas |
@@ -122,7 +122,7 @@ PET 1:N SCORE_SAUDE
 
 A API Java será responsável pela regra principal do sistema, incluindo:
 
-- Cadastro do responsavel;
+	- Cadastro do responsavel;
 - Cadastro de clínica;
 - Cadastro de pet;
 - Registro de leituras de sensores;
@@ -375,7 +375,7 @@ O script de inserts cria dados iniciais para testar o banco.
 São cadastrados:
 
 ```txt
-3 responsaveis
+3 responsavel
 2 clínicas
 3 pets
 4 protocolos preventivos

@@ -56,7 +56,7 @@ DECLARE
     v_disp_thor_coleira  NUMBER;
 BEGIN
     --------------------------------------------------------
-    -- 1. RESPONSAVEIS
+    -- 1. RESPONSAVEL
     --------------------------------------------------------
 
     prc_ins_responsavel(
@@ -430,6 +430,24 @@ BEGIN
         65.00,
         '%',
         TO_TIMESTAMP('2026-05-01 12:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+      prc_ins_leitura_sensor(
+        v_pet_rex,
+        v_disp_rex_coleira,
+        'ATIVIDADE',
+        69.00,
+        '%',
+        TO_TIMESTAMP('2026-05-01 14:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_sensor(
+        v_pet_rex,
+        v_disp_rex_coleira,
+        'ATIVIDADE',
+        74.00,
+        '%',
+        TO_TIMESTAMP('2026-05-01 16:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
     -- Leituras de temperatura ambiente pelo módulo do comedouro

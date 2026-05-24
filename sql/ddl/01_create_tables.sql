@@ -101,7 +101,7 @@ CREATE TABLE RESPONSAVEL (
 ------------------------------------------------------------
 
 CREATE TABLE CLINICA (
-    id_clinica     NUMBER(10)      NOT NULL,
+    id_clinica  NUMBER(10)  DEFAULT seq_clinica.NEXTVAL  NOT NULL,
     nome           VARCHAR2(120)   NOT NULL,
     cnpj           VARCHAR2(14)    NOT NULL,
     email          VARCHAR2(120),

@@ -58,7 +58,8 @@ PETCARE-HUB-DATABASE
 │   ├── ddl
 │   │   ├── 01_create_tables.sql
 │   │   ├── 02_create_sequences.sql
-│   │   └── 03_create_indexes.sql
+│   │   ├── 03_create_indexes.sql
+│   │   └── 04_add_defaults_sequences.sql
 │   ├── inserts
 │   │   └── 01_insert_testes.sql
 │   ├── procedures
@@ -122,8 +123,7 @@ PET 1:N SCORE_SAUDE
 
 A API Java será responsável pela regra principal do sistema, incluindo:
 
-    - Cadastro do responsavel;
-
+- Cadastro do responsavel;
 - Cadastro de clínica;
 - Cadastro de pet;
 - Registro de leituras de sensores;
@@ -204,7 +204,17 @@ sql/ddl/03_create_indexes.sql
 
 Cria índices auxiliares para melhorar consultas por chaves estrangeiras e filtros frequentes.
 
-### 4. Criar procedure de log
+### 4. Configurar geração automática de IDs
+
+```txt
+sql/ddl/04_add_defaults_sequences.sql
+```
+
+Adiciona `DEFAULT seq_xxx.NEXTVAL` em cada coluna de chave primária. Isso permite que INSERTs sem ID gerem automaticamente o próximo valor da sequence, o que é especialmente útil para a integração com a API .NET (Entity Framework Core) e para qualquer ORM que delegue a geração de IDs ao banco.
+
+> Esse passo precisa ser executado depois das tabelas e das sequences, pois faz `ALTER TABLE ... MODIFY ... DEFAULT seq_xxx.NEXTVAL` em cada coluna PK.
+
+### 5. Criar procedure de log
 
 ```txt
 sql/procedures/01_log_erros.sql
@@ -212,7 +222,7 @@ sql/procedures/01_log_erros.sql
 
 Cria a procedure `PRC_REGISTRAR_LOG_ERRO`, responsável por salvar erros na tabela `LOG_ERROS`.
 
-### 5. Criar procedures de carga
+### 6. Criar procedures de carga
 
 ```txt
 sql/procedures/02_procedures_carga.sql
@@ -220,7 +230,7 @@ sql/procedures/02_procedures_carga.sql
 
 Cria as procedures de inserção de dados por parâmetro.
 
-### 6. Inserir dados de teste
+### 7. Inserir dados de teste
 
 ```txt
 sql/inserts/01_insert_testes.sql
@@ -228,7 +238,7 @@ sql/inserts/01_insert_testes.sql
 
 Executa a carga inicial de dados usando as procedures.
 
-### 7. Executar relatórios com joins
+### 8. Executar relatórios com joins
 
 ```txt
 sql/relatorios/01_joins_group_order.sql
@@ -236,7 +246,7 @@ sql/relatorios/01_joins_group_order.sql
 
 Executa relatórios com `JOIN`, `GROUP BY` e `ORDER BY`.
 
-### 8. Executar relatório LAG/LEAD
+### 9. Executar relatório LAG/LEAD
 
 ```txt
 sql/relatorios/02_lag_lead.sql
@@ -244,7 +254,7 @@ sql/relatorios/02_lag_lead.sql
 
 Mostra valor anterior, atual e próximo de leituras do sensor.
 
-### 9. Executar relatórios com cursores
+### 10. Executar relatórios com cursores
 
 ```txt
 sql/relatorios/03_cursores.sql
@@ -271,6 +281,23 @@ FROM LOG_ERROS;
 ```
 
 Se a consulta não retornar registros, significa que a carga foi executada sem erros.
+
+Para confirmar que os defaults de sequence foram aplicados corretamente:
+
+```sql
+SELECT table_name, column_name, data_default
+FROM user_tab_columns
+WHERE column_name LIKE 'ID\_%' ESCAPE '\'
+  AND table_name IN (
+    'RESPONSAVEL', 'CLINICA', 'PET', 'CONSULTA',
+    'PROTOCOLO_PREVENTIVO', 'EVENTO_PREVENTIVO',
+    'DISPOSITIVO_IOT', 'LEITURA_SENSOR',
+    'ALERTA_SAUDE', 'SCORE_SAUDE', 'LOG_ERROS'
+  )
+ORDER BY table_name;
+```
+
+Cada linha deve mostrar `seq_xxx.NEXTVAL` na coluna `DATA_DEFAULT`.
 
 ---
 
@@ -482,6 +509,7 @@ Durante os testes, foram validados:
 11 tabelas criadas
 11 sequences criadas
 15 índices criados
+DEFAULT seq_xxx.NEXTVAL aplicado nas 11 colunas de PK
 1 procedure de log criada
 10 procedures de carga criadas
 Dados de teste inseridos com sucesso

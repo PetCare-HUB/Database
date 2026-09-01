@@ -16,22 +16,22 @@ SET SERVEROUTPUT ON;
 DECLARE
 BEGIN
     DBMS_OUTPUT.PUT_LINE('====================================================');
-    DBMS_OUTPUT.PUT_LINE('RELATÓRIO 1 - TOTAL DE PETS POR CLÍNICA, RESPONSÁVEL E ESPÉCIE');
+    DBMS_OUTPUT.PUT_LINE('RELATÓRIO 1 - TOTAL DE PETS POR CLÍNICA, TUTOR E ESPÉCIE');
     DBMS_OUTPUT.PUT_LINE('====================================================');
  
     FOR r IN (
         SELECT
             c.nome AS clinica,
-            resp.nome AS responsavel,
+            resp.nome AS tutor,
             p.especie,
             COUNT(DISTINCT p.id_pet) AS total_pets,
             COUNT(DISTINCT co.id_consulta) AS total_consultas
         FROM CLINICA c
         JOIN PET p 
             ON p.id_clinica = c.id_clinica
-        JOIN RESPONSAVEL resp 
-            ON resp.id_responsavel = p.id_responsavel
-        JOIN CONSULTA co 
+        JOIN TUTOR resp
+            ON resp.id_tutor = p.id_tutor
+        JOIN CONSULTA co
             ON co.id_pet = p.id_pet
         GROUP BY 
             c.nome,
@@ -44,7 +44,7 @@ BEGIN
     ) LOOP
         DBMS_OUTPUT.PUT_LINE(
             'Clínica: ' || r.clinica ||
-            ' | Responsável: ' || r.responsavel ||
+            ' | Tutor: ' || r.tutor ||
             ' | Espécie: ' || r.especie ||
             ' | Total de pets: ' || r.total_pets ||
             ' | Total de consultas: ' || r.total_consultas
@@ -53,24 +53,24 @@ BEGIN
  
     DBMS_OUTPUT.PUT_LINE(CHR(10));
     DBMS_OUTPUT.PUT_LINE('====================================================');
-    DBMS_OUTPUT.PUT_LINE('RELATÓRIO 2 - TOTAL DE CONSULTAS POR CLÍNICA, RESPONSÁVEL E TIPO');
+    DBMS_OUTPUT.PUT_LINE('RELATÓRIO 2 - TOTAL DE CONSULTAS POR CLÍNICA, TUTOR E TIPO');
     DBMS_OUTPUT.PUT_LINE('====================================================');
  
     FOR r IN (
         SELECT
             c.nome AS clinica,
-            resp.nome AS responsavel,
+            resp.nome AS tutor,
             co.tipo_consulta,
             COUNT(co.id_consulta) AS total_consultas,
             SUM(co.valor) AS valor_total
         FROM CLINICA c
         JOIN CONSULTA co 
             ON co.id_clinica = c.id_clinica
-        JOIN PET p 
+        JOIN PET p
             ON p.id_pet = co.id_pet
-        JOIN RESPONSAVEL resp 
-            ON resp.id_responsavel = p.id_responsavel
-        GROUP BY 
+        JOIN TUTOR resp
+            ON resp.id_tutor = p.id_tutor
+        GROUP BY
             c.nome,
             resp.nome,
             co.tipo_consulta
@@ -80,7 +80,7 @@ BEGIN
     ) LOOP
         DBMS_OUTPUT.PUT_LINE(
             'Clínica: ' || r.clinica ||
-            ' | Responsável: ' || r.responsavel ||
+            ' | Tutor: ' || r.tutor ||
             ' | Tipo: ' || r.tipo_consulta ||
             ' | Total: ' || r.total_consultas ||
             ' | Valor total: R$ ' || NVL(r.valor_total, 0)
@@ -89,22 +89,22 @@ BEGIN
  
     DBMS_OUTPUT.PUT_LINE(CHR(10));
     DBMS_OUTPUT.PUT_LINE('====================================================');
-    DBMS_OUTPUT.PUT_LINE('RELATÓRIO 3 - MÉDIA DE SCORE POR CLÍNICA, RESPONSÁVEL E ESPÉCIE');
+    DBMS_OUTPUT.PUT_LINE('RELATÓRIO 3 - MÉDIA DE SCORE POR CLÍNICA, TUTOR E ESPÉCIE');
     DBMS_OUTPUT.PUT_LINE('====================================================');
  
     FOR r IN (
         SELECT
             c.nome AS clinica,
-            resp.nome AS responsavel,
+            resp.nome AS tutor,
             p.especie,
             ROUND(AVG(s.score_total), 2) AS media_score,
             COUNT(DISTINCT p.id_pet) AS total_pets
         FROM CLINICA c
         JOIN PET p 
             ON p.id_clinica = c.id_clinica
-        JOIN RESPONSAVEL resp 
-            ON resp.id_responsavel = p.id_responsavel
-        JOIN SCORE_SAUDE s 
+        JOIN TUTOR resp
+            ON resp.id_tutor = p.id_tutor
+        JOIN SCORE_SAUDE s
             ON s.id_pet = p.id_pet
         GROUP BY 
             c.nome,
@@ -115,7 +115,7 @@ BEGIN
     ) LOOP
         DBMS_OUTPUT.PUT_LINE(
             'Clínica: ' || r.clinica ||
-            ' | Responsável: ' || r.responsavel ||
+            ' | Tutor: ' || r.tutor ||
             ' | Espécie: ' || r.especie ||
             ' | Média de score: ' || r.media_score ||
             ' | Total de pets avaliados: ' || r.total_pets
@@ -131,21 +131,21 @@ END;
 DECLARE
 BEGIN
     DBMS_OUTPUT.PUT_LINE('====================================================');
-    DBMS_OUTPUT.PUT_LINE('RELATÓRIO 4 - ALERTAS ABERTOS POR CLÍNICA, RESPONSÁVEL E NÍVEL');
+    DBMS_OUTPUT.PUT_LINE('RELATÓRIO 4 - ALERTAS ABERTOS POR CLÍNICA, TUTOR E NÍVEL');
     DBMS_OUTPUT.PUT_LINE('====================================================');
  
     FOR r IN (
         SELECT
             c.nome AS clinica,
-            resp.nome AS responsavel,
+            resp.nome AS tutor,
             a.nivel_alerta,
             COUNT(a.id_alerta) AS total_alertas
         FROM CLINICA c
         JOIN PET p 
             ON p.id_clinica = c.id_clinica
-        JOIN RESPONSAVEL resp 
-            ON resp.id_responsavel = p.id_responsavel
-        JOIN ALERTA_SAUDE a 
+        JOIN TUTOR resp
+            ON resp.id_tutor = p.id_tutor
+        JOIN ALERTA_SAUDE a
             ON a.id_pet = p.id_pet
         WHERE a.resolvido = 'N'
         GROUP BY 
@@ -157,7 +157,7 @@ BEGIN
     ) LOOP
         DBMS_OUTPUT.PUT_LINE(
             'Clínica: ' || r.clinica ||
-            ' | Responsável: ' || r.responsavel ||
+            ' | Tutor: ' || r.tutor ||
             ' | Nível: ' || r.nivel_alerta ||
             ' | Total de alertas: ' || r.total_alertas
         );
@@ -171,16 +171,16 @@ BEGIN
     FOR r IN (
         SELECT
             c.nome AS clinica,
-            resp.nome AS responsavel,
+            resp.nome AS tutor,
             p.nome AS pet,
             ep.status,
             COUNT(ep.id_evento) AS total_eventos
         FROM CLINICA c
         JOIN PET p 
             ON p.id_clinica = c.id_clinica
-        JOIN RESPONSAVEL resp 
-            ON resp.id_responsavel = p.id_responsavel
-        JOIN EVENTO_PREVENTIVO ep 
+        JOIN TUTOR resp
+            ON resp.id_tutor = p.id_tutor
+        JOIN EVENTO_PREVENTIVO ep
             ON ep.id_pet = p.id_pet
         GROUP BY 
             c.nome,
@@ -194,7 +194,7 @@ BEGIN
     ) LOOP
         DBMS_OUTPUT.PUT_LINE(
             'Clínica: ' || r.clinica ||
-            ' | Responsável: ' || r.responsavel ||
+            ' | Tutor: ' || r.tutor ||
             ' | Pet: ' || r.pet ||
             ' | Status: ' || r.status ||
             ' | Total de eventos: ' || r.total_eventos
@@ -209,7 +209,7 @@ BEGIN
     FOR r IN (
         SELECT
             c.nome AS clinica,
-            resp.nome AS responsavel,
+            resp.nome AS tutor,
             p.nome AS pet,
             ls.tipo_leitura,
             COUNT(ls.id_leitura) AS total_leituras,
@@ -217,9 +217,9 @@ BEGIN
         FROM CLINICA c
         JOIN PET p 
             ON p.id_clinica = c.id_clinica
-        JOIN RESPONSAVEL resp 
-            ON resp.id_responsavel = p.id_responsavel
-        JOIN LEITURA_SENSOR ls 
+        JOIN TUTOR resp
+            ON resp.id_tutor = p.id_tutor
+        JOIN LEITURA_SENSOR ls
             ON ls.id_pet = p.id_pet
         GROUP BY 
             c.nome,
@@ -233,7 +233,7 @@ BEGIN
     ) LOOP
         DBMS_OUTPUT.PUT_LINE(
             'Clínica: ' || r.clinica ||
-            ' | Responsável: ' || r.responsavel ||
+            ' | Tutor: ' || r.tutor ||
             ' | Pet: ' || r.pet ||
             ' | Tipo leitura: ' || r.tipo_leitura ||
             ' | Total: ' || r.total_leituras ||

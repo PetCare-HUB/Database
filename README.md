@@ -2,7 +2,7 @@
 
 Projeto de banco de dados relacional desenvolvido para o Challenge FIAP 2026 — CLYVO VET.
 
-A proposta do PetCare Hub é apoiar a jornada contínua de cuidado do pet, armazenando dados de responsavel, clínicas, pets, consultas, protocolos preventivos, dispositivos IoT, leituras de sensores, alertas de saúde e score de saúde.
+A proposta do PetCare Hub é apoiar a jornada contínua de cuidado do pet, armazenando dados de tutor, clínicas, pets, consultas, protocolos preventivos, dispositivos IoT, leituras de sensores, alertas de saúde e score de saúde.
 
 O banco foi modelado para servir como base para as APIs Java e .NET do projeto.
 
@@ -12,12 +12,14 @@ O banco foi modelado para servir como base para as APIs Java e .NET do projeto.
 
 O banco de dados tem como objetivo centralizar as informações do ecossistema PetCare Hub, permitindo:
 
-- Cadastro do responsavel, clínicas e pets;
+- Cadastro do tutor, clínicas e pets;
+- Autenticação do tutor e da clínica (senha e status de acesso);
 - Registro de consultas veterinárias;
 - Controle de protocolos e eventos preventivos;
 - Armazenamento de leituras vindas de dispositivos IoT;
 - Geração de alertas de saúde;
 - Registro do score de saúde do pet;
+- Auditoria automática das mudanças no cadastro do tutor;
 - Criação de relatórios analíticos para acompanhamento clínico;
 - Registro de erros ocorridos nas procedures PL/SQL.
 
@@ -39,6 +41,8 @@ O PetCare Hub contribui com esse objetivo ao estruturar dados clínicos, prevent
 - SQL
 - PL/SQL
 - Procedures
+- Triggers
+- Functions
 - Sequences
 - Constraints
 - Indexes
@@ -59,12 +63,20 @@ PETCARE-HUB-DATABASE
 │   │   ├── 01_create_tables.sql
 │   │   ├── 02_create_sequences.sql
 │   │   ├── 03_create_indexes.sql
-│   │   └── 04_add_defaults_sequences.sql
+│   │   ├── 04_add_defaults_sequences.sql
+│   │   ├── 05_rename_responsavel_to_tutor.sql
+│   │   ├── 06_add_auth_fields.sql
+│   │   └── 07_fix_defaults_sequences.sql
 │   ├── inserts
 │   │   └── 01_insert_testes.sql
 │   ├── procedures
 │   │   ├── 01_log_erros.sql
-│   │   └── 02_procedures_carga.sql
+│   │   ├── 02_procedures_carga.sql
+│   │   └── 03_prc_ins_tutor.sql
+│   ├── triggers
+│   │   └── 01_trg_auditoria_tutor.sql
+│   ├── functions
+│   │   └── 01_functions.sql
 │   └── relatorios
 │       ├── 01_joins_group_order.sql
 │       ├── 02_lag_lead.sql
@@ -76,28 +88,31 @@ PETCARE-HUB-DATABASE
 
 ## Modelo de Dados
 
-O banco possui 11 tabelas principais:
+O banco possui 12 tabelas:
 
-| Tabela                 | Descrição                                              |
-| ---------------------- | ------------------------------------------------------ |
-| `RESPONSAVEL`          | Armazena os responsavel pelos pets                     |
-| `CLINICA`              | Armazena as clínicas veterinárias parceiras            |
-| `PET`                  | Armazena os dados dos animais acompanhados             |
-| `CONSULTA`             | Armazena o histórico de consultas clínicas             |
-| `PROTOCOLO_PREVENTIVO` | Armazena regras preventivas por espécie e raça         |
-| `EVENTO_PREVENTIVO`    | Armazena eventos como vacinas, check-ups e retornos    |
-| `DISPOSITIVO_IOT`      | Armazena dispositivos vinculados aos pets              |
-| `LEITURA_SENSOR`       | Armazena dados coletados por sensores IoT              |
-| `ALERTA_SAUDE`         | Armazena alertas gerados por risco                     |
-| `SCORE_SAUDE`          | Armazena o score de saúde calculado do pet             |
-| `LOG_ERROS`            | Armazena erros gerados durante execução das procedures |
+| Tabela                 | Descrição                                                          |
+| ---------------------- | ------------------------------------------------------------------- |
+| `TUTOR`                | Armazena os tutores dos pets, incluindo credenciais de acesso ao app |
+| `CLINICA`              | Armazena as clínicas veterinárias parceiras, incluindo credenciais  |
+| `PET`                  | Armazena os dados dos animais acompanhados                          |
+| `CONSULTA`             | Armazena o histórico de consultas clínicas                          |
+| `PROTOCOLO_PREVENTIVO` | Armazena regras preventivas por espécie e raça                      |
+| `EVENTO_PREVENTIVO`    | Armazena eventos como vacinas, check-ups e retornos                  |
+| `DISPOSITIVO_IOT`      | Armazena dispositivos vinculados aos pets                            |
+| `LEITURA_SENSOR`       | Armazena dados coletados por sensores IoT                            |
+| `ALERTA_SAUDE`         | Armazena alertas gerados por risco                                   |
+| `SCORE_SAUDE`          | Armazena o score de saúde calculado do pet                           |
+| `LOG_ERROS`            | Armazena erros gerados durante execução das procedures               |
+| `AUDITORIA_TUTOR`      | Armazena o histórico de INSERT/UPDATE/DELETE feitos em `TUTOR`       |
+
+> A tabela se chamava `RESPONSAVEL` originalmente e foi renomeada para `TUTOR` para alinhar com a terminologia usada no restante do produto (app, Java, .NET).
 
 ---
 
 ## Relacionamentos Principais
 
 ```txt
-RESPONSAVEL 1:N PET
+TUTOR 1:N PET
 
 CLINICA 1:N PET
 
@@ -115,7 +130,56 @@ PET 1:N ALERTA_SAUDE
 LEITURA_SENSOR 0:N ALERTA_SAUDE
 
 PET 1:N SCORE_SAUDE
+
+TUTOR 1:N AUDITORIA_TUTOR
 ```
+
+---
+
+## Autenticação (Tutor e Clínica)
+
+O app é fechado: não existe autocadastro livre de tutor. O fluxo é:
+
+1. A **clínica pré-cadastra o tutor** (nome, e-mail, telefone, CPF) via `prc_ins_tutor`. O registro nasce com `status_acesso = 'PRE_CADASTRADO'` e `senha_hash` nulo.
+2. O tutor baixa o app e **ativa a conta**, informando CPF + e-mail + nome batendo com o pré-cadastro e criando uma senha. Isso atualiza `senha_hash` e muda `status_acesso` para `'ATIVO'`.
+3. `status_acesso` também pode assumir `'BLOQUEADO'` ou `'INATIVO'`.
+
+Não existe uma entidade `Usuario` separada — a própria tabela `TUTOR` (e a própria `CLINICA`) armazena dado pessoal e credencial juntos. O papel do usuário (tutor vs. clínica) é decidido em tempo de login pela tabela onde o e-mail bateu, não por um campo salvo.
+
+Campos adicionados:
+
+```txt
+TUTOR.senha_hash      VARCHAR2(255)  -- nulo até a ativação
+TUTOR.status_acesso   VARCHAR2(20)   -- PRE_CADASTRADO | ATIVO | BLOQUEADO | INATIVO
+CLINICA.senha_hash    VARCHAR2(255)  -- preenchido na criação, sem fluxo de ativação
+```
+
+---
+
+## Trigger de Auditoria (30 pts)
+
+Arquivo: `sql/triggers/01_trg_auditoria_tutor.sql`
+
+O trigger `TRG_AUDITORIA_TUTOR` dispara `AFTER INSERT OR UPDATE OR DELETE ON TUTOR`, `FOR EACH ROW`, e grava em `AUDITORIA_TUTOR`:
+
+- Operação (`INSERT`, `UPDATE` ou `DELETE`);
+- Usuário do banco que executou (`USER`);
+- Data e hora (`SYSTIMESTAMP`);
+- `status_acesso` antes e depois;
+- `email` antes e depois.
+
+Esse trigger captura o momento mais importante do fluxo de negócio: a ativação de conta do tutor (`PRE_CADASTRADO` → `ATIVO`), com prova de quem mudou, quando, e o estado antes/depois.
+
+---
+
+## Functions Implementadas
+
+Arquivo: `sql/functions/01_functions.sql`
+
+| Function                                 | Retorno                                                     |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| `fn_calcular_idade_pet(p_id_pet)`         | Idade do pet em meses, calculada a partir de `data_nascimento` |
+| `fn_score_medio_pet(p_id_pet, p_dias)`    | Score de saúde médio do pet nos últimos N dias                |
 
 ---
 
@@ -123,7 +187,8 @@ PET 1:N SCORE_SAUDE
 
 A API Java será responsável pela regra principal do sistema, incluindo:
 
-- Cadastro do responsavel;
+- Autenticação de tutor e clínica;
+- Cadastro do tutor (pré-cadastro feito pela clínica) e ativação de conta;
 - Cadastro de clínica;
 - Cadastro de pet;
 - Registro de leituras de sensores;
@@ -134,7 +199,7 @@ A API Java será responsável pela regra principal do sistema, incluindo:
 Entidades esperadas na API Java:
 
 ```txt
-Responsavel
+Tutor
 Clinica
 Pet
 Consulta
@@ -146,11 +211,13 @@ AlertaSaude
 ScoreSaude
 ```
 
+> A entidade JPA deve se chamar `Tutor`, mapeada para a tabela `tutor`, com a coluna de PK `id_tutor`.
+
 ---
 
 ## Integração com .NET
 
-A API .NET será usada como base para o dashboard da clínica.
+A API .NET será usada como base para o dashboard da clínica (B2B).
 
 Ela poderá consultar:
 
@@ -161,6 +228,8 @@ Ela poderá consultar:
 - Eventos preventivos;
 - Scores de saúde;
 - Métricas por clínica.
+
+O cadastro de clínica é feito direto pelo .NET via EF Core. O cadastro de tutor é feito via chamada HTTP para a API Java, para não duplicar regra de negócio.
 
 Entidades principais esperadas na API .NET:
 
@@ -186,7 +255,7 @@ Execute os arquivos nesta ordem no Oracle SQL Developer:
 sql/ddl/01_create_tables.sql
 ```
 
-Cria as 11 tabelas principais do banco.
+Cria as 11 tabelas principais do banco (com o nome original `RESPONSAVEL`).
 
 ### 2. Criar sequences
 
@@ -212,9 +281,31 @@ sql/ddl/04_add_defaults_sequences.sql
 
 Adiciona `DEFAULT seq_xxx.NEXTVAL` em cada coluna de chave primária. Isso permite que INSERTs sem ID gerem automaticamente o próximo valor da sequence, o que é especialmente útil para a integração com a API .NET (Entity Framework Core) e para qualquer ORM que delegue a geração de IDs ao banco.
 
-> Esse passo precisa ser executado depois das tabelas e das sequences, pois faz `ALTER TABLE ... MODIFY ... DEFAULT seq_xxx.NEXTVAL` em cada coluna PK.
+### 5. Renomear RESPONSAVEL para TUTOR
 
-### 5. Criar procedure de log
+```txt
+sql/ddl/05_rename_responsavel_to_tutor.sql
+```
+
+Renomeia a tabela `RESPONSAVEL` para `TUTOR`, a coluna de PK, as constraints, a FK em `PET` e a sequence `seq_responsavel` → `seq_tutor`.
+
+### 6. Adicionar campos de autenticação
+
+```txt
+sql/ddl/06_add_auth_fields.sql
+```
+
+Adiciona `senha_hash` e `status_acesso` em `TUTOR`, e `senha_hash` em `CLINICA`.
+
+### 7. Corrigir defaults de sequence
+
+```txt
+sql/ddl/07_fix_defaults_sequences.sql
+```
+
+Reaplica `DEFAULT seq_xxx.NEXTVAL` em todas as colunas de PK. É obrigatório rodar esse passo depois do rename (passo 5), porque renomear a sequence invalida o `DEFAULT` configurado no passo 4.
+
+### 8. Criar procedure de log
 
 ```txt
 sql/procedures/01_log_erros.sql
@@ -222,15 +313,39 @@ sql/procedures/01_log_erros.sql
 
 Cria a procedure `PRC_REGISTRAR_LOG_ERRO`, responsável por salvar erros na tabela `LOG_ERROS`.
 
-### 6. Criar procedures de carga
+### 9. Criar procedure de cadastro do tutor
+
+```txt
+sql/procedures/03_prc_ins_tutor.sql
+```
+
+Cria a procedure `PRC_INS_TUTOR` (pré-cadastro do tutor, feito pela clínica, sem senha) e remove a antiga `PRC_INS_RESPONSAVEL`.
+
+### 10. Criar procedures de carga
 
 ```txt
 sql/procedures/02_procedures_carga.sql
 ```
 
-Cria as procedures de inserção de dados por parâmetro.
+Cria as demais procedures de inserção de dados por parâmetro (`PRC_INS_CLINICA`, `PRC_INS_PET`, etc.).
 
-### 7. Inserir dados de teste
+### 11. Criar trigger de auditoria
+
+```txt
+sql/triggers/01_trg_auditoria_tutor.sql
+```
+
+Cria a tabela `AUDITORIA_TUTOR`, a sequence dela e o trigger `TRG_AUDITORIA_TUTOR`.
+
+### 12. Criar functions
+
+```txt
+sql/functions/01_functions.sql
+```
+
+Cria `fn_calcular_idade_pet` e `fn_score_medio_pet`.
+
+### 13. Inserir dados de teste
 
 ```txt
 sql/inserts/01_insert_testes.sql
@@ -238,7 +353,7 @@ sql/inserts/01_insert_testes.sql
 
 Executa a carga inicial de dados usando as procedures.
 
-### 8. Executar relatórios com joins
+### 14. Executar relatórios com joins
 
 ```txt
 sql/relatorios/01_joins_group_order.sql
@@ -246,7 +361,7 @@ sql/relatorios/01_joins_group_order.sql
 
 Executa relatórios com `JOIN`, `GROUP BY` e `ORDER BY`.
 
-### 9. Executar relatório LAG/LEAD
+### 15. Executar relatório LAG/LEAD
 
 ```txt
 sql/relatorios/02_lag_lead.sql
@@ -254,7 +369,7 @@ sql/relatorios/02_lag_lead.sql
 
 Mostra valor anterior, atual e próximo de leituras do sensor.
 
-### 10. Executar relatórios com cursores
+### 16. Executar relatórios com cursores
 
 ```txt
 sql/relatorios/03_cursores.sql
@@ -269,9 +384,9 @@ Executa relatórios com cursores explícitos e tomada de decisão.
 1. Abra o Oracle SQL Developer.
 2. Conecte-se ao banco Oracle.
 3. Abra cada arquivo `.sql` na ordem correta.
-4. Execute usando `F5`, para rodar como script.
-5. Verifique a aba `Script Output`.
-6. Confirme se não existem erros na tabela `LOG_ERROS`.
+4. Selecione todo o conteúdo do arquivo (`Ctrl+A`) e execute usando **F5** (Run Script) — não use `Ctrl+Enter` (Run Statement), que roda só a instrução onde o cursor está.
+5. Verifique a aba `Script Output` (não `Query Result`) e confira que não apareceu nenhum `ORA-`.
+6. Só então avance para o próximo arquivo.
 
 Consulta para verificar erros:
 
@@ -289,7 +404,7 @@ SELECT table_name, column_name, data_default
 FROM user_tab_columns
 WHERE column_name LIKE 'ID\_%' ESCAPE '\'
   AND table_name IN (
-    'RESPONSAVEL', 'CLINICA', 'PET', 'CONSULTA',
+    'TUTOR', 'CLINICA', 'PET', 'CONSULTA',
     'PROTOCOLO_PREVENTIVO', 'EVENTO_PREVENTIVO',
     'DISPOSITIVO_IOT', 'LEITURA_SENSOR',
     'ALERTA_SAUDE', 'SCORE_SAUDE', 'LOG_ERROS'
@@ -299,11 +414,30 @@ ORDER BY table_name;
 
 Cada linha deve mostrar `seq_xxx.NEXTVAL` na coluna `DATA_DEFAULT`.
 
+Para validar o trigger de auditoria de ponta a ponta:
+
+```sql
+EXEC prc_ins_tutor('Teste Final', 'teste.final@petcare.com', '11988887777', '11122233344');
+SELECT id_tutor, nome, status_acesso, senha_hash FROM TUTOR WHERE email = 'teste.final@petcare.com';
+UPDATE TUTOR SET senha_hash = 'hash_fake_teste', status_acesso = 'ATIVO' WHERE email = 'teste.final@petcare.com';
+COMMIT;
+SELECT * FROM AUDITORIA_TUTOR ORDER BY data_hora DESC;
+```
+
+Deve aparecer uma linha com `operacao = UPDATE`, `status_anterior = PRE_CADASTRADO` e `status_novo = ATIVO`.
+
 ---
 
 ## Validações e Constraints
 
 O banco utiliza constraints para garantir integridade dos dados.
+
+### Tutor
+
+```txt
+status_acesso: PRE_CADASTRADO, ATIVO, BLOQUEADO ou INATIVO
+ativo: S ou N
+```
 
 ### Pet
 
@@ -341,6 +475,12 @@ score_total: valor entre 0 e 100
 categoria: VERDE, AMARELO ou VERMELHO
 ```
 
+### Auditoria Tutor
+
+```txt
+operacao: INSERT, UPDATE ou DELETE
+```
+
 ---
 
 ## Procedures Criadas
@@ -353,10 +493,17 @@ PRC_REGISTRAR_LOG_ERRO
 
 Responsável por registrar erros na tabela `LOG_ERROS`.
 
+### Procedure de cadastro do tutor
+
+```txt
+PRC_INS_TUTOR
+```
+
+Pré-cadastra o tutor (feito pela clínica) com `status_acesso = 'PRE_CADASTRADO'`.
+
 ### Procedures de carga
 
 ```txt
-PRC_INS_RESPONSAVEL
 PRC_INS_CLINICA
 PRC_INS_PET
 PRC_INS_CONSULTA
@@ -394,6 +541,10 @@ SCORE_BAIXO
 Nível: ALTO
 ```
 
+### Ativação de conta do tutor
+
+Quando `status_acesso` do tutor muda, o trigger `TRG_AUDITORIA_TUTOR` registra automaticamente a mudança em `AUDITORIA_TUTOR`.
+
 ---
 
 ## Dados de Teste
@@ -403,7 +554,7 @@ O script de inserts cria dados iniciais para testar o banco.
 São cadastrados:
 
 ```txt
-3 responsavel
+3 tutores
 2 clínicas
 3 pets
 4 protocolos preventivos
@@ -418,7 +569,7 @@ alertas gerados automaticamente
 Após executar a carga, é possível conferir os totais com:
 
 ```sql
-SELECT 'RESPONSAVEL' AS tabela, COUNT(*) AS total FROM RESPONSAVEL
+SELECT 'TUTOR' AS tabela, COUNT(*) AS total FROM TUTOR
 UNION ALL
 SELECT 'CLINICA', COUNT(*) FROM CLINICA
 UNION ALL
@@ -456,12 +607,12 @@ sql/relatorios/01_joins_group_order.sql
 Relatórios incluídos:
 
 ```txt
-Total de pets por clínica e espécie
-Total de consultas por clínica e tipo
-Média de score por clínica
-Alertas abertos por clínica e nível
-Eventos preventivos por pet e status
-Leituras por pet e tipo
+Total de pets por clínica, tutor e espécie
+Total de consultas por clínica, tutor e tipo
+Média de score por clínica, tutor e espécie
+Alertas abertos por clínica, tutor e nível
+Eventos preventivos por clínica, pet e status
+Leituras por clínica, pet e tipo
 ```
 
 ### Relatório com LAG e LEAD
@@ -506,12 +657,15 @@ Valor de consultas por clínica com subtotal e total geral
 Durante os testes, foram validados:
 
 ```txt
-11 tabelas criadas
-11 sequences criadas
+12 tabelas criadas (11 + AUDITORIA_TUTOR)
+12 sequences criadas (11 + seq_auditoria_tutor)
 15 índices criados
-DEFAULT seq_xxx.NEXTVAL aplicado nas 11 colunas de PK
+DEFAULT seq_xxx.NEXTVAL aplicado/corrigido nas 11 colunas de PK
 1 procedure de log criada
-10 procedures de carga criadas
+1 procedure de cadastro de tutor criada
+9 procedures de carga criadas
+1 trigger de auditoria criado e validado (INSERT/UPDATE/DELETE)
+2 functions criadas
 Dados de teste inseridos com sucesso
 Relatórios executados com sucesso
 ```
@@ -533,12 +687,14 @@ Para a entrega acadêmica, o modelo deverá ser representado também no Oracle D
 - Constraints;
 - DDL gerado pelo Data Modeler.
 
+> O modelo no Data Modeler ainda precisa ser atualizado para refletir o rename `TUTOR` e os novos campos/objetos (auth, trigger, functions).
+
 ---
 
 ## 👥 Integrantes da Equipe
 
 | Nome                           | RM     | Turma  | GitHub                                        | LinkedIn                                                            |
-| ------------------------------ | ------ | ------ | --------------------------------------------- | ------------------------------------------------------------------- |
+| ------------------------------- | ------ | ------ | ----------------------------------------------- | ---------------------------------------------------------------------- |
 | Alexander Dennis Isidro Mamani | 565554 | 2TDSPG | [alex-isidro](https://github.com/alex-isidro) | [LinkedIn](https://www.linkedin.com/in/alexander-dennis-a3b48824b/) |
 | Kelson Zhang                   | 563748 | 2TDSPG | [KelsonZh0](https://github.com/KelsonZh0)     | [LinkedIn](https://www.linkedin.com/in/kelson-zhang-211456323/)     |
 
@@ -547,7 +703,11 @@ Para a entrega acadêmica, o modelo deverá ser representado também no Oracle D
 ## Status do Projeto
 
 ```txt
-Banco de dados: concluído para Sprint 1
+Banco de dados: concluído para Sprint 3
+Rename RESPONSAVEL -> TUTOR: concluído
+Campos de autenticação (senha_hash / status_acesso): concluído
+Trigger de auditoria: concluído e validado
+Functions: concluídas
 Scripts SQL: concluídos
 Carga de teste: concluída
 Relatórios: concluídos

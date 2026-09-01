@@ -20,7 +20,7 @@ BEGIN
     DELETE FROM PET;
     DELETE FROM PROTOCOLO_PREVENTIVO;
     DELETE FROM CLINICA;
-    DELETE FROM RESPONSAVEL;
+    DELETE FROM TUTOR;
     DELETE FROM LOG_ERROS;
 
     COMMIT;
@@ -34,9 +34,9 @@ END;
 ------------------------------------------------------------
 
 DECLARE
-    v_responsavel_ana    NUMBER;
-    v_responsavel_bruno  NUMBER;
-    v_responsavel_carla  NUMBER;
+    v_tutor_ana    NUMBER;
+    v_tutor_bruno  NUMBER;
+    v_tutor_carla  NUMBER;
 
     v_clinica_vida       NUMBER;
     v_clinica_hospital   NUMBER;
@@ -56,40 +56,40 @@ DECLARE
     v_disp_thor_coleira  NUMBER;
 BEGIN
     --------------------------------------------------------
-    -- 1. RESPONSAVEL
+    -- 1. TUTOR
     --------------------------------------------------------
 
-    prc_ins_responsavel(
+    prc_ins_tutor(
         'Ana Souza',
         'ana.souza@email.com',
         '11999990001',
         '11111111111'
     );
 
-    prc_ins_responsavel(
+    prc_ins_tutor(
         'Bruno Lima',
         'bruno.lima@email.com',
         '11999990002',
         '22222222222'
     );
 
-    prc_ins_responsavel(
+    prc_ins_tutor(
         'Carla Mendes',
         'carla.mendes@email.com',
         '11999990003',
         '33333333333'
     );
 
-    SELECT id_responsavel INTO v_responsavel_ana
-    FROM RESPONSAVEL
+    SELECT id_tutor INTO v_tutor_ana
+    FROM TUTOR
     WHERE email = 'ana.souza@email.com';
 
-    SELECT id_responsavel INTO v_responsavel_bruno
-    FROM RESPONSAVEL
+    SELECT id_tutor INTO v_tutor_bruno
+    FROM TUTOR
     WHERE email = 'bruno.lima@email.com';
 
-    SELECT id_responsavel INTO v_responsavel_carla
-    FROM RESPONSAVEL
+    SELECT id_tutor INTO v_tutor_carla
+    FROM TUTOR
     WHERE email = 'carla.mendes@email.com';
 
     --------------------------------------------------------
@@ -125,7 +125,7 @@ BEGIN
     --------------------------------------------------------
 
     prc_ins_pet(
-        v_responsavel_ana,
+        v_tutor_ana,
         v_clinica_vida,
         'Rex',
         'CAO',
@@ -137,7 +137,7 @@ BEGIN
     );
 
     prc_ins_pet(
-        v_responsavel_ana,
+        v_tutor_ana,
         v_clinica_vida,
         'Luna',
         'GATO',
@@ -149,7 +149,7 @@ BEGIN
     );
 
     prc_ins_pet(
-        v_responsavel_bruno,
+        v_tutor_bruno,
         v_clinica_hospital,
         'Thor',
         'CAO',
@@ -541,7 +541,7 @@ END;
 -- CONFERENCIA FINAL
 ------------------------------------------------------------
 
-SELECT 'RESPONSAVEL' AS tabela, COUNT(*) AS total FROM RESPONSAVEL
+SELECT 'TUTOR' AS tabela, COUNT(*) AS total FROM TUTOR
 UNION ALL
 SELECT 'CLINICA', COUNT(*) FROM CLINICA
 UNION ALL

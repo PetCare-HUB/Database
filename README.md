@@ -68,15 +68,18 @@ PETCARE-HUB-DATABASE
 │   │   ├── 06_add_auth_fields.sql
 │   │   └── 07_fix_defaults_sequences.sql
 │   ├── inserts
-│   │   └── 01_insert_testes.sql
+│   │   ├── 01_insert_testes.sql
+│   │   └── 02_insert_extra_sprint3.sql
 │   ├── procedures
 │   │   ├── 01_log_erros.sql
 │   │   ├── 02_procedures_carga.sql
-│   │   └── 03_prc_ins_tutor.sql
+│   │   ├── 03_prc_ins_tutor.sql
+│   │   └── 04_procedures_relatorios_sprint3.sql
 │   ├── triggers
 │   │   └── 01_trg_auditoria_tutor.sql
 │   ├── functions
-│   │   └── 01_functions.sql
+│   │   ├── 01_functions.sql
+│   │   └── 02_functions_json_senha.sql
 │   └── relatorios
 │       ├── 01_joins_group_order.sql
 │       ├── 02_lag_lead.sql
@@ -180,6 +183,46 @@ Arquivo: `sql/functions/01_functions.sql`
 | ----------------------------------------- | ------------------------------------------------------------ |
 | `fn_calcular_idade_pet(p_id_pet)`         | Idade do pet em meses, calculada a partir de `data_nascimento` |
 | `fn_score_medio_pet(p_id_pet, p_dias)`    | Score de saúde médio do pet nos últimos N dias                |
+
+---
+
+## Requisitos da Rubrica Oficial — Sprint 3 (Mastering Relational and Non-Relational Database)
+
+Além do trigger de auditoria e das duas functions de negócio acima, a disciplina de banco de dados da Sprint 3 exige, especificamente, **2 procedures** e **2 functions** com regras próprias (não são as mesmas do produto). Estão implementadas em `sql/functions/02_functions_json_senha.sql` e `sql/procedures/04_procedures_relatorios_sprint3.sql`.
+
+### Função 1 — conversão relacional → JSON manual
+
+```txt
+fn_pet_para_json(p_id_pet, p_nome_pet, p_especie_pet, p_nome_tutor, p_email_tutor, p_nome_clinica)
+```
+
+Monta manualmente (concatenação de string) um objeto JSON a partir dos dados de `PET` + `TUTOR` + `CLINICA`. Não usa `TO_JSON`, `JSON_OBJECT`, `JSON_VALUE` nem nenhuma função built-in de JSON do Oracle (proibido pela rubrica). Trata 4 exceções distintas (`e_id_pet_nulo`, `e_nome_pet_nulo`, `VALUE_ERROR`, `OTHERS`).
+
+### Função 2 — validação de senha (substitui um processo lógico do projeto)
+
+```txt
+fn_validar_forca_senha(p_senha)
+```
+
+Valida a senha usada na ativação de conta do `TUTOR` (mínimo 8 caracteres, com letra e número). Trata 4 exceções distintas (`e_senha_nula`, `e_senha_curta`, `e_senha_sem_numero`, `OTHERS`).
+
+### Procedimento 1 — JOIN + JSON
+
+```txt
+prc_rel_pets_tutor_clinica_json
+```
+
+Faz `JOIN` entre `PET`, `TUTOR` e `CLINICA` e imprime um array JSON, montado chamando `fn_pet_para_json` linha a linha (sem função automática). Exige que cada uma das 3 tabelas tenha pelo menos 5 registros válidos — por isso existe o `sql/inserts/02_insert_extra_sprint3.sql`, que complementa a carga original até `TUTOR`, `CLINICA` e `PET` chegarem a 5 linhas cada. Trata 3 exceções distintas.
+
+### Procedimento 2 — subtotal e total geral manuais
+
+```txt
+prc_rel_consultas_subtotal
+```
+
+Lê `CONSULTA` (tabela de fatos) categorizada por `CLINICA` (categoria 1) e `tipo_consulta` (categoria 2), com `valor` como coluna numérica. Calcula subtotal por clínica e total geral **manualmente**, acumulando em variáveis dentro de um cursor — sem `ROLLUP`, `CUBE`, `GROUPING SETS` ou `GROUPING`. Trata 3 exceções distintas.
+
+> Pra fechar a entrega da Sprint 3, tire prints da execução de cada uma dessas 4 peças (incluindo pelo menos um caso de exceção de cada, já deixados prontos nos blocos de teste dos próprios arquivos `.sql`) para o PDF de documentação técnica exigido pela rubrica.
 
 ---
 
@@ -345,7 +388,15 @@ sql/functions/01_functions.sql
 
 Cria `fn_calcular_idade_pet` e `fn_score_medio_pet`.
 
-### 13. Inserir dados de teste
+### 13. Criar functions da rubrica Sprint 3
+
+```txt
+sql/functions/02_functions_json_senha.sql
+```
+
+Cria `fn_pet_para_json` (Função 1 — conversão manual para JSON) e `fn_validar_forca_senha` (Função 2 — validação de senha). Precisa rodar antes do passo 16, que depende de `fn_pet_para_json`.
+
+### 14. Inserir dados de teste
 
 ```txt
 sql/inserts/01_insert_testes.sql
@@ -353,7 +404,23 @@ sql/inserts/01_insert_testes.sql
 
 Executa a carga inicial de dados usando as procedures.
 
-### 14. Executar relatórios com joins
+### 15. Inserir dados complementares da Sprint 3
+
+```txt
+sql/inserts/02_insert_extra_sprint3.sql
+```
+
+Garante que `TUTOR`, `CLINICA` e `PET` tenham pelo menos 5 registros cada, exigido pelo Procedimento 1 da rubrica.
+
+### 16. Criar procedures de relatório da rubrica Sprint 3
+
+```txt
+sql/procedures/04_procedures_relatorios_sprint3.sql
+```
+
+Cria `prc_rel_pets_tutor_clinica_json` (Procedimento 1 — JOIN + JSON) e `prc_rel_consultas_subtotal` (Procedimento 2 — subtotal e total geral manuais). Já executa e imprime os dois no final do script.
+
+### 17. Executar relatórios com joins
 
 ```txt
 sql/relatorios/01_joins_group_order.sql
@@ -361,7 +428,7 @@ sql/relatorios/01_joins_group_order.sql
 
 Executa relatórios com `JOIN`, `GROUP BY` e `ORDER BY`.
 
-### 15. Executar relatório LAG/LEAD
+### 18. Executar relatório LAG/LEAD
 
 ```txt
 sql/relatorios/02_lag_lead.sql
@@ -369,7 +436,7 @@ sql/relatorios/02_lag_lead.sql
 
 Mostra valor anterior, atual e próximo de leituras do sensor.
 
-### 16. Executar relatórios com cursores
+### 19. Executar relatórios com cursores
 
 ```txt
 sql/relatorios/03_cursores.sql
@@ -516,6 +583,15 @@ PRC_INS_SCORE_SAUDE
 ```
 
 As procedures recebem dados por parâmetro e possuem tratamento de exceções.
+
+### Procedures da rubrica Sprint 3
+
+```txt
+PRC_REL_PETS_TUTOR_CLINICA_JSON
+PRC_REL_CONSULTAS_SUBTOTAL
+```
+
+Ver seção "Requisitos da Rubrica Oficial" acima.
 
 ---
 
@@ -665,7 +741,9 @@ DEFAULT seq_xxx.NEXTVAL aplicado/corrigido nas 11 colunas de PK
 1 procedure de cadastro de tutor criada
 9 procedures de carga criadas
 1 trigger de auditoria criado e validado (INSERT/UPDATE/DELETE)
-2 functions criadas
+2 functions de negócio criadas (idade do pet, score médio)
+2 functions da rubrica Sprint 3 criadas (JSON manual, validação de senha)
+2 procedures da rubrica Sprint 3 criadas (JOIN+JSON, subtotal/total geral manual)
 Dados de teste inseridos com sucesso
 Relatórios executados com sucesso
 ```
@@ -707,7 +785,8 @@ Banco de dados: concluído para Sprint 3
 Rename RESPONSAVEL -> TUTOR: concluído
 Campos de autenticação (senha_hash / status_acesso): concluído
 Trigger de auditoria: concluído e validado
-Functions: concluídas
+Functions de negócio: concluídas
+Rubrica oficial Sprint 3 (2 procedures + 2 functions específicas): concluída
 Scripts SQL: concluídos
 Carga de teste: concluída
 Relatórios: concluídos

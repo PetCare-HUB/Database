@@ -395,11 +395,13 @@ END;
 
 ------------------------------------------------------------
 -- 8. PROCEDURE: INSERIR ALERTA SAUDE
+-- id_leitura foi removido (a FK para LEITURA_SENSOR nao
+-- existe mais desde a separacao em LEITURA_COLEIRA /
+-- LEITURA_COMEDOURO / LEITURA_AMBIENTE - ver ddl 08).
 ------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE prc_ins_alerta_saude (
     p_id_pet             IN NUMBER,
-    p_id_leitura         IN NUMBER,
     p_tipo_alerta        IN VARCHAR2,
     p_nivel_alerta       IN VARCHAR2,
     p_mensagem           IN VARCHAR2,
@@ -407,7 +409,6 @@ CREATE OR REPLACE PROCEDURE prc_ins_alerta_saude (
     p_limite_referencia  IN NUMBER
 ) AS
     v_total_pet      NUMBER;
-    v_total_leitura  NUMBER;
 BEGIN
     SELECT COUNT(*)
     INTO v_total_pet
@@ -418,17 +419,6 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20015, 'Pet nao encontrado.');
     END IF;
 
-    IF p_id_leitura IS NOT NULL THEN
-        SELECT COUNT(*)
-        INTO v_total_leitura
-        FROM LEITURA_SENSOR
-        WHERE id_leitura = p_id_leitura;
-
-        IF v_total_leitura = 0 THEN
-            RAISE_APPLICATION_ERROR(-20016, 'Leitura de sensor nao encontrada.');
-        END IF;
-    END IF;
-
     IF p_tipo_alerta IS NULL OR p_nivel_alerta IS NULL OR p_mensagem IS NULL THEN
         RAISE_APPLICATION_ERROR(-20017, 'Tipo, nivel e mensagem do alerta sao obrigatorios.');
     END IF;
@@ -436,7 +426,6 @@ BEGIN
     INSERT INTO ALERTA_SAUDE (
         id_alerta,
         id_pet,
-        id_leitura,
         tipo_alerta,
         nivel_alerta,
         mensagem,
@@ -448,7 +437,6 @@ BEGIN
     ) VALUES (
         seq_alerta_saude.NEXTVAL,
         p_id_pet,
-        p_id_leitura,
         p_tipo_alerta,
         p_nivel_alerta,
         p_mensagem,
@@ -474,222 +462,51 @@ END;
 /
 
 ------------------------------------------------------------
--- 9. PROCEDURE: INSERIR LEITURA SENSOR
+-- 9a. PROCEDURE: INSERIR LEITURA COLEIRA
 ------------------------------------------------------------
 
-CREATE OR REPLACE PROCEDURE prc_ins_leitura_sensor (
-    p_id_pet          IN NUMBER,
-    p_id_dispositivo  IN NUMBER,
-    p_tipo_leitura    IN VARCHAR2,
-    p_valor           IN NUMBER,
-    p_unidade         IN VARCHAR2,
-    p_data_leitura    IN TIMESTAMP
+CREATE OR REPLACE PROCEDURE prc_ins_leitura_coleira (
+    p_id_pet             IN NUMBER,
+    p_status_atividade   IN VARCHAR2,
+    p_nivel_bateria      IN NUMBER,
+    p_timestamp_leitura  IN TIMESTAMP
 ) AS
-    v_total_pet          NUMBER;
-    v_total_dispositivo  NUMBER;
-    v_status             VARCHAR2(20);
-    v_id_leitura         NUMBER;
+    v_total_pet  NUMBER;
 BEGIN
     SELECT COUNT(*)
     INTO v_total_pet
     FROM PET
     WHERE id_pet = p_id_pet;
 
-    SELECT COUNT(*)
-    INTO v_total_dispositivo
-    FROM DISPOSITIVO_IOT
-    WHERE id_dispositivo = p_id_dispositivo;
-
     IF v_total_pet = 0 THEN
         RAISE_APPLICATION_ERROR(-20018, 'Pet nao encontrado.');
     END IF;
 
-    IF v_total_dispositivo = 0 THEN
-        RAISE_APPLICATION_ERROR(-20019, 'Dispositivo IoT nao encontrado.');
+    IF p_status_atividade IS NULL OR p_nivel_bateria IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20020, 'Status de atividade e nivel de bateria sao obrigatorios.');
     END IF;
 
-    IF p_tipo_leitura IS NULL OR p_valor IS NULL OR p_unidade IS NULL THEN
-        RAISE_APPLICATION_ERROR(-20020, 'Tipo, valor e unidade da leitura sao obrigatorios.');
-    END IF;
-
-    v_status := 'NORMAL';
-
-    IF p_tipo_leitura = 'NIVEL_RACAO' AND p_valor < 20 THEN
-        v_status := 'ATENCAO';
-
-    ELSIF p_tipo_leitura = 'QUALIDADE_AR' AND p_valor > 500 THEN
-        v_status := 'ATENCAO';
-
-    ELSIF p_tipo_leitura = 'UMIDADE' AND (p_valor < 30 OR p_valor > 80) THEN
-        v_status := 'ATENCAO';
-
-    ELSIF p_tipo_leitura = 'ATIVIDADE' AND p_valor < 20 THEN
-        v_status := 'ATENCAO';
-
-    ELSIF p_tipo_leitura = 'TEMPERATURA_AMBIENTE' AND (p_valor < 10 OR p_valor > 35) THEN
-        v_status := 'ATENCAO';
-    END IF;
-
-    v_id_leitura := seq_leitura_sensor.NEXTVAL;
-
-    INSERT INTO LEITURA_SENSOR (
-        id_leitura,
+    INSERT INTO LEITURA_COLEIRA (
+        id_leitura_coleira,
         id_pet,
-        id_dispositivo,
-        tipo_leitura,
-        valor,
-        unidade,
-        data_leitura,
-        status_leitura
+        status_atividade,
+        nivel_bateria,
+        timestamp_leitura
     ) VALUES (
-        v_id_leitura,
+        seq_leitura_coleira.NEXTVAL,
         p_id_pet,
-        p_id_dispositivo,
-        p_tipo_leitura,
-        p_valor,
-        p_unidade,
-        NVL(p_data_leitura, SYSTIMESTAMP),
-        v_status
+        p_status_atividade,
+        p_nivel_bateria,
+        NVL(p_timestamp_leitura, SYSTIMESTAMP)
     );
 
-    IF p_tipo_leitura = 'NIVEL_RACAO' AND p_valor < 20 THEN
-        INSERT INTO ALERTA_SAUDE (
-            id_alerta,
-            id_pet,
-            id_leitura,
-            tipo_alerta,
-            nivel_alerta,
-            mensagem,
-            valor_detectado,
-            limite_referencia,
-            resolvido,
-            data_alerta,
-            data_resolucao
-        ) VALUES (
-            seq_alerta_saude.NEXTVAL,
+    IF p_status_atividade = 'SEDENTARIO' THEN
+        prc_ins_alerta_saude(
             p_id_pet,
-            v_id_leitura,
-            'RACAO_BAIXA',
-            'MEDIO',
-            'Nivel de racao abaixo do recomendado.',
-            p_valor,
-            20,
-            'N',
-            SYSTIMESTAMP,
-            NULL
-        );
-
-    ELSIF p_tipo_leitura = 'ATIVIDADE' AND p_valor < 20 THEN
-        INSERT INTO ALERTA_SAUDE (
-            id_alerta,
-            id_pet,
-            id_leitura,
-            tipo_alerta,
-            nivel_alerta,
-            mensagem,
-            valor_detectado,
-            limite_referencia,
-            resolvido,
-            data_alerta,
-            data_resolucao
-        ) VALUES (
-            seq_alerta_saude.NEXTVAL,
-            p_id_pet,
-            v_id_leitura,
             'ATIVIDADE_BAIXA',
             'ALTO',
             'Nivel de atividade abaixo do esperado.',
-            p_valor,
-            20,
-            'N',
-            SYSTIMESTAMP,
-            NULL
-        );
-
-    ELSIF p_tipo_leitura = 'TEMPERATURA_AMBIENTE' AND (p_valor < 10 OR p_valor > 35) THEN
-        INSERT INTO ALERTA_SAUDE (
-            id_alerta,
-            id_pet,
-            id_leitura,
-            tipo_alerta,
-            nivel_alerta,
-            mensagem,
-            valor_detectado,
-            limite_referencia,
-            resolvido,
-            data_alerta,
-            data_resolucao
-        ) VALUES (
-            seq_alerta_saude.NEXTVAL,
-            p_id_pet,
-            v_id_leitura,
-            'AMBIENTE_INADEQUADO',
-            'MEDIO',
-            'Temperatura ambiente fora da faixa recomendada.',
-            p_valor,
-            CASE
-                WHEN p_valor < 10 THEN 10
-                ELSE 35
-            END,
-            'N',
-            SYSTIMESTAMP,
-            NULL
-        );
-
-    ELSIF p_tipo_leitura = 'QUALIDADE_AR' AND p_valor > 500 THEN
-        INSERT INTO ALERTA_SAUDE (
-            id_alerta,
-            id_pet,
-            id_leitura,
-            tipo_alerta,
-            nivel_alerta,
-            mensagem,
-            valor_detectado,
-            limite_referencia,
-            resolvido,
-            data_alerta,
-            data_resolucao
-        ) VALUES (
-            seq_alerta_saude.NEXTVAL,
-            p_id_pet,
-            v_id_leitura,
-            'QUALIDADE_AR_RUIM',
-            'MEDIO',
-            'Qualidade do ar acima do limite recomendado.',
-            p_valor,
-            500,
-            'N',
-            SYSTIMESTAMP,
-            NULL
-        );
-
-    ELSIF p_tipo_leitura = 'UMIDADE' AND (p_valor < 30 OR p_valor > 80) THEN
-        INSERT INTO ALERTA_SAUDE (
-            id_alerta,
-            id_pet,
-            id_leitura,
-            tipo_alerta,
-            nivel_alerta,
-            mensagem,
-            valor_detectado,
-            limite_referencia,
-            resolvido,
-            data_alerta,
-            data_resolucao
-        ) VALUES (
-            seq_alerta_saude.NEXTVAL,
-            p_id_pet,
-            v_id_leitura,
-            'UMIDADE_INADEQUADA',
-            'MEDIO',
-            'Umidade ambiente fora da faixa recomendada.',
-            p_valor,
-            CASE
-                WHEN p_valor < 30 THEN 30
-                ELSE 80
-            END,
-            'N',
-            SYSTIMESTAMP,
+            NULL,
             NULL
         );
     END IF;
@@ -698,13 +515,170 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        prc_registrar_log_erro('PRC_INS_LEITURA_SENSOR', SQLCODE, SQLERRM);
+        prc_registrar_log_erro('PRC_INS_LEITURA_COLEIRA', SQLCODE, SQLERRM);
 
     WHEN VALUE_ERROR THEN
-        prc_registrar_log_erro('PRC_INS_LEITURA_SENSOR', SQLCODE, SQLERRM);
+        prc_registrar_log_erro('PRC_INS_LEITURA_COLEIRA', SQLCODE, SQLERRM);
 
     WHEN OTHERS THEN
-        prc_registrar_log_erro('PRC_INS_LEITURA_SENSOR', SQLCODE, SQLERRM);
+        prc_registrar_log_erro('PRC_INS_LEITURA_COLEIRA', SQLCODE, SQLERRM);
+END;
+/
+
+------------------------------------------------------------
+-- 9b. PROCEDURE: INSERIR LEITURA COMEDOURO
+------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE prc_ins_leitura_comedouro (
+    p_id_pet             IN NUMBER,
+    p_nivel_racao_pct    IN NUMBER,
+    p_peso_consumido_g   IN NUMBER,
+    p_timestamp_leitura  IN TIMESTAMP
+) AS
+    v_total_pet  NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_total_pet
+    FROM PET
+    WHERE id_pet = p_id_pet;
+
+    IF v_total_pet = 0 THEN
+        RAISE_APPLICATION_ERROR(-20018, 'Pet nao encontrado.');
+    END IF;
+
+    IF p_nivel_racao_pct IS NULL OR p_peso_consumido_g IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20020, 'Nivel de racao e peso consumido sao obrigatorios.');
+    END IF;
+
+    INSERT INTO LEITURA_COMEDOURO (
+        id_leitura_comedouro,
+        id_pet,
+        nivel_racao_pct,
+        peso_consumido_g,
+        timestamp_leitura
+    ) VALUES (
+        seq_leitura_comedouro.NEXTVAL,
+        p_id_pet,
+        p_nivel_racao_pct,
+        p_peso_consumido_g,
+        NVL(p_timestamp_leitura, SYSTIMESTAMP)
+    );
+
+    IF p_nivel_racao_pct < 20 THEN
+        prc_ins_alerta_saude(
+            p_id_pet,
+            'RACAO_BAIXA',
+            'MEDIO',
+            'Nivel de racao abaixo do recomendado.',
+            p_nivel_racao_pct,
+            20
+        );
+    END IF;
+
+    COMMIT;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        prc_registrar_log_erro('PRC_INS_LEITURA_COMEDOURO', SQLCODE, SQLERRM);
+
+    WHEN VALUE_ERROR THEN
+        prc_registrar_log_erro('PRC_INS_LEITURA_COMEDOURO', SQLCODE, SQLERRM);
+
+    WHEN OTHERS THEN
+        prc_registrar_log_erro('PRC_INS_LEITURA_COMEDOURO', SQLCODE, SQLERRM);
+END;
+/
+
+------------------------------------------------------------
+-- 9c. PROCEDURE: INSERIR LEITURA AMBIENTE
+------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE prc_ins_leitura_ambiente (
+    p_id_pet              IN NUMBER,
+    p_temperatura_ambiente IN NUMBER,
+    p_umidade_pct         IN NUMBER,
+    p_qualidade_ar_ppm    IN NUMBER,
+    p_pet_presente        IN NUMBER,
+    p_timestamp_leitura   IN TIMESTAMP
+) AS
+    v_total_pet  NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_total_pet
+    FROM PET
+    WHERE id_pet = p_id_pet;
+
+    IF v_total_pet = 0 THEN
+        RAISE_APPLICATION_ERROR(-20018, 'Pet nao encontrado.');
+    END IF;
+
+    IF p_temperatura_ambiente IS NULL OR p_umidade_pct IS NULL
+       OR p_qualidade_ar_ppm IS NULL OR p_pet_presente IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20020, 'Temperatura, umidade, qualidade do ar e presenca do pet sao obrigatorios.');
+    END IF;
+
+    INSERT INTO LEITURA_AMBIENTE (
+        id_leitura_ambiente,
+        id_pet,
+        temperatura_ambiente,
+        umidade_pct,
+        qualidade_ar_ppm,
+        pet_presente,
+        timestamp_leitura
+    ) VALUES (
+        seq_leitura_ambiente.NEXTVAL,
+        p_id_pet,
+        p_temperatura_ambiente,
+        p_umidade_pct,
+        p_qualidade_ar_ppm,
+        p_pet_presente,
+        NVL(p_timestamp_leitura, SYSTIMESTAMP)
+    );
+
+    IF p_temperatura_ambiente < 10 OR p_temperatura_ambiente > 35 THEN
+        prc_ins_alerta_saude(
+            p_id_pet,
+            'AMBIENTE_INADEQUADO',
+            'MEDIO',
+            'Temperatura ambiente fora da faixa recomendada.',
+            p_temperatura_ambiente,
+            CASE WHEN p_temperatura_ambiente < 10 THEN 10 ELSE 35 END
+        );
+    END IF;
+
+    IF p_qualidade_ar_ppm > 500 THEN
+        prc_ins_alerta_saude(
+            p_id_pet,
+            'QUALIDADE_AR_RUIM',
+            'MEDIO',
+            'Qualidade do ar acima do limite recomendado.',
+            p_qualidade_ar_ppm,
+            500
+        );
+    END IF;
+
+    IF p_umidade_pct < 30 OR p_umidade_pct > 80 THEN
+        prc_ins_alerta_saude(
+            p_id_pet,
+            'UMIDADE_INADEQUADA',
+            'MEDIO',
+            'Umidade ambiente fora da faixa recomendada.',
+            p_umidade_pct,
+            CASE WHEN p_umidade_pct < 30 THEN 30 ELSE 80 END
+        );
+    END IF;
+
+    COMMIT;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        prc_registrar_log_erro('PRC_INS_LEITURA_AMBIENTE', SQLCODE, SQLERRM);
+
+    WHEN VALUE_ERROR THEN
+        prc_registrar_log_erro('PRC_INS_LEITURA_AMBIENTE', SQLCODE, SQLERRM);
+
+    WHEN OTHERS THEN
+        prc_registrar_log_erro('PRC_INS_LEITURA_AMBIENTE', SQLCODE, SQLERRM);
 END;
 /
 
@@ -775,7 +749,6 @@ BEGIN
         INSERT INTO ALERTA_SAUDE (
             id_alerta,
             id_pet,
-            id_leitura,
             tipo_alerta,
             nivel_alerta,
             mensagem,
@@ -787,7 +760,6 @@ BEGIN
         ) VALUES (
             seq_alerta_saude.NEXTVAL,
             p_id_pet,
-            NULL,
             'SCORE_BAIXO',
             'ALTO',
             'Score de saude abaixo do limite recomendado.',
@@ -828,7 +800,9 @@ WHERE object_name IN (
     'PRC_INS_EVENTO_PREVENTIVO',
     'PRC_INS_DISPOSITIVO_IOT',
     'PRC_INS_ALERTA_SAUDE',
-    'PRC_INS_LEITURA_SENSOR',
+    'PRC_INS_LEITURA_COLEIRA',
+    'PRC_INS_LEITURA_COMEDOURO',
+    'PRC_INS_LEITURA_AMBIENTE',
     'PRC_INS_SCORE_SAUDE'
 )
 ORDER BY object_name;

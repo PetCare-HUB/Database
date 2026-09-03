@@ -212,21 +212,30 @@ BEGIN
             resp.nome AS tutor,
             p.nome AS pet,
             ls.tipo_leitura,
-            COUNT(ls.id_leitura) AS total_leituras,
+            COUNT(*) AS total_leituras,
             ROUND(AVG(ls.valor), 2) AS media_valor
         FROM CLINICA c
-        JOIN PET p 
+        JOIN PET p
             ON p.id_clinica = c.id_clinica
         JOIN TUTOR resp
             ON resp.id_tutor = p.id_tutor
-        JOIN LEITURA_SENSOR ls
+        JOIN (
+            SELECT id_pet, 'NIVEL_BATERIA_COLEIRA' AS tipo_leitura, nivel_bateria AS valor
+            FROM LEITURA_COLEIRA
+            UNION ALL
+            SELECT id_pet, 'NIVEL_RACAO' AS tipo_leitura, nivel_racao_pct AS valor
+            FROM LEITURA_COMEDOURO
+            UNION ALL
+            SELECT id_pet, 'TEMPERATURA_AMBIENTE' AS tipo_leitura, temperatura_ambiente AS valor
+            FROM LEITURA_AMBIENTE
+        ) ls
             ON ls.id_pet = p.id_pet
-        GROUP BY 
+        GROUP BY
             c.nome,
             resp.nome,
             p.nome,
             ls.tipo_leitura
-        ORDER BY 
+        ORDER BY
             c.nome,
             p.nome,
             ls.tipo_leitura

@@ -66,7 +66,8 @@ PETCARE-HUB-DATABASE
 │   │   ├── 04_add_defaults_sequences.sql
 │   │   ├── 05_rename_responsavel_to_tutor.sql
 │   │   ├── 06_add_auth_fields.sql
-│   │   └── 07_fix_defaults_sequences.sql
+│   │   ├── 07_fix_defaults_sequences.sql
+│   │   └── 08_split_leitura_sensor.sql
 │   ├── inserts
 │   │   ├── 01_insert_testes.sql
 │   │   └── 02_insert_extra_sprint3.sql
@@ -91,7 +92,7 @@ PETCARE-HUB-DATABASE
 
 ## Modelo de Dados
 
-O banco possui 12 tabelas:
+O banco possui 14 tabelas:
 
 | Tabela                 | Descrição                                                          |
 | ---------------------- | ------------------------------------------------------------------- |
@@ -102,13 +103,17 @@ O banco possui 12 tabelas:
 | `PROTOCOLO_PREVENTIVO` | Armazena regras preventivas por espécie e raça                      |
 | `EVENTO_PREVENTIVO`    | Armazena eventos como vacinas, check-ups e retornos                  |
 | `DISPOSITIVO_IOT`      | Armazena dispositivos vinculados aos pets                            |
-| `LEITURA_SENSOR`       | Armazena dados coletados por sensores IoT                            |
+| `LEITURA_COLEIRA`      | Armazena leituras de atividade e bateria da coleira                  |
+| `LEITURA_COMEDOURO`    | Armazena leituras de nível de ração e consumo do comedouro           |
+| `LEITURA_AMBIENTE`     | Armazena leituras de temperatura, umidade e qualidade do ar          |
 | `ALERTA_SAUDE`         | Armazena alertas gerados por risco                                   |
 | `SCORE_SAUDE`          | Armazena o score de saúde calculado do pet                           |
 | `LOG_ERROS`            | Armazena erros gerados durante execução das procedures               |
 | `AUDITORIA_TUTOR`      | Armazena o histórico de INSERT/UPDATE/DELETE feitos em `TUTOR`       |
 
 > A tabela se chamava `RESPONSAVEL` originalmente e foi renomeada para `TUTOR` para alinhar com a terminologia usada no restante do produto (app, Java, .NET).
+>
+> A tabela genérica `LEITURA_SENSOR` foi separada em `LEITURA_COLEIRA`, `LEITURA_COMEDOURO` e `LEITURA_AMBIENTE` para alinhar com as 3 entidades Java correspondentes (`sql/ddl/08_split_leitura_sensor.sql`).
 
 ---
 
@@ -126,11 +131,11 @@ PET 1:N EVENTO_PREVENTIVO
 PROTOCOLO_PREVENTIVO 1:N EVENTO_PREVENTIVO
 
 PET 1:N DISPOSITIVO_IOT
-DISPOSITIVO_IOT 1:N LEITURA_SENSOR
-PET 1:N LEITURA_SENSOR
+PET 1:N LEITURA_COLEIRA
+PET 1:N LEITURA_COMEDOURO
+PET 1:N LEITURA_AMBIENTE
 
 PET 1:N ALERTA_SAUDE
-LEITURA_SENSOR 0:N ALERTA_SAUDE
 
 PET 1:N SCORE_SAUDE
 
@@ -281,7 +286,9 @@ Clinica
 Pet
 Consulta
 EventoPreventivo
-LeituraSensor
+LeituraColeira
+LeituraComedouro
+LeituraAmbiente
 AlertaSaude
 ScoreSaude
 ```
@@ -348,7 +355,15 @@ sql/ddl/07_fix_defaults_sequences.sql
 
 Reaplica `DEFAULT seq_xxx.NEXTVAL` em todas as colunas de PK. É obrigatório rodar esse passo depois do rename (passo 5), porque renomear a sequence invalida o `DEFAULT` configurado no passo 4.
 
-### 8. Criar procedure de log
+### 8. Separar LEITURA_SENSOR em 3 tabelas
+
+```txt
+sql/ddl/08_split_leitura_sensor.sql
+```
+
+Remove a FK `id_leitura` de `ALERTA_SAUDE` e a tabela genérica `LEITURA_SENSOR`, e cria `LEITURA_COLEIRA`, `LEITURA_COMEDOURO` e `LEITURA_AMBIENTE` para alinhar com as 3 entidades Java correspondentes.
+
+### 9. Criar procedure de log
 
 ```txt
 sql/procedures/01_log_erros.sql
@@ -356,7 +371,7 @@ sql/procedures/01_log_erros.sql
 
 Cria a procedure `PRC_REGISTRAR_LOG_ERRO`, responsável por salvar erros na tabela `LOG_ERROS`.
 
-### 9. Criar procedure de cadastro do tutor
+### 10. Criar procedure de cadastro do tutor
 
 ```txt
 sql/procedures/03_prc_ins_tutor.sql
@@ -364,15 +379,15 @@ sql/procedures/03_prc_ins_tutor.sql
 
 Cria a procedure `PRC_INS_TUTOR` (pré-cadastro do tutor, feito pela clínica, sem senha) e remove a antiga `PRC_INS_RESPONSAVEL`.
 
-### 10. Criar procedures de carga
+### 11. Criar procedures de carga
 
 ```txt
 sql/procedures/02_procedures_carga.sql
 ```
 
-Cria as demais procedures de inserção de dados por parâmetro (`PRC_INS_CLINICA`, `PRC_INS_PET`, etc.).
+Cria as demais procedures de inserção de dados por parâmetro (`PRC_INS_CLINICA`, `PRC_INS_PET`, `PRC_INS_LEITURA_COLEIRA`, `PRC_INS_LEITURA_COMEDOURO`, `PRC_INS_LEITURA_AMBIENTE`, etc.).
 
-### 11. Criar trigger de auditoria
+### 12. Criar trigger de auditoria
 
 ```txt
 sql/triggers/01_trg_auditoria_tutor.sql
@@ -380,7 +395,7 @@ sql/triggers/01_trg_auditoria_tutor.sql
 
 Cria a tabela `AUDITORIA_TUTOR`, a sequence dela e o trigger `TRG_AUDITORIA_TUTOR`.
 
-### 12. Criar functions
+### 13. Criar functions
 
 ```txt
 sql/functions/01_functions.sql
@@ -388,15 +403,15 @@ sql/functions/01_functions.sql
 
 Cria `fn_calcular_idade_pet` e `fn_score_medio_pet`.
 
-### 13. Criar functions da rubrica Sprint 3
+### 14. Criar functions da rubrica Sprint 3
 
 ```txt
 sql/functions/02_functions_json_senha.sql
 ```
 
-Cria `fn_pet_para_json` (Função 1 — conversão manual para JSON) e `fn_validar_forca_senha` (Função 2 — validação de senha). Precisa rodar antes do passo 16, que depende de `fn_pet_para_json`.
+Cria `fn_pet_para_json` (Função 1 — conversão manual para JSON) e `fn_validar_forca_senha` (Função 2 — validação de senha). Precisa rodar antes do passo 18, que depende de `fn_pet_para_json`.
 
-### 14. Inserir dados de teste
+### 15. Inserir dados de teste
 
 ```txt
 sql/inserts/01_insert_testes.sql
@@ -404,7 +419,7 @@ sql/inserts/01_insert_testes.sql
 
 Executa a carga inicial de dados usando as procedures.
 
-### 15. Inserir dados complementares da Sprint 3
+### 16. Inserir dados complementares da Sprint 3
 
 ```txt
 sql/inserts/02_insert_extra_sprint3.sql
@@ -412,7 +427,7 @@ sql/inserts/02_insert_extra_sprint3.sql
 
 Garante que `TUTOR`, `CLINICA` e `PET` tenham pelo menos 5 registros cada, exigido pelo Procedimento 1 da rubrica.
 
-### 16. Criar procedures de relatório da rubrica Sprint 3
+### 17. Criar procedures de relatório da rubrica Sprint 3
 
 ```txt
 sql/procedures/04_procedures_relatorios_sprint3.sql
@@ -420,7 +435,7 @@ sql/procedures/04_procedures_relatorios_sprint3.sql
 
 Cria `prc_rel_pets_tutor_clinica_json` (Procedimento 1 — JOIN + JSON) e `prc_rel_consultas_subtotal` (Procedimento 2 — subtotal e total geral manuais). Já executa e imprime os dois no final do script.
 
-### 17. Executar relatórios com joins
+### 18. Executar relatórios com joins
 
 ```txt
 sql/relatorios/01_joins_group_order.sql
@@ -428,15 +443,15 @@ sql/relatorios/01_joins_group_order.sql
 
 Executa relatórios com `JOIN`, `GROUP BY` e `ORDER BY`.
 
-### 18. Executar relatório LAG/LEAD
+### 19. Executar relatório LAG/LEAD
 
 ```txt
 sql/relatorios/02_lag_lead.sql
 ```
 
-Mostra valor anterior, atual e próximo de leituras do sensor.
+Mostra valor anterior, atual e próximo de leituras da coleira (nível de bateria).
 
-### 19. Executar relatórios com cursores
+### 20. Executar relatórios com cursores
 
 ```txt
 sql/relatorios/03_cursores.sql
@@ -473,7 +488,7 @@ WHERE column_name LIKE 'ID\_%' ESCAPE '\'
   AND table_name IN (
     'TUTOR', 'CLINICA', 'PET', 'CONSULTA',
     'PROTOCOLO_PREVENTIVO', 'EVENTO_PREVENTIVO',
-    'DISPOSITIVO_IOT', 'LEITURA_SENSOR',
+    'DISPOSITIVO_IOT', 'LEITURA_COLEIRA', 'LEITURA_COMEDOURO', 'LEITURA_AMBIENTE',
     'ALERTA_SAUDE', 'SCORE_SAUDE', 'LOG_ERROS'
   )
 ORDER BY table_name;
@@ -578,7 +593,9 @@ PRC_INS_PROTOCOLO_PREVENTIVO
 PRC_INS_EVENTO_PREVENTIVO
 PRC_INS_DISPOSITIVO_IOT
 PRC_INS_ALERTA_SAUDE
-PRC_INS_LEITURA_SENSOR
+PRC_INS_LEITURA_COLEIRA
+PRC_INS_LEITURA_COMEDOURO
+PRC_INS_LEITURA_AMBIENTE
 PRC_INS_SCORE_SAUDE
 ```
 
@@ -601,7 +618,7 @@ Algumas procedures possuem regras de negócio simples para simular o funcionamen
 
 ### Leitura de nível de ração
 
-Quando uma leitura do tipo `NIVEL_RACAO` possui valor menor que `20`, o sistema gera um alerta automático:
+Quando uma leitura de `LEITURA_COMEDOURO` possui `nivel_racao_pct` menor que `20`, o sistema gera um alerta automático:
 
 ```txt
 RACAO_BAIXA
@@ -637,7 +654,7 @@ São cadastrados:
 5 consultas
 5 eventos preventivos
 4 dispositivos IoT
-10 leituras de sensores
+10 leituras de sensores (7 coleira + 2 comedouro + 1 ambiente)
 3 scores de saúde
 alertas gerados automaticamente
 ```
@@ -659,7 +676,11 @@ SELECT 'EVENTO_PREVENTIVO', COUNT(*) FROM EVENTO_PREVENTIVO
 UNION ALL
 SELECT 'DISPOSITIVO_IOT', COUNT(*) FROM DISPOSITIVO_IOT
 UNION ALL
-SELECT 'LEITURA_SENSOR', COUNT(*) FROM LEITURA_SENSOR
+SELECT 'LEITURA_COLEIRA', COUNT(*) FROM LEITURA_COLEIRA
+UNION ALL
+SELECT 'LEITURA_COMEDOURO', COUNT(*) FROM LEITURA_COMEDOURO
+UNION ALL
+SELECT 'LEITURA_AMBIENTE', COUNT(*) FROM LEITURA_AMBIENTE
 UNION ALL
 SELECT 'ALERTA_SAUDE', COUNT(*) FROM ALERTA_SAUDE
 UNION ALL

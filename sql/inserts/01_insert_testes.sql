@@ -13,7 +13,9 @@ SET SERVEROUTPUT ON;
 BEGIN
     DELETE FROM ALERTA_SAUDE;
     DELETE FROM SCORE_SAUDE;
-    DELETE FROM LEITURA_SENSOR;
+    DELETE FROM LEITURA_COLEIRA;
+    DELETE FROM LEITURA_COMEDOURO;
+    DELETE FROM LEITURA_AMBIENTE;
     DELETE FROM DISPOSITIVO_IOT;
     DELETE FROM EVENTO_PREVENTIVO;
     DELETE FROM CONSULTA;
@@ -49,11 +51,6 @@ DECLARE
     v_prot_vacina_gato   NUMBER;
     v_prot_checkup_cao   NUMBER;
     v_prot_checkup_gato  NUMBER;
-
-    v_disp_rex_coleira   NUMBER;
-    v_disp_rex_comedouro NUMBER;
-    v_disp_luna_coleira  NUMBER;
-    v_disp_thor_coleira  NUMBER;
 BEGIN
     --------------------------------------------------------
     -- 1. TUTOR
@@ -382,119 +379,67 @@ BEGIN
         TO_DATE('2026-04-03', 'YYYY-MM-DD')
     );
 
-    SELECT id_dispositivo INTO v_disp_rex_coleira
-    FROM DISPOSITIVO_IOT
-    WHERE codigo_serie = 'COL-RX-001';
-
-    SELECT id_dispositivo INTO v_disp_rex_comedouro
-    FROM DISPOSITIVO_IOT
-    WHERE codigo_serie = 'COM-RX-001';
-
-    SELECT id_dispositivo INTO v_disp_luna_coleira
-    FROM DISPOSITIVO_IOT
-    WHERE codigo_serie = 'COL-LU-001';
-
-    SELECT id_dispositivo INTO v_disp_thor_coleira
-    FROM DISPOSITIVO_IOT
-    WHERE codigo_serie = 'COL-TH-001';
-
     --------------------------------------------------------
     -- 8. LEITURAS DE SENSOR
-    -- Leituras de movimento, alimentação e ambiente.
-    -- Não há medição de temperatura corporal do animal.
+    -- Leituras de coleira (atividade/bateria), comedouro
+    -- (ração/consumo) e ambiente (temperatura/umidade/ar).
+    -- Nivel_bateria e os campos de ambiente nao existiam no
+    -- desenho antigo (LEITURA_SENSOR generica) - valores
+    -- abaixo sao sinteticos, so para ter carga de teste;
+    -- ajuste se quiser refletir hardware real.
     --------------------------------------------------------
 
-    -- Leituras de movimento/atividade pela coleira do Rex
-    prc_ins_leitura_sensor(
-        v_pet_rex,
-        v_disp_rex_coleira,
-        'ATIVIDADE',
-        68.00,
-        '%',
+    -- Leituras de atividade pela coleira do Rex
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'ATIVO', 95,
         TO_TIMESTAMP('2026-05-01 08:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
-    prc_ins_leitura_sensor(
-        v_pet_rex,
-        v_disp_rex_coleira,
-        'ATIVIDADE',
-        72.00,
-        '%',
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'ATIVO', 93,
         TO_TIMESTAMP('2026-05-01 10:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
-    prc_ins_leitura_sensor(
-        v_pet_rex,
-        v_disp_rex_coleira,
-        'ATIVIDADE',
-        65.00,
-        '%',
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'MODERADO', 91,
         TO_TIMESTAMP('2026-05-01 12:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
-      prc_ins_leitura_sensor(
-        v_pet_rex,
-        v_disp_rex_coleira,
-        'ATIVIDADE',
-        69.00,
-        '%',
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'ATIVO', 89,
         TO_TIMESTAMP('2026-05-01 14:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
-    prc_ins_leitura_sensor(
-        v_pet_rex,
-        v_disp_rex_coleira,
-        'ATIVIDADE',
-        74.00,
-        '%',
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'ATIVO', 87,
         TO_TIMESTAMP('2026-05-01 16:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
-    -- Leituras de temperatura ambiente pelo módulo do comedouro
-    prc_ins_leitura_sensor(
-        v_pet_rex,
-        v_disp_rex_comedouro,
-        'TEMPERATURA_AMBIENTE',
-        24.50,
-        'C',
+    -- Leituras do comedouro do Rex (nível de ração + consumo)
+    prc_ins_leitura_comedouro(
+        v_pet_rex, 45, 120.50,
         TO_TIMESTAMP('2026-05-01 14:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
-    prc_ins_leitura_sensor(
-        v_pet_rex,
-        v_disp_rex_comedouro,
-        'TEMPERATURA_AMBIENTE',
-        25.10,
-        'C',
-        TO_TIMESTAMP('2026-05-01 16:00:00', 'YYYY-MM-DD HH24:MI:SS')
-    );
-
-    -- Leitura de nível de ração pelo comedouro
-    prc_ins_leitura_sensor(
-        v_pet_rex,
-        v_disp_rex_comedouro,
-        'NIVEL_RACAO',
-        15.00,
-        '%',
+    prc_ins_leitura_comedouro(
+        v_pet_rex, 15, 80.00,
         TO_TIMESTAMP('2026-05-01 08:30:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
-    -- Leituras de movimento/atividade dos outros pets
-    prc_ins_leitura_sensor(
-        v_pet_luna,
-        v_disp_luna_coleira,
-        'ATIVIDADE',
-        75.00,
-        '%',
+    -- Leitura de ambiente do Rex
+    prc_ins_leitura_ambiente(
+        v_pet_rex, 24.50, 55, 400, 1,
+        TO_TIMESTAMP('2026-05-01 16:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    -- Leituras de atividade dos outros pets
+    prc_ins_leitura_coleira(
+        v_pet_luna, 'ATIVO', 90,
         TO_TIMESTAMP('2026-05-01 09:00:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
-    prc_ins_leitura_sensor(
-        v_pet_thor,
-        v_disp_thor_coleira,
-        'ATIVIDADE',
-        15.00,
-        '%',
+    prc_ins_leitura_coleira(
+        v_pet_thor, 'SEDENTARIO', 60,
         TO_TIMESTAMP('2026-05-01 09:30:00', 'YYYY-MM-DD HH24:MI:SS')
     );
 
@@ -555,7 +500,11 @@ SELECT 'EVENTO_PREVENTIVO', COUNT(*) FROM EVENTO_PREVENTIVO
 UNION ALL
 SELECT 'DISPOSITIVO_IOT', COUNT(*) FROM DISPOSITIVO_IOT
 UNION ALL
-SELECT 'LEITURA_SENSOR', COUNT(*) FROM LEITURA_SENSOR
+SELECT 'LEITURA_COLEIRA', COUNT(*) FROM LEITURA_COLEIRA
+UNION ALL
+SELECT 'LEITURA_COMEDOURO', COUNT(*) FROM LEITURA_COMEDOURO
+UNION ALL
+SELECT 'LEITURA_AMBIENTE', COUNT(*) FROM LEITURA_AMBIENTE
 UNION ALL
 SELECT 'ALERTA_SAUDE', COUNT(*) FROM ALERTA_SAUDE
 UNION ALL

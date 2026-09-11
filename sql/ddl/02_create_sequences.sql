@@ -8,7 +8,45 @@ SET SERVEROUTPUT ON;
 ------------------------------------------------------------
 -- LIMPEZA OPCIONAL
 -- Remove as sequences caso já existam
+--
+-- Cobre tambem seq_tutor e seq_auditoria_tutor (nomes que so
+-- existem apos o rename/trigger rodarem em execucoes
+-- anteriores) e as sequences de leitura splitadas, para o
+-- script conseguir resetar do zero em qualquer "geracao" do
+-- schema sem deixar `RENAME seq_responsavel TO seq_tutor` do
+-- passo 5 falhar com ORA-00955 por causa de um seq_tutor
+-- orfao de uma execucao anterior.
 ------------------------------------------------------------
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_tutor';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_auditoria_tutor';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_leitura_coleira';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_leitura_comedouro';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_leitura_ambiente';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
 
 BEGIN
     EXECUTE IMMEDIATE 'DROP SEQUENCE seq_responsavel';

@@ -150,3 +150,4 @@ SELECT fn_validar_forca_senha('Senha123') AS resultado FROM DUAL;
 SELECT fn_validar_forca_senha(NULL) AS resultado FROM DUAL;
 SELECT fn_validar_forca_senha('abc') AS resultado FROM DUAL;
 SELECT fn_validar_forca_senha('semnumero') AS resultado FROM DUAL;
+

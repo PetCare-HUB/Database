@@ -9,7 +9,69 @@ SET SERVEROUTPUT ON;
 ------------------------------------------------------------
 -- LIMPEZA OPCIONAL
 -- Execute essa parte se quiser apagar e recriar as tabelas.
+--
+-- Cobre tambem os nomes que so existem depois de outros
+-- scripts rodarem (TUTOR e AUDITORIA_TUTOR apos o rename do
+-- passo 5/12, LEITURA_COLEIRA/COMEDOURO/AMBIENTE apos o split
+-- do passo 8), para que este script sozinho consiga resetar o
+-- banco do zero em qualquer "geracao" do schema, sem depender
+-- de rodar sql/00_limpeza_schema_compartilhado.sql antes.
+--
+-- Tambem dropa direto os indices PK_RESPONSAVEL/UK_RESPONSAVEL_*
+-- que ficam orfaos quando TUTOR ja existe: ALTER TABLE ...
+-- RENAME CONSTRAINT renomeia a constraint mas NAO renomeia o
+-- indice que a sustenta, entao ele sobrevive com o nome antigo
+-- e bloqueia um novo CREATE TABLE RESPONSAVEL (ORA-00955) se
+-- nao for removido aqui.
 ------------------------------------------------------------
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE AUDITORIA_TUTOR CASCADE CONSTRAINTS';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE TUTOR CASCADE CONSTRAINTS';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP INDEX PK_RESPONSAVEL';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP INDEX UK_RESPONSAVEL_EMAIL';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP INDEX UK_RESPONSAVEL_CPF';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE LEITURA_COLEIRA CASCADE CONSTRAINTS';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE LEITURA_COMEDOURO CASCADE CONSTRAINTS';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE LEITURA_AMBIENTE CASCADE CONSTRAINTS';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
 
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE ALERTA_SAUDE CASCADE CONSTRAINTS';

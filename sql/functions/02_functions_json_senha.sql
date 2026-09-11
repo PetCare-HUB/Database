@@ -23,6 +23,22 @@ IS
     e_id_pet_nulo    EXCEPTION;
     e_nome_pet_nulo  EXCEPTION;
     v_json           VARCHAR2(4000);
+
+    -- Escapa manualmente os caracteres que quebrariam o JSON:
+    -- barra invertida, aspas, quebra de linha e tabulacao.
+    -- A ordem importa: a barra invertida precisa ser escapada
+    -- primeiro, senao as barras inseridas pelos escapes
+    -- seguintes seriam escapadas de novo.
+    FUNCTION escapar_json(p_valor IN VARCHAR2) RETURN VARCHAR2 IS
+        v_escapado VARCHAR2(4000);
+    BEGIN
+        v_escapado := REPLACE(p_valor, '\', '\\');
+        v_escapado := REPLACE(v_escapado, '"', '\"');
+        v_escapado := REPLACE(v_escapado, CHR(10), '\n');
+        v_escapado := REPLACE(v_escapado, CHR(13), '');
+        v_escapado := REPLACE(v_escapado, CHR(9), '\t');
+        RETURN v_escapado;
+    END escapar_json;
 BEGIN
     IF p_id_pet IS NULL THEN
         RAISE e_id_pet_nulo;
@@ -34,13 +50,13 @@ BEGIN
 
     v_json :=
         '{"id_pet":' || p_id_pet
-        || ',"nome_pet":"' || REPLACE(p_nome_pet, '"', '\"') || '"'
-        || ',"especie":"' || REPLACE(NVL(p_especie_pet, ''), '"', '\"') || '"'
+        || ',"nome_pet":"' || escapar_json(p_nome_pet) || '"'
+        || ',"especie":"' || escapar_json(NVL(p_especie_pet, '')) || '"'
         || ',"tutor":{'
-            || '"nome":"' || REPLACE(NVL(p_nome_tutor, ''), '"', '\"') || '"'
-            || ',"email":"' || REPLACE(NVL(p_email_tutor, ''), '"', '\"') || '"'
+            || '"nome":"' || escapar_json(NVL(p_nome_tutor, '')) || '"'
+            || ',"email":"' || escapar_json(NVL(p_email_tutor, '')) || '"'
         || '}'
-        || ',"clinica":"' || REPLACE(NVL(p_nome_clinica, ''), '"', '\"') || '"'
+        || ',"clinica":"' || escapar_json(NVL(p_nome_clinica, '')) || '"'
         || '}';
 
     RETURN v_json;
@@ -116,6 +132,15 @@ WHERE p.nome = 'Rex';
 
 -- Caso de excecao da Funcao 1 (id_pet nulo)
 SELECT fn_pet_para_json(NULL, 'Teste', 'CAO', 'Tutor Teste', 'teste@teste.com', 'Clinica Teste') AS json_erro
+FROM DUAL;
+
+-- Caso de escape manual (barra invertida, aspas, quebra de
+-- linha e tabulacao no mesmo valor) - print para a documentacao
+SELECT fn_pet_para_json(
+    99,
+    'Nome com "aspas" e barra \ contra' || CHR(10) || 'quebra de linha' || CHR(9) || 'tab',
+    'CAO', 'Tutor Teste', 'teste@teste.com', 'Clinica Teste'
+) AS json_escape_teste
 FROM DUAL;
 
 -- Caso de sucesso da Funcao 2

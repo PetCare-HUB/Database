@@ -70,7 +70,8 @@ PETCARE-HUB-DATABASE
 │   │   └── 08_split_leitura_sensor.sql
 │   ├── inserts
 │   │   ├── 01_insert_testes.sql
-│   │   └── 02_insert_extra_sprint3.sql
+│   │   ├── 02_insert_extra_sprint3.sql
+│   │   └── 03_insert_complemento_carga.sql
 │   ├── procedures
 │   │   ├── 01_log_erros.sql
 │   │   ├── 02_procedures_carga.sql
@@ -85,6 +86,8 @@ PETCARE-HUB-DATABASE
 │       ├── 01_joins_group_order.sql
 │       ├── 02_lag_lead.sql
 │       └── 03_cursores.sql
+├── test
+│   └── 01.sql
 └── README.md
 ```
 
@@ -201,7 +204,7 @@ Além do trigger de auditoria e das duas functions de negócio acima, a discipli
 fn_pet_para_json(p_id_pet, p_nome_pet, p_especie_pet, p_nome_tutor, p_email_tutor, p_nome_clinica)
 ```
 
-Monta manualmente (concatenação de string) um objeto JSON a partir dos dados de `PET` + `TUTOR` + `CLINICA`. Não usa `TO_JSON`, `JSON_OBJECT`, `JSON_VALUE` nem nenhuma função built-in de JSON do Oracle (proibido pela rubrica). Trata 4 exceções distintas (`e_id_pet_nulo`, `e_nome_pet_nulo`, `VALUE_ERROR`, `OTHERS`).
+Monta manualmente (concatenação de string) um objeto JSON a partir dos dados de `PET` + `TUTOR` + `CLINICA`. Não usa `TO_JSON`, `JSON_OBJECT`, `JSON_VALUE` nem nenhuma função built-in de JSON do Oracle (proibido pela rubrica). Escapa manualmente aspas, barra invertida, quebra de linha e tabulação. Trata 4 exceções distintas (`e_id_pet_nulo`, `e_nome_pet_nulo`, `VALUE_ERROR`, `OTHERS`).
 
 ### Função 2 — validação de senha (substitui um processo lógico do projeto)
 
@@ -217,7 +220,7 @@ Valida a senha usada na ativação de conta do `TUTOR` (mínimo 8 caracteres, co
 prc_rel_pets_tutor_clinica_json
 ```
 
-Faz `JOIN` entre `PET`, `TUTOR` e `CLINICA` e imprime um array JSON, montado chamando `fn_pet_para_json` linha a linha (sem função automática). Exige que cada uma das 3 tabelas tenha pelo menos 5 registros válidos — por isso existe o `sql/inserts/02_insert_extra_sprint3.sql`, que complementa a carga original até `TUTOR`, `CLINICA` e `PET` chegarem a 5 linhas cada. Trata 3 exceções distintas.
+Faz `JOIN` entre `PET`, `TUTOR` e `CLINICA` e imprime um array JSON, montado chamando `fn_pet_para_json` linha a linha (sem função automática). Exige que cada uma das 3 tabelas tenha pelo menos 5 registros válidos — por isso existe o `sql/inserts/02_insert_extra_sprint3.sql`, que complementa a carga original até `TUTOR`, `CLINICA` e `PET` chegarem a 5 linhas cada. Trata 4 exceções distintas (`e_sem_registros`, `e_dados_incompletos`, `VALUE_ERROR`, `OTHERS`).
 
 ### Procedimento 2 — subtotal e total geral manuais
 
@@ -225,7 +228,7 @@ Faz `JOIN` entre `PET`, `TUTOR` e `CLINICA` e imprime um array JSON, montado cha
 prc_rel_consultas_subtotal
 ```
 
-Lê `CONSULTA` (tabela de fatos) categorizada por `CLINICA` (categoria 1) e `tipo_consulta` (categoria 2), com `valor` como coluna numérica. Calcula subtotal por clínica e total geral **manualmente**, acumulando em variáveis dentro de um cursor — sem `ROLLUP`, `CUBE`, `GROUPING SETS` ou `GROUPING`. Trata 3 exceções distintas.
+Lê `CONSULTA` (tabela de fatos) categorizada por `CLINICA` (categoria 1) e `tipo_consulta` (categoria 2), com `valor` como coluna numérica. Agrupa combinações repetidas de clínica+tipo (`SUM(NVL(valor,0))` no cursor, para não deixar um `valor` nulo invalidar a soma) e calcula subtotal por clínica e total geral **manualmente**, acumulando em variáveis dentro do loop — sem `ROLLUP`, `CUBE`, `GROUPING SETS` ou `GROUPING`. Trata 4 exceções distintas (`e_sem_registros`, `e_valor_negativo`, `e_clinica_sem_nome`, `OTHERS`).
 
 > Pra fechar a entrega da Sprint 3, tire prints da execução de cada uma dessas 4 peças (incluindo pelo menos um caso de exceção de cada, já deixados prontos nos blocos de teste dos próprios arquivos `.sql`) para o PDF de documentação técnica exigido pela rubrica.
 
@@ -427,15 +430,23 @@ sql/inserts/02_insert_extra_sprint3.sql
 
 Garante que `TUTOR`, `CLINICA` e `PET` tenham pelo menos 5 registros cada, exigido pelo Procedimento 1 da rubrica.
 
-### 17. Criar procedures de relatório da rubrica Sprint 3
+### 17. Completar carga mínima das demais tabelas
+
+```txt
+sql/inserts/03_insert_complemento_carga.sql
+```
+
+Garante que `PROTOCOLO_PREVENTIVO`, `DISPOSITIVO_IOT`, `LEITURA_COMEDOURO`, `LEITURA_AMBIENTE` e `SCORE_SAUDE` também cheguem a pelo menos 5 registros cada. `ALERTA_SAUDE` chega a 5 como efeito automático das próprias procedures de leitura (uma leitura de ração abaixo de 20% e uma leitura de qualidade do ar acima de 500ppm), sem inserção direta na tabela.
+
+### 18. Criar procedures de relatório da rubrica Sprint 3
 
 ```txt
 sql/procedures/04_procedures_relatorios_sprint3.sql
 ```
 
-Cria `prc_rel_pets_tutor_clinica_json` (Procedimento 1 — JOIN + JSON) e `prc_rel_consultas_subtotal` (Procedimento 2 — subtotal e total geral manuais). Já executa e imprime os dois no final do script.
+Cria `prc_rel_pets_tutor_clinica_json` (Procedimento 1 — JOIN + JSON) e `prc_rel_consultas_subtotal` (Procedimento 2 — subtotal e total geral manuais, agrupado por clínica + tipo de consulta). Já executa e imprime os dois no final do script, incluindo um caso de exceção de cada um.
 
-### 18. Executar relatórios com joins
+### 19. Executar relatórios com joins
 
 ```txt
 sql/relatorios/01_joins_group_order.sql
@@ -443,7 +454,7 @@ sql/relatorios/01_joins_group_order.sql
 
 Executa relatórios com `JOIN`, `GROUP BY` e `ORDER BY`.
 
-### 19. Executar relatório LAG/LEAD
+### 20. Executar relatório LAG/LEAD
 
 ```txt
 sql/relatorios/02_lag_lead.sql
@@ -451,7 +462,7 @@ sql/relatorios/02_lag_lead.sql
 
 Mostra valor anterior, atual e próximo de leituras da coleira (nível de bateria).
 
-### 20. Executar relatórios com cursores
+### 21. Executar relatórios com cursores
 
 ```txt
 sql/relatorios/03_cursores.sql
@@ -642,22 +653,22 @@ Quando `status_acesso` do tutor muda, o trigger `TRG_AUDITORIA_TUTOR` registra a
 
 ## Dados de Teste
 
-O script de inserts cria dados iniciais para testar o banco.
-
-São cadastrados:
+Os três scripts de inserts (`01_insert_testes.sql`, `02_insert_extra_sprint3.sql` e `03_insert_complemento_carga.sql`) juntos cadastram:
 
 ```txt
-3 tutores
-2 clínicas
-3 pets
-4 protocolos preventivos
+5 tutores
+5 clínicas
+5 pets
+5 protocolos preventivos
 5 consultas
 5 eventos preventivos
-4 dispositivos IoT
-10 leituras de sensores (7 coleira + 2 comedouro + 1 ambiente)
-3 scores de saúde
-alertas gerados automaticamente
+5 dispositivos IoT
+17 leituras de sensores (7 coleira + 5 comedouro + 5 ambiente)
+5 scores de saúde
+5 alertas de saúde (todos gerados automaticamente pelas procedures)
 ```
+
+`TUTOR`, `CLINICA`, `PET`, `PROTOCOLO_PREVENTIVO`, `DISPOSITIVO_IOT`, `LEITURA_COMEDOURO`, `LEITURA_AMBIENTE`, `SCORE_SAUDE` e `ALERTA_SAUDE` chegam a pelo menos 5 registros cada, conforme exigido pelo Procedimento 1 da rubrica da Sprint 3.
 
 Após executar a carga, é possível conferir os totais com:
 
@@ -754,18 +765,18 @@ Valor de consultas por clínica com subtotal e total geral
 Durante os testes, foram validados:
 
 ```txt
-12 tabelas criadas (11 + AUDITORIA_TUTOR)
-12 sequences criadas (11 + seq_auditoria_tutor)
+14 tabelas criadas (13 apos o split de LEITURA_SENSOR + AUDITORIA_TUTOR)
+14 sequences criadas (13 apos o split de LEITURA_SENSOR + seq_auditoria_tutor)
 15 índices criados
-DEFAULT seq_xxx.NEXTVAL aplicado/corrigido nas 11 colunas de PK
+DEFAULT seq_xxx.NEXTVAL aplicado/corrigido nas 13 colunas de PK
 1 procedure de log criada
 1 procedure de cadastro de tutor criada
-9 procedures de carga criadas
-1 trigger de auditoria criado e validado (INSERT/UPDATE/DELETE)
+11 procedures de carga criadas
+1 trigger de auditoria criado e validado (INSERT/UPDATE/DELETE, com print de cada operação)
 2 functions de negócio criadas (idade do pet, score médio)
-2 functions da rubrica Sprint 3 criadas (JSON manual, validação de senha)
-2 procedures da rubrica Sprint 3 criadas (JOIN+JSON, subtotal/total geral manual)
-Dados de teste inseridos com sucesso
+2 functions da rubrica Sprint 3 criadas (JSON manual com escape completo, validação de senha)
+2 procedures da rubrica Sprint 3 criadas (JOIN+JSON, subtotal/total geral manual agrupado por clínica+tipo)
+Dados de teste inseridos com sucesso (5+ registros em cada tabela exigida pela rubrica)
 Relatórios executados com sucesso
 ```
 
@@ -786,7 +797,7 @@ Para a entrega acadêmica, o modelo deverá ser representado também no Oracle D
 - Constraints;
 - DDL gerado pelo Data Modeler.
 
-> O modelo no Data Modeler ainda precisa ser atualizado para refletir o rename `TUTOR` e os novos campos/objetos (auth, trigger, functions).
+> O modelo no Data Modeler já reflete o rename `TUTOR` e os campos de autenticação (`senha_hash`/`status_acesso`). Ainda falta adicionar a tabela `AUDITORIA_TUTOR` (criada pelo trigger) ao diagrama e reexportar o DER/MER em `docs/MER e DER/`.
 
 ---
 

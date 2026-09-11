@@ -69,9 +69,35 @@ END;
 /
 
 ------------------------------------------------------------
--- TESTE
+-- TESTE / EVIDENCIA (tirar print para o PDF)
+-- Demonstra a auditoria capturando INSERT, UPDATE e DELETE
+-- num tutor de teste, com usuario, operacao, data/hora e
+-- valores anteriores/novos. O tutor de teste e removido no
+-- final, entao nao conta para o minimo de 5 tutores exigido
+-- pelo Procedimento 1 da rubrica.
 ------------------------------------------------------------
--- INSERT INTO TUTOR (id_tutor, nome, email, cpf, data_cadastro, ativo, status_acesso)
---   VALUES (seq_tutor.NEXTVAL, 'Teste Auditoria', 'auditoria@teste.com', '99999999999', SYSDATE, 'S', 'PRE_CADASTRADO');
--- UPDATE TUTOR SET status_acesso = 'ATIVO', senha_hash = 'hash_teste' WHERE email = 'auditoria@teste.com';
--- SELECT * FROM AUDITORIA_TUTOR ORDER BY data_hora DESC;
+
+INSERT INTO TUTOR (
+    id_tutor, nome, email, telefone, cpf, data_cadastro, ativo, status_acesso
+) VALUES (
+    seq_tutor.NEXTVAL, 'Teste Auditoria', 'auditoria@teste.com',
+    '11900000000', '00000000000', SYSDATE, 'S', 'PRE_CADASTRADO'
+);
+COMMIT;
+
+UPDATE TUTOR
+SET status_acesso = 'ATIVO', senha_hash = 'hash_teste_auditoria'
+WHERE email = 'auditoria@teste.com';
+COMMIT;
+
+DELETE FROM TUTOR WHERE email = 'auditoria@teste.com';
+COMMIT;
+
+SELECT id_auditoria, id_tutor, operacao, usuario_bd, data_hora,
+       status_anterior, status_novo, email_anterior, email_novo
+FROM AUDITORIA_TUTOR
+WHERE email_anterior = 'auditoria@teste.com' OR email_novo = 'auditoria@teste.com'
+ORDER BY data_hora;
+-- Esperado: 3 linhas (INSERT, UPDATE, DELETE) para esse tutor,
+-- com status_anterior/status_novo mostrando PRE_CADASTRADO -> ATIVO
+-- no UPDATE, e id_tutor/email preenchidos em todas as 3 linhas.

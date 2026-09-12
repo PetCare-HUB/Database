@@ -82,17 +82,22 @@ END;
 -- CLINICA (categoria 1, identificada por id_clinica para nao
 -- misturar clinicas homonimas) e TIPO_CONSULTA (categoria 2),
 -- com VALOR (numerico). O cursor traz as linhas BRUTAS (uma
--- por consulta, sem SUM/GROUP BY) e o subtotal por categoria 1
--- e o total geral sao acumulados MANUALMENTE em variaveis
--- dentro do loop - sem SUM, ROLLUP, CUBE ou GROUPING SETS.
+-- por consulta, sem SUM/GROUP BY) e a procedure calcula e
+-- exibe, tudo acumulado MANUALMENTE em variaveis dentro do
+-- loop (sem SUM, ROLLUP, CUBE, GROUPING SETS ou GROUPING):
+--   1) os valores somados por COMBINACAO COMPLETA das
+--      categorias (clinica, tipo) - varias consultas da mesma
+--      clinica+tipo viram uma unica linha com o valor somado;
+--   2) um subtotal por grupo da categoria 1 (clinica);
+--   3) um total geral ao final da listagem.
 -- VALOR nulo e tratado com NVL antes de acumular.
 --
 -- Formato de saida segue o modelo oficial da rubrica (relatorio
--- Agencia/Conta/Saldo): a categoria 1 se repete em toda linha
--- de detalhe, a ordem de exibicao segue a hierarquia das
--- categorias (categoria 1, depois categoria 2), e existe um
--- unico nivel de "Sub Total" por categoria 1, seguido de
--- "Total Geral" ao final.
+-- Agencia/Conta/Saldo, pagina 25/26): a categoria 1 se repete em
+-- toda linha de combinacao (nunca fica em branco nelas), a ordem
+-- de exibicao segue a hierarquia das categorias, e os valores de
+-- agrupamento ficam ausentes (em branco) SOMENTE nas linhas de
+-- Sub Total e Total Geral.
 ------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE prc_rel_consultas_subtotal AS
@@ -105,11 +110,14 @@ CREATE OR REPLACE PROCEDURE prc_rel_consultas_subtotal AS
         JOIN CLINICA c ON c.id_clinica = co.id_clinica
         ORDER BY c.id_clinica, co.tipo_consulta;
 
-    v_id_clinica_atual  NUMBER := NULL;
-    v_valor             NUMBER;
-    v_subtotal          NUMBER := 0;
-    v_total_geral       NUMBER := 0;
-    v_qtd_linhas        NUMBER := 0;
+    v_id_clinica_atual   NUMBER := NULL;
+    v_tipo_atual         VARCHAR2(30);
+    v_nome_clinica_atual VARCHAR2(120);
+    v_valor              NUMBER;
+    v_valor_combo        NUMBER := 0;
+    v_subtotal           NUMBER := 0;
+    v_total_geral        NUMBER := 0;
+    v_qtd_linhas         NUMBER := 0;
 
     e_sem_registros      EXCEPTION;
     e_valor_negativo     EXCEPTION;
@@ -130,35 +138,44 @@ BEGIN
             RAISE e_valor_negativo;
         END IF;
 
-        -- QUEBRA DE CATEGORIA 1 (clinica): fecha o subtotal
-        -- acumulado da clinica anterior antes de trocar de
-        -- grupo (a linha de Sub Total fica com a coluna da
-        -- categoria 1 em branco, igual ao exemplo oficial).
-        IF v_id_clinica_atual IS NOT NULL AND v_id_clinica_atual <> r.id_clinica THEN
+        IF v_id_clinica_atual IS NOT NULL AND r.id_clinica <> v_id_clinica_atual THEN
+            -- QUEBRA DE CATEGORIA 1 (clinica): fecha a ultima
+            -- combinacao (categoria1+categoria2) pendente da
+            -- clinica anterior e imprime o Sub Total dela (com
+            -- as colunas de categoria em branco, igual ao
+            -- exemplo oficial).
+            DBMS_OUTPUT.PUT_LINE(
+                RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
+            );
             DBMS_OUTPUT.PUT_LINE(
                 RPAD(' ', 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
             );
+            v_valor_combo := 0;
             v_subtotal := 0;
+        ELSIF v_tipo_atual IS NOT NULL AND r.categoria2_tipo <> v_tipo_atual THEN
+            -- QUEBRA DE CATEGORIA 2 (tipo) dentro da mesma
+            -- clinica: fecha a combinacao anterior e imprime a
+            -- soma completa dela (categoria1 continua repetida,
+            -- nunca em branco numa linha de combinacao).
+            DBMS_OUTPUT.PUT_LINE(
+                RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
+            );
+            v_valor_combo := 0;
         END IF;
 
-        -- Categoria 1 se repete em toda linha de detalhe,
-        -- igual ao exemplo oficial (Agencia repetida a cada
-        -- linha de Conta).
-        DBMS_OUTPUT.PUT_LINE(
-            RPAD(r.categoria1_clinica, 28) || RPAD(r.categoria2_tipo, 15) || TO_CHAR(v_valor, '999G990D00')
-        );
-
-        v_id_clinica_atual := r.id_clinica;
-
         -- ACUMULACAO MANUAL (sem SUM/GROUP BY): soma o valor
-        -- desta linha no subtotal da categoria 1 (clinica) e no
-        -- total geral. Combina corretamente varias linhas da
-        -- mesma categoria 1 + categoria 2 (ex.: 3 consultas do
-        -- tipo CHECKUP na mesma clinica caem todas no mesmo
-        -- subtotal, exatamente como as 5 contas da agencia 1
-        -- do exemplo oficial).
+        -- desta linha na combinacao categoria1+categoria2 atual,
+        -- no subtotal da categoria 1 (clinica) e no total geral.
+        -- Varias consultas da mesma clinica+tipo (ex.: 3 do tipo
+        -- CHECKUP na mesma clinica) se acumulam na mesma
+        -- combinacao e saem como uma unica linha somada.
+        v_valor_combo := v_valor_combo + v_valor;
         v_subtotal := v_subtotal + v_valor;
         v_total_geral := v_total_geral + v_valor;
+
+        v_id_clinica_atual := r.id_clinica;
+        v_tipo_atual := r.categoria2_tipo;
+        v_nome_clinica_atual := r.categoria1_clinica;
         v_qtd_linhas := v_qtd_linhas + 1;
     END LOOP;
 
@@ -166,7 +183,11 @@ BEGIN
         RAISE e_sem_registros;
     END IF;
 
-    -- Fecha o ultimo grupo pendente e imprime o total geral.
+    -- Fecha a ultima combinacao e o ultimo subtotal pendentes,
+    -- depois imprime o total geral.
+    DBMS_OUTPUT.PUT_LINE(
+        RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
+    );
     DBMS_OUTPUT.PUT_LINE(
         RPAD(' ', 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
     );

@@ -141,14 +141,15 @@ BEGIN
         IF v_id_clinica_atual IS NOT NULL AND r.id_clinica <> v_id_clinica_atual THEN
             -- QUEBRA DE CATEGORIA 1 (clinica): fecha a ultima
             -- combinacao (categoria1+categoria2) pendente da
-            -- clinica anterior e imprime o Sub Total dela (com
-            -- as colunas de categoria em branco, igual ao
-            -- exemplo oficial).
+            -- clinica anterior e imprime o Sub Total dela. O
+            -- rotulo "Sub Total" ocupa a 1a coluna (categoria1)
+            -- e a 2a coluna (categoria2) fica em branco, igual
+            -- ao exemplo oficial da rubrica.
             DBMS_OUTPUT.PUT_LINE(
                 RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
             );
             DBMS_OUTPUT.PUT_LINE(
-                RPAD(' ', 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
+                RPAD('Sub Total', 28) || RPAD(' ', 15) || TO_CHAR(v_subtotal, '999G990D00')
             );
             v_valor_combo := 0;
             v_subtotal := 0;
@@ -189,10 +190,10 @@ BEGIN
         RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
     );
     DBMS_OUTPUT.PUT_LINE(
-        RPAD(' ', 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
+        RPAD('Sub Total', 28) || RPAD(' ', 15) || TO_CHAR(v_subtotal, '999G990D00')
     );
     DBMS_OUTPUT.PUT_LINE(
-        RPAD(' ', 28) || RPAD('Total Geral', 15) || TO_CHAR(v_total_geral, '999G990D00')
+        RPAD('Total Geral', 28) || RPAD(' ', 15) || TO_CHAR(v_total_geral, '999G990D00')
     );
 
 EXCEPTION

@@ -2168,11 +2168,13 @@ END;
 
 ------------------------------------------------------------
 -- TESTE / EVIDENCIA (tirar print para o PDF)
--- Demonstra a auditoria capturando INSERT, UPDATE e DELETE
--- num tutor de teste, com usuario, operacao, data/hora e
--- valores anteriores/novos. O tutor de teste e removido no
--- final, entao nao conta para o minimo de 5 tutores exigido
--- pelo Procedimento 1 da rubrica.
+-- Demonstra a auditoria capturando um ciclo de vida completo
+-- (INSERT, 3x UPDATE, DELETE) num tutor de teste, com usuario,
+-- operacao, data/hora e valores anteriores/novos. O tutor de
+-- teste e removido no final, entao nao conta para o minimo de
+-- 5 tutores exigido pelo Procedimento 1 da rubrica. 5 eventos
+-- de auditoria tambem garantem o minimo de 5 linhas em
+-- AUDITORIA_TUTOR na conferencia final de carga.
 ------------------------------------------------------------
 
 INSERT INTO TUTOR (
@@ -2188,6 +2190,16 @@ SET status_acesso = 'ATIVO', senha_hash = 'hash_teste_auditoria'
 WHERE email = 'auditoria@teste.com';
 COMMIT;
 
+UPDATE TUTOR
+SET status_acesso = 'BLOQUEADO'
+WHERE email = 'auditoria@teste.com';
+COMMIT;
+
+UPDATE TUTOR
+SET status_acesso = 'ATIVO'
+WHERE email = 'auditoria@teste.com';
+COMMIT;
+
 DELETE FROM TUTOR WHERE email = 'auditoria@teste.com';
 COMMIT;
 
@@ -2196,9 +2208,10 @@ SELECT id_auditoria, id_tutor, operacao, usuario_bd, data_hora,
 FROM AUDITORIA_TUTOR
 WHERE email_anterior = 'auditoria@teste.com' OR email_novo = 'auditoria@teste.com'
 ORDER BY data_hora;
--- Esperado: 3 linhas (INSERT, UPDATE, DELETE) para esse tutor,
--- com status_anterior/status_novo mostrando PRE_CADASTRADO -> ATIVO
--- no UPDATE, e id_tutor/email preenchidos em todas as 3 linhas.
+-- Esperado: 5 linhas (INSERT, UPDATE, UPDATE, UPDATE, DELETE)
+-- para esse tutor, com status_anterior/status_novo mostrando o
+-- ciclo PRE_CADASTRADO -> ATIVO -> BLOQUEADO -> ATIVO, e
+-- id_tutor/email preenchidos em todas as 5 linhas.
 
 -- ================================================================================
 -- PASSO 13/21 - sql/functions/01_functions.sql
@@ -3407,14 +3420,15 @@ BEGIN
         IF v_id_clinica_atual IS NOT NULL AND r.id_clinica <> v_id_clinica_atual THEN
             -- QUEBRA DE CATEGORIA 1 (clinica): fecha a ultima
             -- combinacao (categoria1+categoria2) pendente da
-            -- clinica anterior e imprime o Sub Total dela (com
-            -- as colunas de categoria em branco, igual ao
-            -- exemplo oficial).
+            -- clinica anterior e imprime o Sub Total dela. O
+            -- rotulo "Sub Total" ocupa a 1a coluna (categoria1)
+            -- e a 2a coluna (categoria2) fica em branco, igual
+            -- ao exemplo oficial da rubrica.
             DBMS_OUTPUT.PUT_LINE(
                 RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
             );
             DBMS_OUTPUT.PUT_LINE(
-                RPAD(' ', 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
+                RPAD('Sub Total', 28) || RPAD(' ', 15) || TO_CHAR(v_subtotal, '999G990D00')
             );
             v_valor_combo := 0;
             v_subtotal := 0;
@@ -3455,10 +3469,10 @@ BEGIN
         RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
     );
     DBMS_OUTPUT.PUT_LINE(
-        RPAD(' ', 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
+        RPAD('Sub Total', 28) || RPAD(' ', 15) || TO_CHAR(v_subtotal, '999G990D00')
     );
     DBMS_OUTPUT.PUT_LINE(
-        RPAD(' ', 28) || RPAD('Total Geral', 15) || TO_CHAR(v_total_geral, '999G990D00')
+        RPAD('Total Geral', 28) || RPAD(' ', 15) || TO_CHAR(v_total_geral, '999G990D00')
     );
 
 EXCEPTION

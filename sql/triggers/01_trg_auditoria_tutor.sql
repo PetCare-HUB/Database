@@ -70,11 +70,13 @@ END;
 
 ------------------------------------------------------------
 -- TESTE / EVIDENCIA (tirar print para o PDF)
--- Demonstra a auditoria capturando INSERT, UPDATE e DELETE
--- num tutor de teste, com usuario, operacao, data/hora e
--- valores anteriores/novos. O tutor de teste e removido no
--- final, entao nao conta para o minimo de 5 tutores exigido
--- pelo Procedimento 1 da rubrica.
+-- Demonstra a auditoria capturando um ciclo de vida completo
+-- (INSERT, 3x UPDATE, DELETE) num tutor de teste, com usuario,
+-- operacao, data/hora e valores anteriores/novos. O tutor de
+-- teste e removido no final, entao nao conta para o minimo de
+-- 5 tutores exigido pelo Procedimento 1 da rubrica. 5 eventos
+-- de auditoria tambem garantem o minimo de 5 linhas em
+-- AUDITORIA_TUTOR na conferencia final de carga.
 ------------------------------------------------------------
 
 INSERT INTO TUTOR (
@@ -90,6 +92,16 @@ SET status_acesso = 'ATIVO', senha_hash = 'hash_teste_auditoria'
 WHERE email = 'auditoria@teste.com';
 COMMIT;
 
+UPDATE TUTOR
+SET status_acesso = 'BLOQUEADO'
+WHERE email = 'auditoria@teste.com';
+COMMIT;
+
+UPDATE TUTOR
+SET status_acesso = 'ATIVO'
+WHERE email = 'auditoria@teste.com';
+COMMIT;
+
 DELETE FROM TUTOR WHERE email = 'auditoria@teste.com';
 COMMIT;
 
@@ -98,6 +110,7 @@ SELECT id_auditoria, id_tutor, operacao, usuario_bd, data_hora,
 FROM AUDITORIA_TUTOR
 WHERE email_anterior = 'auditoria@teste.com' OR email_novo = 'auditoria@teste.com'
 ORDER BY data_hora;
--- Esperado: 3 linhas (INSERT, UPDATE, DELETE) para esse tutor,
--- com status_anterior/status_novo mostrando PRE_CADASTRADO -> ATIVO
--- no UPDATE, e id_tutor/email preenchidos em todas as 3 linhas.
+-- Esperado: 5 linhas (INSERT, UPDATE, UPDATE, UPDATE, DELETE)
+-- para esse tutor, com status_anterior/status_novo mostrando o
+-- ciclo PRE_CADASTRADO -> ATIVO -> BLOQUEADO -> ATIVO, e
+-- id_tutor/email preenchidos em todas as 5 linhas.

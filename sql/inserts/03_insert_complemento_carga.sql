@@ -17,17 +17,20 @@ SET SERVEROUTPUT ON;
 ------------------------------------------------------------
 
 DECLARE
-    v_pet_rex   NUMBER;
-    v_pet_luna  NUMBER;
-    v_pet_thor  NUMBER;
-    v_pet_mel   NUMBER;
-    v_pet_nina  NUMBER;
+    v_pet_rex        NUMBER;
+    v_pet_luna       NUMBER;
+    v_pet_thor       NUMBER;
+    v_pet_mel        NUMBER;
+    v_pet_nina       NUMBER;
+    v_clinica_vida   NUMBER;
 BEGIN
     SELECT id_pet INTO v_pet_rex  FROM PET WHERE nome = 'Rex';
     SELECT id_pet INTO v_pet_luna FROM PET WHERE nome = 'Luna';
     SELECT id_pet INTO v_pet_thor FROM PET WHERE nome = 'Thor';
     SELECT id_pet INTO v_pet_mel  FROM PET WHERE nome = 'Mel';
     SELECT id_pet INTO v_pet_nina FROM PET WHERE nome = 'Nina';
+
+    SELECT id_clinica INTO v_clinica_vida FROM CLINICA WHERE cnpj = '11111111000111';
 
     --------------------------------------------------------
     -- 1 PROTOCOLO_PREVENTIVO A MAIS (total: 5)
@@ -113,22 +116,72 @@ BEGIN
         v_pet_nina, 91, 92, 90, 88, 93, 90
     );
 
+    --------------------------------------------------------
+    -- 2 CONSULTAS A MAIS, mesma clinica (Clinica Vida Pet) e
+    -- mesmo tipo (CHECKUP) da consulta ja existente do Rex.
+    -- Objetivo: demonstrar que PRC_REL_CONSULTAS_SUBTOTAL soma
+    -- corretamente varias linhas da mesma combinacao
+    -- clinica+tipo (180,00 do Rex + 170,00 da Luna + 190,00 da
+    -- Mel = 540,00 no subtotal de CHECKUP da Clinica Vida Pet).
+    --------------------------------------------------------
+
+    prc_ins_consulta(
+        v_pet_luna,
+        v_clinica_vida,
+        TO_DATE('2026-05-10', 'YYYY-MM-DD'),
+        'CHECKUP',
+        'Checkup de rotina',
+        'Tudo normal',
+        170.00,
+        'N',
+        NULL
+    );
+
+    prc_ins_consulta(
+        v_pet_mel,
+        v_clinica_vida,
+        TO_DATE('2026-05-15', 'YYYY-MM-DD'),
+        'CHECKUP',
+        'Checkup de rotina',
+        'Tudo normal',
+        190.00,
+        'N',
+        NULL
+    );
+
     DBMS_OUTPUT.PUT_LINE('Carga complementar 2 finalizada com sucesso.');
 END;
 /
 
 ------------------------------------------------------------
--- CONFERENCIA: cada tabela precisa ter >= 5 registros
+-- CONFERENCIA FINAL: contagem de todas as tabelas do banco
+-- (print de evidencia para a documentacao)
 ------------------------------------------------------------
 
-SELECT 'PROTOCOLO_PREVENTIVO' AS tabela, COUNT(*) AS total FROM PROTOCOLO_PREVENTIVO
+SELECT 'TUTOR' AS tabela, COUNT(*) AS total FROM TUTOR
+UNION ALL
+SELECT 'CLINICA', COUNT(*) FROM CLINICA
+UNION ALL
+SELECT 'PET', COUNT(*) FROM PET
+UNION ALL
+SELECT 'CONSULTA', COUNT(*) FROM CONSULTA
+UNION ALL
+SELECT 'PROTOCOLO_PREVENTIVO', COUNT(*) FROM PROTOCOLO_PREVENTIVO
+UNION ALL
+SELECT 'EVENTO_PREVENTIVO', COUNT(*) FROM EVENTO_PREVENTIVO
 UNION ALL
 SELECT 'DISPOSITIVO_IOT', COUNT(*) FROM DISPOSITIVO_IOT
+UNION ALL
+SELECT 'LEITURA_COLEIRA', COUNT(*) FROM LEITURA_COLEIRA
 UNION ALL
 SELECT 'LEITURA_COMEDOURO', COUNT(*) FROM LEITURA_COMEDOURO
 UNION ALL
 SELECT 'LEITURA_AMBIENTE', COUNT(*) FROM LEITURA_AMBIENTE
 UNION ALL
+SELECT 'ALERTA_SAUDE', COUNT(*) FROM ALERTA_SAUDE
+UNION ALL
 SELECT 'SCORE_SAUDE', COUNT(*) FROM SCORE_SAUDE
 UNION ALL
-SELECT 'ALERTA_SAUDE', COUNT(*) FROM ALERTA_SAUDE;
+SELECT 'LOG_ERROS', COUNT(*) FROM LOG_ERROS
+UNION ALL
+SELECT 'AUDITORIA_TUTOR', COUNT(*) FROM AUDITORIA_TUTOR;

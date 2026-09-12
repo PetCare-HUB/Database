@@ -3091,17 +3091,20 @@ SELECT 'PET', COUNT(*) FROM PET;
 ------------------------------------------------------------
 
 DECLARE
-    v_pet_rex   NUMBER;
-    v_pet_luna  NUMBER;
-    v_pet_thor  NUMBER;
-    v_pet_mel   NUMBER;
-    v_pet_nina  NUMBER;
+    v_pet_rex        NUMBER;
+    v_pet_luna       NUMBER;
+    v_pet_thor       NUMBER;
+    v_pet_mel        NUMBER;
+    v_pet_nina       NUMBER;
+    v_clinica_vida   NUMBER;
 BEGIN
     SELECT id_pet INTO v_pet_rex  FROM PET WHERE nome = 'Rex';
     SELECT id_pet INTO v_pet_luna FROM PET WHERE nome = 'Luna';
     SELECT id_pet INTO v_pet_thor FROM PET WHERE nome = 'Thor';
     SELECT id_pet INTO v_pet_mel  FROM PET WHERE nome = 'Mel';
     SELECT id_pet INTO v_pet_nina FROM PET WHERE nome = 'Nina';
+
+    SELECT id_clinica INTO v_clinica_vida FROM CLINICA WHERE cnpj = '11111111000111';
 
     --------------------------------------------------------
     -- 1 PROTOCOLO_PREVENTIVO A MAIS (total: 5)
@@ -3187,25 +3190,75 @@ BEGIN
         v_pet_nina, 91, 92, 90, 88, 93, 90
     );
 
+    --------------------------------------------------------
+    -- 2 CONSULTAS A MAIS, mesma clinica (Clinica Vida Pet) e
+    -- mesmo tipo (CHECKUP) da consulta ja existente do Rex.
+    -- Objetivo: demonstrar que PRC_REL_CONSULTAS_SUBTOTAL soma
+    -- corretamente varias linhas da mesma combinacao
+    -- clinica+tipo (180,00 do Rex + 170,00 da Luna + 190,00 da
+    -- Mel = 540,00 no subtotal de CHECKUP da Clinica Vida Pet).
+    --------------------------------------------------------
+
+    prc_ins_consulta(
+        v_pet_luna,
+        v_clinica_vida,
+        TO_DATE('2026-05-10', 'YYYY-MM-DD'),
+        'CHECKUP',
+        'Checkup de rotina',
+        'Tudo normal',
+        170.00,
+        'N',
+        NULL
+    );
+
+    prc_ins_consulta(
+        v_pet_mel,
+        v_clinica_vida,
+        TO_DATE('2026-05-15', 'YYYY-MM-DD'),
+        'CHECKUP',
+        'Checkup de rotina',
+        'Tudo normal',
+        190.00,
+        'N',
+        NULL
+    );
+
     DBMS_OUTPUT.PUT_LINE('Carga complementar 2 finalizada com sucesso.');
 END;
 /
 
 ------------------------------------------------------------
--- CONFERENCIA: cada tabela precisa ter >= 5 registros
+-- CONFERENCIA FINAL: contagem de todas as tabelas do banco
+-- (print de evidencia para a documentacao)
 ------------------------------------------------------------
 
-SELECT 'PROTOCOLO_PREVENTIVO' AS tabela, COUNT(*) AS total FROM PROTOCOLO_PREVENTIVO
+SELECT 'TUTOR' AS tabela, COUNT(*) AS total FROM TUTOR
+UNION ALL
+SELECT 'CLINICA', COUNT(*) FROM CLINICA
+UNION ALL
+SELECT 'PET', COUNT(*) FROM PET
+UNION ALL
+SELECT 'CONSULTA', COUNT(*) FROM CONSULTA
+UNION ALL
+SELECT 'PROTOCOLO_PREVENTIVO', COUNT(*) FROM PROTOCOLO_PREVENTIVO
+UNION ALL
+SELECT 'EVENTO_PREVENTIVO', COUNT(*) FROM EVENTO_PREVENTIVO
 UNION ALL
 SELECT 'DISPOSITIVO_IOT', COUNT(*) FROM DISPOSITIVO_IOT
+UNION ALL
+SELECT 'LEITURA_COLEIRA', COUNT(*) FROM LEITURA_COLEIRA
 UNION ALL
 SELECT 'LEITURA_COMEDOURO', COUNT(*) FROM LEITURA_COMEDOURO
 UNION ALL
 SELECT 'LEITURA_AMBIENTE', COUNT(*) FROM LEITURA_AMBIENTE
 UNION ALL
+SELECT 'ALERTA_SAUDE', COUNT(*) FROM ALERTA_SAUDE
+UNION ALL
 SELECT 'SCORE_SAUDE', COUNT(*) FROM SCORE_SAUDE
 UNION ALL
-SELECT 'ALERTA_SAUDE', COUNT(*) FROM ALERTA_SAUDE;
+SELECT 'LOG_ERROS', COUNT(*) FROM LOG_ERROS
+UNION ALL
+SELECT 'AUDITORIA_TUTOR', COUNT(*) FROM AUDITORIA_TUTOR;
 
 -- ================================================================================
 -- PASSO 18/21 - sql/procedures/04_procedures_relatorios_sprint3.sql
@@ -3292,28 +3345,37 @@ END;
 
 ------------------------------------------------------------
 -- PROCEDIMENTO 2: le CONSULTA (fato) categorizada por
--- CLINICA (categoria 1) e TIPO_CONSULTA (categoria 2), com
--- VALOR (numerico). Agrupa combinacoes repetidas de
--- clinica+tipo (SUM manual) e trata VALOR nulo com NVL antes
--- de somar, para nao invalidar o subtotal/total geral.
--- Subtotal por clinica e total geral calculados manualmente,
--- sem ROLLUP/CUBE/GROUPING SETS.
+-- CLINICA (categoria 1, identificada por id_clinica para nao
+-- misturar clinicas homonimas) e TIPO_CONSULTA (categoria 2),
+-- com VALOR (numerico). O cursor traz as linhas BRUTAS (uma
+-- por consulta, sem SUM/GROUP BY) e o subtotal por categoria 1
+-- e o total geral sao acumulados MANUALMENTE em variaveis
+-- dentro do loop - sem SUM, ROLLUP, CUBE ou GROUPING SETS.
+-- VALOR nulo e tratado com NVL antes de acumular.
+--
+-- Formato de saida segue o modelo oficial da rubrica (relatorio
+-- Agencia/Conta/Saldo): a categoria 1 se repete em toda linha
+-- de detalhe, a ordem de exibicao segue a hierarquia das
+-- categorias (categoria 1, depois categoria 2), e existe um
+-- unico nivel de "Sub Total" por categoria 1, seguido de
+-- "Total Geral" ao final.
 ------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE prc_rel_consultas_subtotal AS
     CURSOR c_consultas IS
-        SELECT c.nome AS categoria1_clinica,
+        SELECT c.id_clinica,
+               c.nome AS categoria1_clinica,
                co.tipo_consulta AS categoria2_tipo,
-               SUM(NVL(co.valor, 0)) AS valor
+               co.valor
         FROM CONSULTA co
         JOIN CLINICA c ON c.id_clinica = co.id_clinica
-        GROUP BY c.nome, co.tipo_consulta
-        ORDER BY c.nome, co.tipo_consulta;
+        ORDER BY c.id_clinica, co.tipo_consulta;
 
-    v_categoria1_atual  VARCHAR2(120) := NULL;
+    v_id_clinica_atual  NUMBER := NULL;
+    v_valor             NUMBER;
     v_subtotal          NUMBER := 0;
-    v_total_geral        NUMBER := 0;
-    v_qtd_linhas         NUMBER := 0;
+    v_total_geral       NUMBER := 0;
+    v_qtd_linhas        NUMBER := 0;
 
     e_sem_registros      EXCEPTION;
     e_valor_negativo     EXCEPTION;
@@ -3328,25 +3390,41 @@ BEGIN
             RAISE e_clinica_sem_nome;
         END IF;
 
-        IF r.valor < 0 THEN
+        v_valor := NVL(r.valor, 0);
+
+        IF v_valor < 0 THEN
             RAISE e_valor_negativo;
         END IF;
 
-        IF v_categoria1_atual IS NOT NULL AND v_categoria1_atual <> r.categoria1_clinica THEN
+        -- QUEBRA DE CATEGORIA 1 (clinica): fecha o subtotal
+        -- acumulado da clinica anterior antes de trocar de
+        -- grupo (a linha de Sub Total fica com a coluna da
+        -- categoria 1 em branco, igual ao exemplo oficial).
+        IF v_id_clinica_atual IS NOT NULL AND v_id_clinica_atual <> r.id_clinica THEN
             DBMS_OUTPUT.PUT_LINE(
-                RPAD(v_categoria1_atual, 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
+                RPAD(' ', 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
             );
             v_subtotal := 0;
         END IF;
 
-        v_categoria1_atual := r.categoria1_clinica;
-
+        -- Categoria 1 se repete em toda linha de detalhe,
+        -- igual ao exemplo oficial (Agencia repetida a cada
+        -- linha de Conta).
         DBMS_OUTPUT.PUT_LINE(
-            RPAD(r.categoria1_clinica, 28) || RPAD(r.categoria2_tipo, 15) || TO_CHAR(r.valor, '999G990D00')
+            RPAD(r.categoria1_clinica, 28) || RPAD(r.categoria2_tipo, 15) || TO_CHAR(v_valor, '999G990D00')
         );
 
-        v_subtotal := v_subtotal + r.valor;
-        v_total_geral := v_total_geral + r.valor;
+        v_id_clinica_atual := r.id_clinica;
+
+        -- ACUMULACAO MANUAL (sem SUM/GROUP BY): soma o valor
+        -- desta linha no subtotal da categoria 1 (clinica) e no
+        -- total geral. Combina corretamente varias linhas da
+        -- mesma categoria 1 + categoria 2 (ex.: 3 consultas do
+        -- tipo CHECKUP na mesma clinica caem todas no mesmo
+        -- subtotal, exatamente como as 5 contas da agencia 1
+        -- do exemplo oficial).
+        v_subtotal := v_subtotal + v_valor;
+        v_total_geral := v_total_geral + v_valor;
         v_qtd_linhas := v_qtd_linhas + 1;
     END LOOP;
 
@@ -3354,8 +3432,9 @@ BEGIN
         RAISE e_sem_registros;
     END IF;
 
+    -- Fecha o ultimo grupo pendente e imprime o total geral.
     DBMS_OUTPUT.PUT_LINE(
-        RPAD(v_categoria1_atual, 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
+        RPAD(' ', 28) || RPAD('Sub Total', 15) || TO_CHAR(v_subtotal, '999G990D00')
     );
     DBMS_OUTPUT.PUT_LINE(
         RPAD(' ', 28) || RPAD('Total Geral', 15) || TO_CHAR(v_total_geral, '999G990D00')

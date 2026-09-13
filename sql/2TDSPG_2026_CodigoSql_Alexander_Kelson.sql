@@ -4176,11 +4176,3 @@ BEGIN
     );
 END;
 /
-
-------------------------------------------------------------------------------
--- FIM DO SCRIPT COMPLETO
--- Se chegou ate aqui sem nenhum ORA- no meio do caminho, rode:
---   SELECT * FROM LOG_ERROS;
--- e confirme que so aparecem as 2 linhas de teste de excecao do
--- PASSO 18 (codigos -20204 e -20205), sem nenhum erro inesperado.
-------------------------------------------------------------------------------

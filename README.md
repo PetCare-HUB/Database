@@ -56,9 +56,12 @@ O PetCare Hub contribui com esse objetivo ao estruturar dados clínicos, prevent
 ```txt
 PETCARE-HUB-DATABASE
 ├── docs
+│   ├── 2TDSPG_2026_Proj_BD.pdf     ← documentação técnica + prints de execução exigidos pela rubrica
+│   ├── evidencias/                 ← os prints acima em PNG individual (12 arquivos numerados)
+│   ├── MER e DER/                  ← diagrama exportado do Oracle Data Modeler (DER.png, MER.png)
 │   └── modelo-descritivo.md
-│   └── arquivos do Oracle Data Modeler
 ├── sql
+│   ├── 2TDSPG_2026_CodigoSql_Alexander_Kelson.sql   ← script único com tudo, do zero aos relatórios
 │   ├── ddl
 │   │   ├── 01_create_tables.sql
 │   │   ├── 02_create_sequences.sql
@@ -86,10 +89,13 @@ PETCARE-HUB-DATABASE
 │       ├── 01_joins_group_order.sql
 │       ├── 02_lag_lead.sql
 │       └── 03_cursores.sql
-├── test
-│   └── 01.sql
 └── README.md
 ```
+
+> `sql/2TDSPG_2026_CodigoSql_Alexander_Kelson.sql` é os arquivos modulares acima concatenados
+> numa ordem só, para quem preferir rodar tudo de uma vez em vez de arquivo por arquivo — os
+> comentários `-- PASSO N/21 - ...` dentro dele apontam de volta pro arquivo modular
+> correspondente. Os dois precisam ficar em sincronia; se editar um lado, replique no outro.
 
 ---
 
@@ -228,9 +234,17 @@ Faz `JOIN` entre `PET`, `TUTOR` e `CLINICA` e imprime um array JSON, montado cha
 prc_rel_consultas_subtotal
 ```
 
-Lê `CONSULTA` (tabela de fatos) categorizada por `CLINICA` (categoria 1) e `tipo_consulta` (categoria 2), com `valor` como coluna numérica. Agrupa combinações repetidas de clínica+tipo (`SUM(NVL(valor,0))` no cursor, para não deixar um `valor` nulo invalidar a soma) e calcula subtotal por clínica e total geral **manualmente**, acumulando em variáveis dentro do loop — sem `ROLLUP`, `CUBE`, `GROUPING SETS` ou `GROUPING`. Trata 4 exceções distintas (`e_sem_registros`, `e_valor_negativo`, `e_clinica_sem_nome`, `OTHERS`).
+Lê `CONSULTA` (tabela de fatos) categorizada por `CLINICA` (categoria 1) e `tipo_consulta` (categoria 2), com `valor` como coluna numérica. O cursor só traz as linhas **brutas** (uma por consulta, sem `SUM`/`GROUP BY`/`NVL` nenhum nele); é a procedure que trata o `valor` nulo com `NVL` e acumula tudo **manualmente** em variáveis dentro do loop — a combinação clínica+tipo, o subtotal por clínica e o total geral — sem `SUM`, `ROLLUP`, `CUBE`, `GROUPING SETS` ou `GROUPING`. Trata 4 exceções distintas (`e_sem_registros`, `e_valor_negativo`, `e_clinica_sem_nome`, `OTHERS`).
 
-> Pra fechar a entrega da Sprint 3, tire prints da execução de cada uma dessas 4 peças (incluindo pelo menos um caso de exceção de cada, já deixados prontos nos blocos de teste dos próprios arquivos `.sql`) para o PDF de documentação técnica exigido pela rubrica.
+> Os prints de execução dessas 4 peças (incluindo os 5 casos de exceção controlados, já deixados
+> prontos no bloco de teste de `sql/procedures/04_procedures_relatorios_sprint3.sql`) estão em
+> `docs/evidencias/` e embutidos em `docs/2TDSPG_2026_Proj_BD.pdf`. Numa execução limpa (banco
+> zerado, script rodado do zero uma única vez), `LOG_ERROS` deve terminar com **exatamente 5
+> linhas** (3 validações de cadastro — `PRC_INS_TUTOR`, `PRC_INS_CLINICA`, `PRC_INS_PET` — mais
+> os 2 casos de exceção dos relatórios acima). Os prints atuais de `docs/evidencias/09_*` e
+> `docs/evidencias/12_*` mostram 7 e 12 linhas porque foram tirados depois de várias execuções
+> de teste acumuladas (mistura de reruns com um erro real de chave duplicada) — valem a pena
+> refazer numa execução limpa antes da entrega final, pra bater com o texto acima.
 
 ---
 
@@ -478,17 +492,23 @@ Executa relatórios com cursores explícitos e tomada de decisão.
 2. Conecte-se ao banco Oracle.
 3. Abra cada arquivo `.sql` na ordem correta.
 4. Selecione todo o conteúdo do arquivo (`Ctrl+A`) e execute usando **F5** (Run Script) — não use `Ctrl+Enter` (Run Statement), que roda só a instrução onde o cursor está.
-5. Verifique a aba `Script Output` (não `Query Result`) e confira que não apareceu nenhum `ORA-`.
+5. Verifique a aba `Script Output` (não `Query Result`) e confira que não apareceu nenhum `ORA-` **fora dos blocos de teste de exceção do passo 18** (esses são esperados — ver abaixo).
 6. Só então avance para o próximo arquivo.
 
 Consulta para verificar erros:
 
 ```sql
 SELECT *
-FROM LOG_ERROS;
+FROM LOG_ERROS
+ORDER BY data_ocorrencia DESC;
 ```
 
-Se a consulta não retornar registros, significa que a carga foi executada sem erros.
+Numa execução limpa (banco zerado, script rodado do zero uma única vez), essa consulta deve
+retornar **exatamente 5 linhas** — os 5 cenários de exceção controlados que o próprio script
+dispara de propósito no passo 18 (`PRC_INS_TUTOR`, `PRC_INS_CLINICA`, `PRC_INS_PET`,
+`PRC_REL_CONSULTAS_SUBTOTAL`, `PRC_REL_PETS_TUTOR_CLINICA_JSON`). Mais que 5 (rodou o passo 18
+mais de uma vez sem zerar o banco) ou menos que 5 (algum cenário não disparou) indica que algo
+não está batendo com uma execução limpa.
 
 Para confirmar que os defaults de sequence foram aplicados corretamente:
 
@@ -777,6 +797,7 @@ DEFAULT seq_xxx.NEXTVAL aplicado/corrigido nas 13 colunas de PK
 2 functions da rubrica Sprint 3 criadas (JSON manual com escape completo, validação de senha)
 2 procedures da rubrica Sprint 3 criadas (JOIN+JSON, subtotal/total geral manual agrupado por clínica+tipo)
 Dados de teste inseridos com sucesso (5+ registros em cada tabela exigida pela rubrica)
+5 cenários de exceção controlados validados (3 na carga + 2 nos relatórios), gerando 5 linhas em LOG_ERROS numa execução limpa
 Relatórios executados com sucesso
 ```
 

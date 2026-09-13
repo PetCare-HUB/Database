@@ -224,14 +224,36 @@ EXEC prc_rel_consultas_subtotal;
 ------------------------------------------------------------
 -- TESTE / EVIDENCIA DE EXCECAO (tirar print para o PDF)
 --
--- Cada bloco insere um registro com nome em branco (passa pelo
--- NOT NULL da tabela porque nao e string vazia, so espacos) ja
--- ligado por FK ao resto da carga, para forcar de verdade a
--- excecao especifica de cada procedimento. No final, desfaz os
--- inserts de teste para nao sujar a carga oficial.
+-- 5 cenarios controlados, cada um gerando exatamente 1 linha em
+-- LOG_ERROS numa execucao limpa (script rodado do zero):
+--   1-3) validacao de cadastro (PRC_INS_TUTOR, PRC_INS_CLINICA,
+--        PRC_INS_PET) - chamada com dado invalido que a propria
+--        procedure rejeita ANTES do INSERT, entao nada precisa
+--        ser desfeito depois;
+--   4-5) os 2 blocos de excecao dos relatorios da rubrica, que
+--        inserem um registro com nome em branco (passa pelo
+--        NOT NULL da tabela porque nao e string vazia, so
+--        espacos) ja ligado por FK ao resto da carga, para
+--        forcar de verdade a excecao especifica de cada
+--        procedimento. No final, desfaz os inserts de teste
+--        para nao sujar a carga oficial.
 ------------------------------------------------------------
 
--- 1) Excecao de PRC_REL_CONSULTAS_SUBTOTAL (e_clinica_sem_nome)
+-- 1) Validacao de PRC_INS_TUTOR (nome/email obrigatorios) - nada
+-- e inserido, o RAISE_APPLICATION_ERROR acontece antes do INSERT.
+EXEC prc_ins_tutor(NULL, NULL, '11999999999', '11122233344');
+-- Esperado: "Nome e email do tutor sao obrigatorios."
+
+-- 2) Validacao de PRC_INS_CLINICA (nome/cnpj obrigatorios)
+EXEC prc_ins_clinica(NULL, '00000000000000', 'teste@teste.com', '11999999999', 'Rua Teste');
+-- Esperado: "Nome e CNPJ da clinica sao obrigatorios."
+
+-- 3) Validacao de PRC_INS_PET (tutor precisa existir) - -999 nao
+-- existe em TUTOR nem em CLINICA, entao falha antes do INSERT.
+EXEC prc_ins_pet(-999, -999, 'Pet Teste', 'CAO', NULL, NULL, 5, 'M', NULL);
+-- Esperado: "Tutor nao encontrado."
+
+-- 4) Excecao de PRC_REL_CONSULTAS_SUBTOTAL (e_clinica_sem_nome)
 -- Precisa de uma CONSULTA vinculada, senao o INNER JOIN nunca
 -- traz essa clinica pro cursor.
 INSERT INTO CLINICA (id_clinica, nome, cnpj, ativo)
@@ -250,7 +272,7 @@ DELETE FROM CONSULTA WHERE id_clinica = (SELECT id_clinica FROM CLINICA WHERE cn
 DELETE FROM CLINICA WHERE cnpj = '99999999000199';
 COMMIT;
 
--- 2) Excecao de PRC_REL_PETS_TUTOR_CLINICA_JSON (e_dados_incompletos)
+-- 5) Excecao de PRC_REL_PETS_TUTOR_CLINICA_JSON (e_dados_incompletos)
 INSERT INTO PET (id_pet, id_tutor, id_clinica, nome, especie, peso_kg, ativo)
 SELECT seq_pet.NEXTVAL, t.id_tutor, c.id_clinica, '   ', 'CAO', 5.00, 'S'
 FROM TUTOR t, CLINICA c
@@ -265,6 +287,10 @@ WHERE TRIM(nome) IS NULL
   AND id_tutor = (SELECT id_tutor FROM TUTOR WHERE email = 'ana.souza@email.com');
 COMMIT;
 
+-- CONFERENCIA: numa execucao limpa (script rodado do zero), devem
+-- aparecer exatamente 5 linhas aqui - uma para cada cenario acima
+-- (PRC_INS_TUTOR, PRC_INS_CLINICA, PRC_INS_PET,
+-- PRC_REL_CONSULTAS_SUBTOTAL, PRC_REL_PETS_TUTOR_CLINICA_JSON).
 SELECT * FROM LOG_ERROS ORDER BY data_ocorrencia DESC;
 
 

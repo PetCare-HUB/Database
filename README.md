@@ -830,18 +830,3 @@ Para a entrega acadêmica, o modelo deverá ser representado também no Oracle D
 | Kelson Zhang                   | 563748 | 2TDSPG | [KelsonZh0](https://github.com/KelsonZh0)     | [LinkedIn](https://www.linkedin.com/in/kelson-zhang-211456323/)     |
 
 ---
-
-## Status do Projeto
-
-```txt
-Banco de dados: concluído para Sprint 3
-Rename RESPONSAVEL -> TUTOR: concluído
-Campos de autenticação (senha_hash / status_acesso): concluído
-Trigger de auditoria: concluído e validado
-Functions de negócio: concluídas
-Rubrica oficial Sprint 3 (2 procedures + 2 functions específicas): concluída
-Scripts SQL: concluídos
-Carga de teste: concluída
-Relatórios: concluídos
-Integração Java/.NET: próxima etapa
-```

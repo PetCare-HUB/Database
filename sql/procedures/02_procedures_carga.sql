@@ -409,6 +409,7 @@ CREATE OR REPLACE PROCEDURE prc_ins_alerta_saude (
     p_limite_referencia  IN NUMBER
 ) AS
     v_total_pet      NUMBER;
+    v_total_aberto   NUMBER;
 BEGIN
     SELECT COUNT(*)
     INTO v_total_pet
@@ -423,29 +424,63 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20017, 'Tipo, nivel e mensagem do alerta sao obrigatorios.');
     END IF;
 
-    INSERT INTO ALERTA_SAUDE (
-        id_alerta,
-        id_pet,
-        tipo_alerta,
-        nivel_alerta,
-        mensagem,
-        valor_detectado,
-        limite_referencia,
-        resolvido,
-        data_alerta,
-        data_resolucao
-    ) VALUES (
-        seq_alerta_saude.NEXTVAL,
-        p_id_pet,
-        p_tipo_alerta,
-        p_nivel_alerta,
-        p_mensagem,
-        p_valor_detectado,
-        p_limite_referencia,
-        'N',
-        SYSTIMESTAMP,
-        NULL
-    );
+    --------------------------------------------------------
+    -- Ja existe alerta ABERTO deste tipo para este pet?
+    --
+    -- Sem esta checagem, cada leitura fora do limite criava
+    -- uma linha nova. Um pet sedentario com o simulador
+    -- mandando leitura a cada 15 minutos gerava quase cem
+    -- alertas identicos por dia, e a tela de alertas do app
+    -- virava uma parede de repeticao.
+    --
+    -- "Pet sedentario" e UM fato, nao um por leitura. Quando
+    -- o alerta ja existe, o que muda e a leitura que o
+    -- sustenta: atualizamos valor, limite, mensagem, nivel e
+    -- data, mantendo o mesmo id_alerta - assim quem ja viu o
+    -- alerta nao recebe outro, e quem abrir ve o dado atual.
+    --------------------------------------------------------
+    SELECT COUNT(*)
+    INTO v_total_aberto
+    FROM ALERTA_SAUDE
+    WHERE id_pet      = p_id_pet
+      AND tipo_alerta = p_tipo_alerta
+      AND resolvido   = 'N';
+
+    IF v_total_aberto > 0 THEN
+        UPDATE ALERTA_SAUDE
+           SET nivel_alerta      = p_nivel_alerta,
+               mensagem          = p_mensagem,
+               valor_detectado   = p_valor_detectado,
+               limite_referencia = p_limite_referencia,
+               data_alerta       = SYSTIMESTAMP
+         WHERE id_pet      = p_id_pet
+           AND tipo_alerta = p_tipo_alerta
+           AND resolvido   = 'N';
+    ELSE
+        INSERT INTO ALERTA_SAUDE (
+            id_alerta,
+            id_pet,
+            tipo_alerta,
+            nivel_alerta,
+            mensagem,
+            valor_detectado,
+            limite_referencia,
+            resolvido,
+            data_alerta,
+            data_resolucao
+        ) VALUES (
+            seq_alerta_saude.NEXTVAL,
+            p_id_pet,
+            p_tipo_alerta,
+            p_nivel_alerta,
+            p_mensagem,
+            p_valor_detectado,
+            p_limite_referencia,
+            'N',
+            SYSTIMESTAMP,
+            NULL
+        );
+    END IF;
 
     COMMIT;
 

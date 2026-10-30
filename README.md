@@ -74,7 +74,9 @@ PETCARE-HUB-DATABASE
 │   ├── inserts
 │   │   ├── 01_insert_testes.sql
 │   │   ├── 02_insert_extra_sprint3.sql
-│   │   └── 03_insert_complemento_carga.sql
+│   │   ├── 03_insert_complemento_carga.sql
+│   │   ├── 04_insert_movimento_ana.sql
+│   │   └── 05_insert_leituras_recentes.sql
 │   ├── procedures
 │   │   ├── 01_log_erros.sql
 │   │   ├── 02_procedures_carga.sql
@@ -452,7 +454,23 @@ sql/inserts/03_insert_complemento_carga.sql
 
 Garante que `PROTOCOLO_PREVENTIVO`, `DISPOSITIVO_IOT`, `LEITURA_COMEDOURO`, `LEITURA_AMBIENTE` e `SCORE_SAUDE` também cheguem a pelo menos 5 registros cada. `ALERTA_SAUDE` chega a 5 como efeito automático das próprias procedures de leitura (uma leitura de ração abaixo de 20% e uma leitura de qualidade do ar acima de 500ppm), sem inserção direta na tabela.
 
-### 18. Criar procedures de relatório da rubrica Sprint 3
+### 18. Enriquecer movimento dos pets da Ana
+
+```txt
+sql/inserts/04_insert_movimento_ana.sql
+```
+
+Adiciona mais leituras de `LEITURA_COLEIRA` (movimento) para Rex e Luna, os dois pets da tutora Ana Souza, espalhadas em dois dias — a Luna tinha só 1 leitura contra as 5 do Rex, agora os dois ficam com 6 e 10 respectivamente. Também soma mais 1 leitura de comedouro e 1 de ambiente para a Luna.
+
+### 18b. Adicionar leituras recentes (relativas a hoje)
+
+```txt
+sql/inserts/05_insert_leituras_recentes.sql
+```
+
+Adiciona mais leituras de coleira, comedouro e ambiente para Rex e Luna com timestamp relativo a `SYSDATE` (ontem + hoje), não datas fixas — assim o app sempre mostra dado "atual" para os dois pets, não importa quando o script for executado. Convive tanto com as leituras de teste antigas quanto com as leituras reais que a API/app grava neste mesmo banco.
+
+### 19. Criar procedures de relatório da rubrica Sprint 3
 
 ```txt
 sql/procedures/04_procedures_relatorios_sprint3.sql
@@ -460,7 +478,7 @@ sql/procedures/04_procedures_relatorios_sprint3.sql
 
 Cria `prc_rel_pets_tutor_clinica_json` (Procedimento 1 — JOIN + JSON) e `prc_rel_consultas_subtotal` (Procedimento 2 — subtotal e total geral manuais, agrupado por clínica + tipo de consulta). Já executa e imprime os dois no final do script, incluindo um caso de exceção de cada um.
 
-### 19. Executar relatórios com joins
+### 20. Executar relatórios com joins
 
 ```txt
 sql/relatorios/01_joins_group_order.sql
@@ -468,7 +486,7 @@ sql/relatorios/01_joins_group_order.sql
 
 Executa relatórios com `JOIN`, `GROUP BY` e `ORDER BY`.
 
-### 20. Executar relatório LAG/LEAD
+### 21. Executar relatório LAG/LEAD
 
 ```txt
 sql/relatorios/02_lag_lead.sql
@@ -476,7 +494,7 @@ sql/relatorios/02_lag_lead.sql
 
 Mostra valor anterior, atual e próximo de leituras da coleira (nível de bateria).
 
-### 21. Executar relatórios com cursores
+### 22. Executar relatórios com cursores
 
 ```txt
 sql/relatorios/03_cursores.sql

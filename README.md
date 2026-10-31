@@ -540,16 +540,24 @@ Os objetos soltos continuam no banco em paralelo — a remoção deles acompanha
 chamadas no lado da API Java, que hoje chama `PRC_INS_LEITURA_COLEIRA`, `FN_SCORE_MEDIO_PET`
 e `FN_CALCULAR_IDADE_PET` pelo nome antigo.
 
-Conferência (precisa voltar `VALID` nas 5 linhas, e nada em `USER_ERRORS`):
+Conferência — precisa voltar **10 linhas** (5 specs + 5 bodies), todas `VALID`, e nada em
+`USER_ERRORS`:
 
 ```sql
 SELECT object_name, object_type, status
 FROM user_objects
-WHERE object_name LIKE 'PKG%'
+WHERE object_name IN ('PKG_LOG', 'PKG_UTIL', 'PKG_CARGA', 'PKG_RELATORIOS', 'PKG_AUDITORIA')
 ORDER BY object_name, object_type;
 
-SELECT name, type, line, text FROM user_errors WHERE name LIKE 'PKG%';
+SELECT name, type, line, text
+FROM user_errors
+WHERE name IN ('PKG_LOG', 'PKG_UTIL', 'PKG_CARGA', 'PKG_RELATORIOS', 'PKG_AUDITORIA');
 ```
+
+> Filtre pelos cinco nomes, **não** por `object_name LIKE 'PKG%'`. O schema da FIAP é
+> compartilhado entre as disciplinas: além dos nossos, ele tem `PKG_AULA_01`, `PKG_ESTOQUE`,
+> `PKG_PEDIDOS` e `PKG_PHYCOCARBON` de outras matérias, e o `LIKE` traz 18 linhas em vez de 10.
+> Vale o mesmo para as tabelas — há `CLIENTE`, `CIDADE` e a família `CP3_*` no mesmo schema.
 
 ### 24. Exportar para JSON e importar no MongoDB (Sprint 4)
 

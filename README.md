@@ -87,10 +87,28 @@ PETCARE-HUB-DATABASE
 │   ├── functions
 │   │   ├── 01_functions.sql
 │   │   └── 02_functions_json_senha.sql
+│   ├── packages                    ← Sprint 4: os objetos acima empacotados
+│   │   ├── 01_pkg_log.sql          ← registro de erro; todo mundo depende dele
+│   │   ├── 02_pkg_util.sql         ← 4 functions de cálculo e formatação
+│   │   ├── 03_pkg_carga.sql        ← 12 procedures de inserção validada
+│   │   ├── 04_pkg_relatorios.sql   ← 2 procedures de relatório (só leitura)
+│   │   └── 05_pkg_auditoria.sql    ← lógica do trigger + o trigger enxuto
+│   ├── export                      ← Sprint 4: geram o JSON via SQL/JSON do Oracle
+│   │   ├── 01_export_pets.sql
+│   │   ├── 02_export_telemetria.sql
+│   │   └── 03_export_alertas.sql
 │   └── relatorios
 │       ├── 01_joins_group_order.sql
 │       ├── 02_lag_lead.sql
 │       └── 03_cursores.sql
+├── mongodb                         ← Sprint 4: destino do pipeline
+│   ├── pets.json                   ← gerado — não editar à mão
+│   ├── telemetria.json             ← gerado — não editar à mão
+│   ├── alertas.json                ← gerado — não editar à mão
+│   ├── 01_importar.ps1             ← mongoimport + criação dos índices
+│   └── 02_consultas.mongodb.js     ← consultas que provam a importação
+├── tools
+│   └── ExportarJson.java           ← roda os 3 scripts de export e grava os .json
 └── README.md
 ```
 
@@ -504,6 +522,49 @@ Executa relatórios com cursores explícitos e tomada de decisão.
 
 ---
 
+### 23. Criar os packages (Sprint 4)
+
+```txt
+sql/packages/01_pkg_log.sql
+sql/packages/02_pkg_util.sql
+sql/packages/03_pkg_carga.sql
+sql/packages/04_pkg_relatorios.sql
+sql/packages/05_pkg_auditoria.sql
+```
+
+Empacota os objetos dos passos 9 a 14 e 19. **A ordem importa**: `pkg_log` compila primeiro
+porque todos os outros chamam a procedure de log, e `pkg_util` vem antes de `pkg_relatorios`
+porque `prc_rel_pets_tutor_clinica_json` usa `fn_pet_para_json`.
+
+Os objetos soltos continuam no banco em paralelo — a remoção deles acompanha a troca das
+chamadas no lado da API Java, que hoje chama `PRC_INS_LEITURA_COLEIRA`, `FN_SCORE_MEDIO_PET`
+e `FN_CALCULAR_IDADE_PET` pelo nome antigo.
+
+Conferência (precisa voltar `VALID` nas 5 linhas, e nada em `USER_ERRORS`):
+
+```sql
+SELECT object_name, object_type, status
+FROM user_objects
+WHERE object_name LIKE 'PKG%'
+ORDER BY object_name, object_type;
+
+SELECT name, type, line, text FROM user_errors WHERE name LIKE 'PKG%';
+```
+
+### 24. Exportar para JSON e importar no MongoDB (Sprint 4)
+
+```txt
+sql/export/01_export_pets.sql
+sql/export/02_export_telemetria.sql
+sql/export/03_export_alertas.sql
+```
+
+Cada um é um `SELECT` único que devolve o array JSON completo numa célula CLOB. Para gerar os
+arquivos e importar no Mongo de uma vez, veja
+[Pipeline Oracle → JSON → MongoDB](#pipeline-oracle--json--mongodb-sprint-4).
+
+---
+
 ## Como Executar no SQL Developer
 
 1. Abra o Oracle SQL Developer.
@@ -795,6 +856,139 @@ Alertas com ação recomendada
 Eventos preventivos com tomada de decisão
 Valor de consultas por clínica com subtotal e total geral
 ```
+
+---
+
+## Pipeline Oracle → JSON → MongoDB (Sprint 4)
+
+O dado relacional sai do Oracle em JSON e entra no MongoDB como documento. **O Oracle
+continua sendo a fonte da verdade** — nada é migrado. As duas APIs do projeto (Java e .NET)
+continuam lendo do relacional; o Mongo recebe uma cópia modelada em documento.
+
+### As três coleções
+
+| Coleção | Documentos | O que é um documento | Por que modelado assim |
+|---|---|---|---|
+| `pets` | 7 | Um pet, com tutor, clínica, consultas, eventos preventivos, dispositivos e score embutidos | No relacional essa resposta custa 6 joins. Aqui é um `findOne`. |
+| `telemetria` | 119 | Um *bucket*: as leituras de um pet, de um tipo de sensor, num dia | Série temporal. Documento por leitura daria 921 documentos minúsculos e um índice gigante. |
+| `alertas` | 204 | Um alerta, com o pet, tutor e clínica congelados no estado do disparo | Aqui a desnormalização é correção, não otimização — ver abaixo. |
+
+**Não é um dump das tabelas.** O schema relacional tem 13 tabelas; virar 13 coleções
+seria mover tabelas de lugar sem usar nada do modelo de documento. As três coleções foram
+desenhadas em cima das leituras que a aplicação faz de verdade.
+
+Três decisões que valem explicar:
+
+- **`pets` duplica o nome do tutor de propósito.** É dado que quase não muda, e o custo de
+  repetir é menor que o de juntar em toda leitura. No relacional isso seria anomalia de
+  atualização; aqui é a troca consciente que o modelo de documento permite.
+
+- **`telemetria` junta o que o relacional foi obrigado a separar.** `LEITURA_COLEIRA`,
+  `LEITURA_COMEDOURO` e `LEITURA_AMBIENTE` são tabelas distintas porque as colunas são
+  diferentes — coleira tem bateria, comedouro tem peso de ração, ambiente tem umidade. Uma
+  tabela única deixaria metade das colunas nulas em cada linha. No documento, o array
+  `leituras` carrega o formato de cada tipo e o campo `tipo` diz qual esperar.
+
+- **`alertas` congela o contexto.** No relacional, `ALERTA_SAUDE` guarda `id_pet` e o resto
+  vem por join — se o pet trocar de tutor amanhã, o alerta de hoje passa a ser exibido com o
+  tutor novo e o histórico mente. O documento guarda quem era o tutor no momento do disparo.
+
+### Etapa 1 — exportar (Oracle gera o JSON)
+
+Quem monta o JSON é o **Oracle**, com SQL/JSON (`JSON_OBJECT` + `JSON_ARRAYAGG`) nos scripts
+de `sql/export/`. O programa Java só lê o CLOB e escreve no disco — a responsabilidade do
+formato fica no banco.
+
+```powershell
+$env:ORACLE_USER     = 'seu_usuario'
+$env:ORACLE_PASSWORD = 'sua_senha'
+$env:ORACLE_DSN      = '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle.fiap.com.br)(PORT=1521))(CONNECT_DATA=(SID=orcl)))'
+
+java -cp "$env:USERPROFILE\.m2\repository\com\oracle\database\jdbc\ojdbc11\23.5.0.24.07\ojdbc11-23.5.0.24.07.jar" tools\ExportarJson.java
+```
+
+Saída esperada:
+
+```txt
+01_export_pets.sql         -> pets.json            7.911 bytes    7 documentos
+02_export_telemetria.sql   -> telemetria.json    121.564 bytes  119 documentos
+03_export_alertas.sql      -> alertas.json        89.368 bytes  204 documentos
+```
+
+Os scripts também rodam direto no SQL Developer, um por vez: cada um é um `SELECT` só, que
+devolve o array JSON inteiro numa célula CLOB.
+
+Dois detalhes do export:
+
+- **As datas saem como `{"$date": "..."}`** (Extended JSON). Sem isso o `mongoimport` gravaria
+  string, e nenhuma consulta por período funcionaria no Mongo.
+- **`SENHA_HASH` não sai.** `TUTOR` e `CLINICA` têm a coluna; os scripts não a selecionam.
+  Hash de senha não é dado de domínio e não tem o que fazer num arquivo versionado em
+  repositório público.
+
+### Etapa 2 — importar (JSON → MongoDB)
+
+Pré-requisitos: MongoDB Server em `localhost:27017`, mais as ferramentas de linha de comando:
+
+```powershell
+winget install MongoDB.DatabaseTools MongoDB.Shell
+```
+
+```powershell
+.\mongodb\01_importar.ps1
+```
+
+O script importa as três coleções e cria os índices. Usa `--mode upsert --upsertFields _id`
+em vez de `--drop`: o `_id` de cada documento vem da chave primária do Oracle (`id_pet`,
+`id_alerta`) ou de uma chave composta estável (`id_pet|tipo|dia` na telemetria), então **rodar
+a importação duas vezes atualiza, não duplica**.
+
+Os índices seguem as consultas reais da aplicação, não as chaves estrangeiras que existiam no
+relacional:
+
+| Coleção | Índice | Consulta que ele atende |
+|---|---|---|
+| `pets` | `{ "tutor.email": 1 }` | "quais pets são desta tutora" — tela inicial do app |
+| `telemetria` | `{ "pet.id": 1, dia: -1 }` | "leituras deste pet no período" — gráfico do dashboard |
+| `alertas` | `{ "pet.id": 1, resolvido: 1, dataAlerta: -1 }` | "alertas abertos deste pet, do mais novo" |
+| `alertas` | `{ tipo: 1 }` | "quantos alertas de cada tipo" — relatório |
+
+### Etapa 3 — provar que funcionou
+
+```powershell
+mongosh "mongodb://localhost:27017/petcarehub" --file mongodb\02_consultas.mongodb.js
+```
+
+Cada consulta prova uma coisa específica, com o número esperado no comentário:
+
+| # | O que prova |
+|---|---|
+| 1 | Contagem por coleção bate com o Oracle: 7 / 119 / 204 |
+| 2 | **Nenhuma leitura se perdeu**: 921 itens nos arrays = 322 coleira + 301 comedouro + 298 ambiente |
+| 3 | As datas são `Date` de verdade — a agregação por mês só funciona se forem BSON date |
+| 4 | O join de 6 tabelas virou um `findOne` |
+| 5 | Os três formatos de leitura convivem na mesma coleção |
+| 6 | O `GROUP BY` do relatório virou aggregation pipeline |
+| 7 | Nenhum hash de senha vazou no export |
+
+### Instância compartilhada com o .NET
+
+O database é `petcarehub`, **o mesmo que a API .NET usa** para a coleção `resumos_pet_ia`
+(resumos de contexto da camada de IA). As três coleções deste pipeline são novas e não
+encostam nela.
+
+Instância única, coleções separadas. Isso evita subir um segundo Mongo e deixa visível que as
+duas disciplinas conversam — a .NET escreve dado que nasce no Mongo, a Database importa dado
+que nasce no Oracle.
+
+### Dado legado que aparece na importação
+
+A coleção `alertas` tem **196 alertas `BAIXA_ALIMENTACAO` idênticos do pet #9, todos de
+2026-10-28**. Não é defeito do pipeline: são linhas que já estavam na `ALERTA_SAUDE`, criadas
+antes da correção de `prc_ins_alerta_saude` (commit `b5920f0`, 2026-10-30), quando cada leitura
+fora do limite abria um alerta novo em vez de atualizar o que já estava aberto.
+
+A procedure atual deduplica. As 196 linhas antigas continuam no Oracle e, por isso, no JSON.
 
 ---
 

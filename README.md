@@ -61,7 +61,7 @@ PETCARE-HUB-DATABASE
 │   ├── MER e DER/                  ← diagrama exportado do Oracle Data Modeler (DER.png, MER.png)
 │   └── modelo-descritivo.md
 ├── sql
-│   ├── 2TDSPG_2026_CodigoSql_Alexander_Kelson.sql   ← script único com tudo, do zero aos relatórios
+│   ├── 2TDSPG_2026_CodigoSql_Alexander_Kelson.sql   ← script único com tudo, do zero aos packages
 │   ├── ddl
 │   │   ├── 01_create_tables.sql
 │   │   ├── 02_create_sequences.sql

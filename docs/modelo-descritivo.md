@@ -100,7 +100,7 @@ Armazena erros ocorridos durante a execução das procedures PL/SQL, contendo in
 
 ## Procedimentos, Funções e Trigger
 
-O banco também possui lógica procedural em PL/SQL para atender aos requisitos da Sprint 3.
+O banco também possui lógica procedural em PL/SQL para atender aos requisitos da Sprint 3. Na Sprint 4 esses objetos foram reorganizados em packages, conforme descrito adiante.
 
 ### Procedures
 
@@ -116,9 +116,39 @@ O banco também possui lógica procedural em PL/SQL para atender aos requisitos 
 
 - `TRG_AUDITORIA_TUTOR`: executa automaticamente após `INSERT`, `UPDATE` ou `DELETE` na tabela `TUTOR`, registrando a operação na tabela `AUDITORIA_TUTOR`.
 
+### Packages
+
+Na Sprint 4 as procedures, as functions e a lógica do trigger foram reorganizadas em cinco packages PL/SQL, em `sql/packages`. Os objetos soltos continuam existindo no schema porque os scripts de carga da massa de teste os utilizam diretamente; a aplicação Java, por sua vez, passou a chamar exclusivamente a versão empacotada.
+
+- `PKG_LOG`: registro de erros na tabela `LOG_ERROS`. Não depende de nenhum outro package e é utilizado por todos os demais, o que evita dependência circular na compilação.
+- `PKG_UTIL`: funções de cálculo e formatação, entre elas `FN_CALCULAR_IDADE_PET`, `FN_SCORE_MEDIO_PET`, `FN_PET_PARA_JSON` e `FN_VALIDAR_FORCA_SENHA`. São rotinas apenas de leitura, sem gravação em tabela.
+- `PKG_CARGA`: procedures de inserção validada nas tabelas do domínio. As rotinas de leitura IoT também abrem alerta de saúde automaticamente quando o valor recebido sai da faixa de referência.
+- `PKG_RELATORIOS`: procedures de relatório, com saída por `DBMS_OUTPUT`. Foi separado da carga por conter apenas leitura, de modo que o uso dos relatórios não exige permissão de escrita.
+- `PKG_AUDITORIA`: lógica da trilha de auditoria. O Oracle não permite trigger dentro de package, portanto o corpo do `TRG_AUDITORIA_TUTOR` foi transferido para `PRC_REGISTRAR_TUTOR` e o trigger passou a conter apenas a chamada ao package. A regra passa a ser testável sem disparar DML em `TUTOR`, e uma futura trilha para `PET` ou `CONSULTA` reaproveita o mesmo package.
+
+## Exportação para JSON e Estrutura MongoDB
+
+O banco relacional permanece como fonte da verdade. A estrutura MongoDB é uma cópia modelada em documento, gerada a partir do Oracle e destinada à leitura.
+
+A geração do JSON é feita no próprio banco, com `JSON_OBJECT` e `JSON_ARRAYAGG`, por três scripts em `sql/export`. As 13 tabelas foram reduzidas a três coleções, de acordo com o padrão de acesso de cada uma:
+
+| Coleção | O que é um documento | Origem no relacional |
+|---|---|---|
+| `pets` | Um pet, com tutor, clínica, consultas, eventos preventivos, dispositivos e score embutidos | `PET` e tabelas relacionadas |
+| `telemetria` | Um bucket: as leituras de um pet, de um tipo de sensor, em um dia | `LEITURA_COLEIRA`, `LEITURA_COMEDOURO` e `LEITURA_AMBIENTE` |
+| `alertas` | Um alerta, com pet, tutor e clínica no estado em que estavam no disparo | `ALERTA_SAUDE` |
+
+A opção por três coleções, e não por uma coleção para cada tabela, decorre do modelo de documento. O que no relacional exige junção de seis tabelas é resolvido com uma única leitura, e as três tabelas de leitura — separadas no relacional porque possuem colunas diferentes — convivem na mesma coleção, já que cada documento carrega o formato do seu próprio tipo de sensor.
+
+A importação utiliza `mongoimport` em modo `upsert`, com o `_id` originado da chave primária do Oracle, o que permite repetir a carga sem duplicar documentos.
+
 ## Integração com Java
 
 A API Java é responsável por operações relacionadas ao cadastro e gerenciamento de tutores, clínicas e pets, além do registro e consulta das informações utilizadas pela aplicação.
+
+A integração com o código PL/SQL é direta. A classe `PlSqlRepository` chama `PKG_CARGA.PRC_INS_LEITURA_COLEIRA` no endpoint `POST /leituras/coleira`, e `PKG_UTIL.FN_SCORE_MEDIO_PET` e `PKG_UTIL.FN_CALCULAR_IDADE_PET` no endpoint `GET /pets/{id}/score-saude/media`. O nome do package é informado como catálogo na configuração do `SimpleJdbcCall`, o que garante que a chamada passe pela versão empacotada.
+
+O registro da leitura da coleira não é feito por operação do mapeamento objeto-relacional: a procedure valida o pet, insere utilizando a sequence e dispara o alerta de atividade baixa quando o status recebido é SEDENTARIO. A regra permanece no banco, junto do dado.
 
 ## Integração com .NET
 

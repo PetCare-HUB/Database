@@ -12,9 +12,9 @@
 print('============================================================');
 print('1. CONTAGEM POR COLECAO');
 print('------------------------------------------------------------');
-// Esperado: pets 7, telemetria 119, alertas 204.
-// Os mesmos numeros que o Oracle devolve: 7 linhas em PET, 204 em
-// ALERTA_SAUDE, e 119 buckets (pet x tipo de sensor x dia).
+// Esperado: pets 7, telemetria 120, alertas 8.
+// Os mesmos numeros que o Oracle devolve: 7 linhas em PET, 8 em
+// ALERTA_SAUDE, e 120 buckets (pet x tipo de sensor x dia).
 ['pets', 'telemetria', 'alertas'].forEach(function (c) {
     print('  ' + c.padEnd(12) + db.getCollection(c).countDocuments());
 });
@@ -23,7 +23,7 @@ print('');
 print('============================================================');
 print('2. NENHUMA LEITURA SE PERDEU NO CAMINHO');
 print('------------------------------------------------------------');
-// Esperado: 921 -- exatamente 322 (coleira) + 301 (comedouro) + 298
+// Esperado: 924 -- exatamente 325 (coleira) + 301 (comedouro) + 298
 // (ambiente) do Oracle. As leituras foram agrupadas em arrays dentro
 // dos buckets, entao a contagem precisa somar os arrays, nao os
 // documentos. E a prova de que o pipeline e sem perda.

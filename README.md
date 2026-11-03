@@ -569,15 +569,16 @@ sql/manutencao/01_limpar_alertas_duplicados.sql
 
 Roda **antes** do export. Até 30/10/2026 cada leitura IoT fora do limite abria uma linha nova
 em `ALERTA_SAUDE`; com o simulador mandando leitura a cada poucos segundos, o pet 9 acumulou
-197 alertas `BAIXA_ALIMENTACAO` idênticos em cerca de uma hora. O bug já está corrigido dos
-dois lados — `PKG_CARGA.PRC_INS_ALERTA_SAUDE` no banco e `AlertaSaudeService.criarInterno` na
-API Java atualizam o alerta aberto do mesmo tipo em vez de duplicar — mas o dado antigo
-continua lá e vai junto no export: 197 dos 204 documentos de `mongodb/alertas.json` são a
-mesma ocorrência repetida.
+197 alertas `BAIXA_ALIMENTACAO` idênticos em cerca de uma hora, e o export levava tudo junto:
+197 dos 204 documentos de `mongodb/alertas.json` eram a mesma ocorrência repetida.
 
 O script não dá `COMMIT`. Ele diagnostica, apaga e manda conferir antes de você efetivar.
 Alertas já resolvidos não são tocados: dois episódios do mesmo tipo em meses diferentes são
 dois fatos, não duplicata.
+
+Rodado em 03/11/2026: 197 linhas excluídas, conferência vazia, `COMMIT`. Depois da limpeza o
+export foi refeito e `alertas.json` caiu de 204 para 8 documentos — um por par pet/tipo em
+aberto.
 
 ### 24. Exportar para JSON e importar no MongoDB (Sprint 4)
 
@@ -898,8 +899,8 @@ continuam lendo do relacional; o Mongo recebe uma cópia modelada em documento.
 | Coleção | Documentos | O que é um documento | Por que modelado assim |
 |---|---|---|---|
 | `pets` | 7 | Um pet, com tutor, clínica, consultas, eventos preventivos, dispositivos e score embutidos | No relacional essa resposta custa 6 joins. Aqui é um `findOne`. |
-| `telemetria` | 119 | Um *bucket*: as leituras de um pet, de um tipo de sensor, num dia | Série temporal. Documento por leitura daria 921 documentos minúsculos e um índice gigante. |
-| `alertas` | 204 | Um alerta, com o pet, tutor e clínica congelados no estado do disparo | Aqui a desnormalização é correção, não otimização — ver abaixo. |
+| `telemetria` | 120 | Um *bucket*: as leituras de um pet, de um tipo de sensor, num dia | Série temporal. Documento por leitura daria 924 documentos minúsculos e um índice gigante. |
+| `alertas` | 8 | Um alerta, com o pet, tutor e clínica congelados no estado do disparo | Aqui a desnormalização é correção, não otimização — ver abaixo. |
 
 **Não é um dump das tabelas.** O schema relacional tem 13 tabelas; virar 13 coleções
 seria mover tabelas de lugar sem usar nada do modelo de documento. As três coleções foram
@@ -939,8 +940,8 @@ Saída esperada:
 
 ```txt
 01_export_pets.sql         -> pets.json            7.911 bytes    7 documentos
-02_export_telemetria.sql   -> telemetria.json    121.564 bytes  119 documentos
-03_export_alertas.sql      -> alertas.json        89.368 bytes  204 documentos
+02_export_telemetria.sql   -> telemetria.json    122.031 bytes  120 documentos
+03_export_alertas.sql      -> alertas.json         3.458 bytes    8 documentos
 ```
 
 Os scripts também rodam direto no SQL Developer, um por vez: cada um é um `SELECT` só, que
@@ -991,8 +992,8 @@ Cada consulta prova uma coisa específica, com o número esperado no comentário
 
 | # | O que prova |
 |---|---|
-| 1 | Contagem por coleção bate com o Oracle: 7 / 119 / 204 |
-| 2 | **Nenhuma leitura se perdeu**: 921 itens nos arrays = 322 coleira + 301 comedouro + 298 ambiente |
+| 1 | Contagem por coleção bate com o Oracle: 7 / 120 / 8 |
+| 2 | **Nenhuma leitura se perdeu**: 924 itens nos arrays = 325 coleira + 301 comedouro + 298 ambiente |
 | 3 | As datas são `Date` de verdade — a agregação por mês só funciona se forem BSON date |
 | 4 | O join de 6 tabelas virou um `findOne` |
 | 5 | Os três formatos de leitura convivem na mesma coleção |
@@ -1009,14 +1010,17 @@ Instância única, coleções separadas. Isso evita subir um segundo Mongo e dei
 duas disciplinas conversam — a .NET escreve dado que nasce no Mongo, a Database importa dado
 que nasce no Oracle.
 
-### Dado legado que aparece na importação
+### Dado legado, e como foi limpo
 
-A coleção `alertas` tem **196 alertas `BAIXA_ALIMENTACAO` idênticos do pet #9, todos de
-2026-10-28**. Não é defeito do pipeline: são linhas que já estavam na `ALERTA_SAUDE`, criadas
-antes da correção de `prc_ins_alerta_saude` (commit `b5920f0`, 2026-10-30), quando cada leitura
-fora do limite abria um alerta novo em vez de atualizar o que já estava aberto.
+Até 03/11/2026 a coleção `alertas` tinha **197 alertas `BAIXA_ALIMENTACAO` idênticos do pet
+#9, todos de 2026-10-28** — 197 dos 204 documentos. Não era defeito do pipeline: eram linhas
+que já estavam na `ALERTA_SAUDE`, criadas antes da correção de `prc_ins_alerta_saude` (commit
+`b5920f0`, 2026-10-30), quando cada leitura fora do limite abria um alerta novo em vez de
+atualizar o que já estava aberto.
 
-A procedure atual deduplica. As 196 linhas antigas continuam no Oracle e, por isso, no JSON.
+O `sql/manutencao/01_limpar_alertas_duplicados.sql` apagou as 197 linhas e o export foi
+refeito: a coleção passou a ter 8 documentos, um por par pet/tipo em aberto. Como a procedure
+e o `AlertaSaudeService.criarInterno` já deduplicam, o acúmulo não volta.
 
 ---
 

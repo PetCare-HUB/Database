@@ -116,11 +116,11 @@ PETCARE-HUB-DATABASE
 
 > `sql/2TDSPG_2026_CodigoSql_Alexander_Kelson.sql` é os arquivos modulares acima concatenados
 > numa ordem só, para quem preferir rodar tudo de uma vez em vez de arquivo por arquivo — os
-> comentários `-- PASSO N/26 - ...` dentro dele apontam de volta pro arquivo modular
+> comentários `-- PASSO N/28 - ...` dentro dele apontam de volta pro arquivo modular
 > correspondente. Os dois precisam ficar em sincronia; se editar um lado, replique no outro.
 >
-> Os passos 22 a 26 são os packages da Sprint 4, e vêm no fim de propósito: os passos de carga
-> (15 a 17) chamam as procedures soltas, então elas precisam existir antes. O passo 26 ainda
+> Os passos 24 a 28 são os packages da Sprint 4, e vêm no fim de propósito: os passos de carga
+> (15 a 19) chamam as procedures soltas, então elas precisam existir antes. O passo 28 ainda
 > substitui o `TRG_AUDITORIA_TUTOR` do passo 12 pela versão que delega ao `PKG_AUDITORIA`.
 
 ---

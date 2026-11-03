@@ -13,9 +13,9 @@
 -- sql/packages, caso seja necessario executar/conferir um passo
 -- isoladamente.
 --
--- Os passos 22 a 26 sao da Sprint 4: o empacotamento em packages
+-- Os passos 24 a 28 sao da Sprint 4: o empacotamento em packages
 -- PL/SQL. Vem no fim de proposito -- ver o bloco explicativo logo
--- antes do passo 22.
+-- antes do passo 24.
 --
 -- ORDEM:
 --  1. sql/ddl/01_create_tables.sql
@@ -35,21 +35,23 @@
 -- 15. sql/inserts/01_insert_testes.sql
 -- 16. sql/inserts/02_insert_extra_sprint3.sql
 -- 17. sql/inserts/03_insert_complemento_carga.sql
--- 18. sql/procedures/04_procedures_relatorios_sprint3.sql
--- 19. sql/relatorios/01_joins_group_order.sql
--- 20. sql/relatorios/02_lag_lead.sql
--- 21. sql/relatorios/03_cursores.sql
--- 22. sql/packages/01_pkg_log.sql
--- 23. sql/packages/02_pkg_util.sql
--- 24. sql/packages/03_pkg_carga.sql
--- 25. sql/packages/04_pkg_relatorios.sql
--- 26. sql/packages/05_pkg_auditoria.sql
+-- 18. sql/inserts/04_insert_movimento_ana.sql
+-- 19. sql/inserts/05_insert_leituras_recentes.sql
+-- 20. sql/procedures/04_procedures_relatorios_sprint3.sql
+-- 21. sql/relatorios/01_joins_group_order.sql
+-- 22. sql/relatorios/02_lag_lead.sql
+-- 23. sql/relatorios/03_cursores.sql
+-- 24. sql/packages/01_pkg_log.sql
+-- 25. sql/packages/02_pkg_util.sql
+-- 26. sql/packages/03_pkg_carga.sql
+-- 27. sql/packages/04_pkg_relatorios.sql
+-- 28. sql/packages/05_pkg_auditoria.sql
 ------------------------------------------------------------------------------
 
 SET SERVEROUTPUT ON;
 
 -- ================================================================================
--- PASSO 1/26 - sql/ddl/01_create_tables.sql
+-- PASSO 1/28 - sql/ddl/01_create_tables.sql
 -- Cria as 11 tabelas principais do banco (com o nome original RESPONSAVEL)
 -- ================================================================================
 
@@ -523,7 +525,7 @@ WHERE table_name IN (
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 2/26 - sql/ddl/02_create_sequences.sql
+-- PASSO 2/28 - sql/ddl/02_create_sequences.sql
 -- Cria as sequences utilizadas para gerar os IDs das tabelas
 -- ================================================================================
 
@@ -733,7 +735,7 @@ WHERE sequence_name IN (
 ORDER BY sequence_name;
 
 -- ================================================================================
--- PASSO 3/26 - sql/ddl/03_create_indexes.sql
+-- PASSO 3/28 - sql/ddl/03_create_indexes.sql
 -- Cria índices auxiliares para FKs e filtros frequentes
 -- ================================================================================
 
@@ -916,7 +918,7 @@ WHERE index_name IN (
 ORDER BY table_name, index_name;
 
 -- ================================================================================
--- PASSO 4/26 - sql/ddl/04_add_defaults_sequences.sql
+-- PASSO 4/28 - sql/ddl/04_add_defaults_sequences.sql
 -- Adiciona DEFAULT seq_xxx.NEXTVAL em cada coluna de PK
 -- ================================================================================
 
@@ -948,7 +950,7 @@ WHERE column_name LIKE 'ID\_%' ESCAPE '\'
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 5/26 - sql/ddl/05_rename_responsavel_to_tutor.sql
+-- PASSO 5/28 - sql/ddl/05_rename_responsavel_to_tutor.sql
 -- Renomeia RESPONSAVEL -> TUTOR (tabela, PK, constraints, FK, sequence)
 -- ================================================================================
 
@@ -976,7 +978,7 @@ SELECT column_name FROM user_tab_columns WHERE table_name = 'PET' AND column_nam
 SELECT sequence_name FROM user_sequences WHERE sequence_name = 'SEQ_TUTOR';
 
 -- ================================================================================
--- PASSO 6/26 - sql/ddl/06_add_auth_fields.sql
+-- PASSO 6/28 - sql/ddl/06_add_auth_fields.sql
 -- Adiciona senha_hash e status_acesso em TUTOR, e senha_hash em CLINICA
 -- ================================================================================
 
@@ -1004,7 +1006,7 @@ FROM user_tab_columns
 WHERE table_name = 'TUTOR' AND column_name IN ('SENHA_HASH', 'STATUS_ACESSO');
 
 -- ================================================================================
--- PASSO 7/26 - sql/ddl/07_fix_defaults_sequences.sql
+-- PASSO 7/28 - sql/ddl/07_fix_defaults_sequences.sql
 -- Reaplica DEFAULT seq_xxx.NEXTVAL apos o rename (passo 5 invalida o passo 4)
 -- ================================================================================
 
@@ -1032,7 +1034,7 @@ WHERE column_name LIKE 'ID\_%' ESCAPE '\'
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 8/26 - sql/ddl/08_split_leitura_sensor.sql
+-- PASSO 8/28 - sql/ddl/08_split_leitura_sensor.sql
 -- Separa LEITURA_SENSOR em LEITURA_COLEIRA, LEITURA_COMEDOURO, LEITURA_AMBIENTE
 -- ================================================================================
 
@@ -1184,7 +1186,7 @@ WHERE table_name IN ('LEITURA_COLEIRA', 'LEITURA_COMEDOURO', 'LEITURA_AMBIENTE',
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 9/26 - sql/procedures/01_log_erros.sql
+-- PASSO 9/28 - sql/procedures/01_log_erros.sql
 -- Cria a procedure PRC_REGISTRAR_LOG_ERRO
 -- ================================================================================
 
@@ -1229,7 +1231,7 @@ FROM user_objects
 WHERE object_name = 'PRC_REGISTRAR_LOG_ERRO';
 
 -- ================================================================================
--- PASSO 10/26 - sql/procedures/03_prc_ins_tutor.sql
+-- PASSO 10/28 - sql/procedures/03_prc_ins_tutor.sql
 -- Cria a procedure PRC_INS_TUTOR (pré-cadastro, feito pela clínica, sem senha)
 -- ================================================================================
 
@@ -1292,7 +1294,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 11/26 - sql/procedures/02_procedures_carga.sql
+-- PASSO 11/28 - sql/procedures/02_procedures_carga.sql
 -- Cria as demais procedures de insercao de dados por parametro
 -- ================================================================================
 
@@ -2104,7 +2106,7 @@ WHERE object_name IN (
 ORDER BY object_name;
 
 -- ================================================================================
--- PASSO 12/26 - sql/triggers/01_trg_auditoria_tutor.sql
+-- PASSO 12/28 - sql/triggers/01_trg_auditoria_tutor.sql
 -- Cria AUDITORIA_TUTOR, a sequence dela e o trigger TRG_AUDITORIA_TUTOR
 -- ================================================================================
 
@@ -2224,7 +2226,7 @@ ORDER BY data_hora;
 -- id_tutor/email preenchidos em todas as 5 linhas.
 
 -- ================================================================================
--- PASSO 13/26 - sql/functions/01_functions.sql
+-- PASSO 13/28 - sql/functions/01_functions.sql
 -- Cria fn_calcular_idade_pet e fn_score_medio_pet
 -- ================================================================================
 
@@ -2290,7 +2292,7 @@ END;
 -- SELECT fn_score_medio_pet(1, 30) FROM DUAL;
 
 -- ================================================================================
--- PASSO 14/26 - sql/functions/02_functions_json_senha.sql
+-- PASSO 14/28 - sql/functions/02_functions_json_senha.sql
 -- Cria fn_pet_para_json e fn_validar_forca_senha (rubrica Sprint 3)
 -- ================================================================================
 
@@ -2446,7 +2448,7 @@ SELECT fn_validar_forca_senha('abc') AS resultado FROM DUAL;
 SELECT fn_validar_forca_senha('semnumero') AS resultado FROM DUAL;
 
 -- ================================================================================
--- PASSO 15/26 - sql/inserts/01_insert_testes.sql
+-- PASSO 15/28 - sql/inserts/01_insert_testes.sql
 -- Executa a carga inicial de dados usando as procedures
 -- ================================================================================
 
@@ -2963,7 +2965,7 @@ UNION ALL
 SELECT 'LOG_ERROS', COUNT(*) FROM LOG_ERROS;
 
 -- ================================================================================
--- PASSO 16/26 - sql/inserts/02_insert_extra_sprint3.sql
+-- PASSO 16/28 - sql/inserts/02_insert_extra_sprint3.sql
 -- Garante que TUTOR, CLINICA e PET cheguem a 5 registros cada
 -- ================================================================================
 
@@ -3091,7 +3093,7 @@ UNION ALL
 SELECT 'PET', COUNT(*) FROM PET;
 
 -- ================================================================================
--- PASSO 17/26 - sql/inserts/03_insert_complemento_carga.sql
+-- PASSO 17/28 - sql/inserts/03_insert_complemento_carga.sql
 -- Completa >= 5 registros em PROTOCOLO_PREVENTIVO, DISPOSITIVO_IOT,
 -- LEITURA_COMEDOURO, LEITURA_AMBIENTE e SCORE_SAUDE (ALERTA_SAUDE
 -- chega a 5 automaticamente por efeito das procedures)
@@ -3284,7 +3286,272 @@ UNION ALL
 SELECT 'AUDITORIA_TUTOR', COUNT(*) FROM AUDITORIA_TUTOR;
 
 -- ================================================================================
--- PASSO 18/26 - sql/procedures/04_procedures_relatorios_sprint3.sql
+-- PASSO 18/28 - sql/inserts/04_insert_movimento_ana.sql
+-- Carga complementar 3: equilibra as leituras de coleira do Rex e da
+-- Luna, os dois pets da tutora Ana Souza, e completa comedouro e
+-- ambiente da Luna
+-- ================================================================================
+
+------------------------------------------------------------
+-- PETCARE HUB - CARGA COMPLEMENTAR 3 (pets da Ana)
+-- Mais leituras de movimento (LEITURA_COLEIRA) para Rex e
+-- Luna, os dois pets da tutora Ana Souza. A Luna tinha so 1
+-- leitura de coleira contra as 5 do Rex - aqui os dois ficam
+-- equilibrados, com dados espalhados em 2 dias (05-01 e
+-- 05-02), simulando bateria recarregando durante a noite.
+--
+-- Tambem adiciona 1 leitura de comedouro e 1 de ambiente para
+-- a Luna, que so tinha 1 de cada.
+--
+-- Roda DEPOIS de 03_insert_complemento_carga.sql, sem apagar
+-- nada.
+------------------------------------------------------------
+
+DECLARE
+    v_pet_rex   NUMBER;
+    v_pet_luna  NUMBER;
+BEGIN
+    -- Busca pelo tutor (Ana Souza), nao so pelo nome do pet,
+    -- porque pode existir outro pet com o mesmo nome cadastrado
+    -- por outro tutor (ex: testes manuais da API).
+    SELECT p.id_pet INTO v_pet_rex
+    FROM PET p
+    JOIN TUTOR t ON t.id_tutor = p.id_tutor
+    WHERE p.nome = 'Rex' AND t.email = 'ana.souza@email.com';
+
+    SELECT p.id_pet INTO v_pet_luna
+    FROM PET p
+    JOIN TUTOR t ON t.id_tutor = p.id_tutor
+    WHERE p.nome = 'Luna' AND t.email = 'ana.souza@email.com';
+
+    --------------------------------------------------------
+    -- MOVIMENTO (COLEIRA) - LUNA
+    -- Completa o dia 05-01 (ja tinha a leitura das 09:00) e
+    -- adiciona a manha do dia 05-02.
+    --------------------------------------------------------
+
+    prc_ins_leitura_coleira(
+        v_pet_luna, 'ATIVO', 88,
+        TO_TIMESTAMP('2026-05-01 11:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_coleira(
+        v_pet_luna, 'MODERADO', 85,
+        TO_TIMESTAMP('2026-05-01 13:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_coleira(
+        v_pet_luna, 'ATIVO', 87,
+        TO_TIMESTAMP('2026-05-01 15:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_coleira(
+        v_pet_luna, 'MODERADO', 83,
+        TO_TIMESTAMP('2026-05-01 17:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_coleira(
+        v_pet_luna, 'ATIVO', 95,
+        TO_TIMESTAMP('2026-05-02 09:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    --------------------------------------------------------
+    -- MOVIMENTO (COLEIRA) - REX
+    -- Continuacao do dia 05-02 (o dia 05-01 ja tinha 5
+    -- leituras, terminando com 87% de bateria).
+    --------------------------------------------------------
+
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'ATIVO', 96,
+        TO_TIMESTAMP('2026-05-02 08:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'ATIVO', 94,
+        TO_TIMESTAMP('2026-05-02 10:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'MODERADO', 91,
+        TO_TIMESTAMP('2026-05-02 12:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'ATIVO', 89,
+        TO_TIMESTAMP('2026-05-02 14:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_coleira(
+        v_pet_rex, 'ATIVO', 85,
+        TO_TIMESTAMP('2026-05-02 16:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    --------------------------------------------------------
+    -- ENTRE OUTROS: mais 1 leitura de comedouro e 1 de
+    -- ambiente para a Luna
+    --------------------------------------------------------
+
+    prc_ins_leitura_comedouro(
+        v_pet_luna, 55, 85.00,
+        TO_TIMESTAMP('2026-05-03 09:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    prc_ins_leitura_ambiente(
+        v_pet_luna, 22.50, 52, 390, 1,
+        TO_TIMESTAMP('2026-05-03 09:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    );
+
+    DBMS_OUTPUT.PUT_LINE('Carga complementar 3 (pets da Ana) finalizada com sucesso.');
+END;
+/
+
+------------------------------------------------------------
+-- CONFERENCIA: total de leituras por pet
+------------------------------------------------------------
+
+SELECT p.nome AS pet, COUNT(*) AS total_leituras_coleira
+FROM LEITURA_COLEIRA lc
+JOIN PET p ON p.id_pet = lc.id_pet
+GROUP BY p.nome
+ORDER BY p.nome;
+
+SELECT p.nome AS pet, COUNT(*) AS total_leituras_comedouro
+FROM LEITURA_COMEDOURO lc
+JOIN PET p ON p.id_pet = lc.id_pet
+WHERE p.nome IN ('Rex', 'Luna')
+GROUP BY p.nome
+ORDER BY p.nome;
+
+SELECT p.nome AS pet, COUNT(*) AS total_leituras_ambiente
+FROM LEITURA_AMBIENTE la
+JOIN PET p ON p.id_pet = la.id_pet
+WHERE p.nome IN ('Rex', 'Luna')
+GROUP BY p.nome
+ORDER BY p.nome;
+
+
+SELECT * FROM TUTOR ORDER BY id_tutor;
+SELECT * FROM CLINICA ORDER BY id_clinica;
+SELECT * FROM PET ORDER BY id_pet;
+
+
+SELECT p.nome AS pet, lc.status_atividade, lc.nivel_bateria, lc.timestamp_leitura
+FROM LEITURA_COLEIRA lc
+JOIN PET p ON p.id_pet = lc.id_pet
+JOIN TUTOR t ON t.id_tutor = p.id_tutor
+WHERE t.email = 'ana.souza@email.com' AND p.nome = 'Rex'
+ORDER BY lc.timestamp_leitura DESC;
+
+
+
+
+SELECT CNPJ
+FROM CLINICA
+WHERE ID_CLINICA = 10;
+
+-- ================================================================================
+-- PASSO 19/28 - sql/inserts/05_insert_leituras_recentes.sql
+-- Carga complementar 4: leituras de ontem e de hoje, com timestamp
+-- relativo a SYSDATE, para o dado aparecer como recente em qualquer
+-- data em que o script for executado
+-- ================================================================================
+
+------------------------------------------------------------
+-- PETCARE HUB - CARGA COMPLEMENTAR 4 (leituras recentes)
+-- Adiciona leituras de coleira, comedouro e ambiente para
+-- Rex e Luna (pets da Ana Souza) com timestamp relativo a
+-- HOJE (ontem + hoje), nao datas fixas - assim o dado sempre
+-- aparece como "recente" pro app, nao importa quando esse
+-- script for executado.
+--
+-- Nao apaga nada. Convive com as leituras de teste antigas
+-- (01/05 e 02/05) e com as leituras reais que o app/API ja
+-- escreveu no banco.
+------------------------------------------------------------
+
+DECLARE
+    v_pet_rex   NUMBER;
+    v_pet_luna  NUMBER;
+
+    -- Ancora no inicio do dia de hoje (00:00:00), pra montar
+    -- horarios de ontem e de hoje somando/subtraindo intervalo.
+    v_hoje TIMESTAMP := CAST(TRUNC(SYSDATE) AS TIMESTAMP);
+BEGIN
+    SELECT p.id_pet INTO v_pet_rex
+    FROM PET p
+    JOIN TUTOR t ON t.id_tutor = p.id_tutor
+    WHERE p.nome = 'Rex' AND t.email = 'ana.souza@email.com';
+
+    SELECT p.id_pet INTO v_pet_luna
+    FROM PET p
+    JOIN TUTOR t ON t.id_tutor = p.id_tutor
+    WHERE p.nome = 'Luna' AND t.email = 'ana.souza@email.com';
+
+    --------------------------------------------------------
+    -- MOVIMENTO (COLEIRA) - REX
+    -- Recarregou a bateria depois da leitura SEDENTARIO/15%
+    -- e volta a ficar ativo ao longo de ontem e hoje.
+    --------------------------------------------------------
+
+    prc_ins_leitura_coleira(v_pet_rex, 'ATIVO', 92, v_hoje - INTERVAL '1' DAY + INTERVAL '8' HOUR);
+    prc_ins_leitura_coleira(v_pet_rex, 'MODERADO', 87, v_hoje - INTERVAL '1' DAY + INTERVAL '12' HOUR);
+    prc_ins_leitura_coleira(v_pet_rex, 'ATIVO', 80, v_hoje - INTERVAL '1' DAY + INTERVAL '18' HOUR);
+    prc_ins_leitura_coleira(v_pet_rex, 'ATIVO', 75, v_hoje + INTERVAL '8' HOUR);
+    prc_ins_leitura_coleira(v_pet_rex, 'MODERADO', 68, v_hoje + INTERVAL '14' HOUR);
+
+    --------------------------------------------------------
+    -- MOVIMENTO (COLEIRA) - LUNA
+    --------------------------------------------------------
+
+    prc_ins_leitura_coleira(v_pet_luna, 'ATIVO', 90, v_hoje - INTERVAL '1' DAY + INTERVAL '9' HOUR);
+    prc_ins_leitura_coleira(v_pet_luna, 'MODERADO', 84, v_hoje - INTERVAL '1' DAY + INTERVAL '15' HOUR);
+    prc_ins_leitura_coleira(v_pet_luna, 'ATIVO', 96, v_hoje + INTERVAL '9' HOUR);
+    prc_ins_leitura_coleira(v_pet_luna, 'ATIVO', 90, v_hoje + INTERVAL '15' HOUR);
+
+    --------------------------------------------------------
+    -- ENTRE OUTROS: comedouro e ambiente recentes pros dois
+    --------------------------------------------------------
+
+    prc_ins_leitura_comedouro(v_pet_rex, 60, 115.00, v_hoje + INTERVAL '8' HOUR + INTERVAL '30' MINUTE);
+    prc_ins_leitura_comedouro(v_pet_luna, 58, 88.00, v_hoje + INTERVAL '9' HOUR + INTERVAL '15' MINUTE);
+
+    prc_ins_leitura_ambiente(v_pet_rex, 23.80, 54, 410, 1, v_hoje + INTERVAL '14' HOUR);
+    prc_ins_leitura_ambiente(v_pet_luna, 23.50, 53, 400, 1, v_hoje + INTERVAL '15' HOUR);
+
+    DBMS_OUTPUT.PUT_LINE('Carga complementar 4 (leituras recentes) finalizada com sucesso.');
+END;
+/
+
+------------------------------------------------------------
+-- CONFERENCIA: leituras de coleira do Rex e da Luna, das
+-- mais recentes para as mais antigas
+------------------------------------------------------------
+
+SELECT p.nome AS pet, lc.status_atividade, lc.nivel_bateria, lc.timestamp_leitura
+FROM LEITURA_COLEIRA lc
+JOIN PET p ON p.id_pet = lc.id_pet
+JOIN TUTOR t ON t.id_tutor = p.id_tutor
+WHERE t.email = 'ana.souza@email.com'
+ORDER BY p.nome, lc.timestamp_leitura DESC;
+
+
+
+
+
+
+SELECT
+    t.id_tutor,
+    t.nome AS tutor,
+    t.email,
+    t.status_acesso,
+    p.id_pet,
+    p.nome AS pet
+FROM tutor t
+LEFT JOIN pet p ON p.id_tutor = t.id_tutor
+ORDER BY t.id_tutor, p.id_pet;
+
+-- ================================================================================
+-- PASSO 20/28 - sql/procedures/04_procedures_relatorios_sprint3.sql
 -- Cria prc_rel_pets_tutor_clinica_json e prc_rel_consultas_subtotal
 -- (as 2 procedures da rubrica Sprint 3), ja executando sucesso + excecao
 -- ================================================================================
@@ -3583,7 +3850,7 @@ COMMIT;
 SELECT * FROM LOG_ERROS ORDER BY data_ocorrencia DESC;
 
 -- ================================================================================
--- PASSO 19/26 - sql/relatorios/01_joins_group_order.sql
+-- PASSO 21/28 - sql/relatorios/01_joins_group_order.sql
 -- Relatorios com JOIN, GROUP BY e ORDER BY
 -- ================================================================================
 
@@ -3840,7 +4107,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 20/26 - sql/relatorios/02_lag_lead.sql
+-- PASSO 22/28 - sql/relatorios/02_lag_lead.sql
 -- Relatorio com LAG e LEAD (leituras de bateria da coleira do Rex)
 -- ================================================================================
 
@@ -3914,7 +4181,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 21/26 - sql/relatorios/03_cursores.sql
+-- PASSO 23/28 - sql/relatorios/03_cursores.sql
 -- Relatorios com cursores explicitos e tomada de decisao
 -- ================================================================================
 
@@ -4190,24 +4457,24 @@ END;
 -- ================================================================================
 -- SPRINT 4 -- EMPACOTAMENTO EM PACKAGES PL/SQL
 --
--- Os passos 22 a 26 reorganizam em cinco packages as procedures, as funcoes e
--- a logica do trigger criados nos passos 9 a 14 e 18.
+-- Os passos 24 a 28 reorganizam em cinco packages as procedures, as funcoes e
+-- a logica do trigger criados nos passos 9 a 14 e 20.
 --
 -- Por que os objetos soltos continuam sendo criados antes: os passos de carga
--- (15 a 17) chamam PRC_INS_* diretamente e formam a massa de teste do projeto.
+-- (15 a 19) chamam PRC_INS_* diretamente e formam a massa de teste do projeto.
 -- Apagar as versoes soltas quebraria a carga. A aplicacao Java, essa sim, ja
 -- nao usa mais nenhuma delas -- o PlSqlRepository chama
 -- PKG_CARGA.PRC_INS_LEITURA_COLEIRA, PKG_UTIL.FN_SCORE_MEDIO_PET e
 -- PKG_UTIL.FN_CALCULAR_IDADE_PET, passando o package como catalog no
 -- SimpleJdbcCall.
 --
--- O passo 26 substitui o TRG_AUDITORIA_TUTOR criado no passo 12. Oracle nao
+-- O passo 28 substitui o TRG_AUDITORIA_TUTOR criado no passo 12. Oracle nao
 -- aceita trigger dentro de package: o corpo virou
 -- PKG_AUDITORIA.PRC_REGISTRAR_TUTOR e o trigger ficou com uma chamada so.
 -- ================================================================================
 
 -- ================================================================================
--- PASSO 22/26 - sql/packages/01_pkg_log.sql
+-- PASSO 24/28 - sql/packages/01_pkg_log.sql
 -- Sprint 4: PKG_LOG -- registro de erros, base dos demais packages
 -- ================================================================================
 
@@ -4263,7 +4530,7 @@ END pkg_log;
 /
 
 -- ================================================================================
--- PASSO 23/26 - sql/packages/02_pkg_util.sql
+-- PASSO 25/28 - sql/packages/02_pkg_util.sql
 -- Sprint 4: PKG_UTIL -- funcoes de calculo, duas delas chamadas pela API Java
 -- ================================================================================
 
@@ -4452,7 +4719,7 @@ END pkg_util;
 /
 
 -- ================================================================================
--- PASSO 24/26 - sql/packages/03_pkg_carga.sql
+-- PASSO 26/28 - sql/packages/03_pkg_carga.sql
 -- Sprint 4: PKG_CARGA -- insercao validada e alerta automatico de IoT
 -- ================================================================================
 
@@ -5397,7 +5664,7 @@ END pkg_carga;
 /
 
 -- ================================================================================
--- PASSO 25/26 - sql/packages/04_pkg_relatorios.sql
+-- PASSO 27/28 - sql/packages/04_pkg_relatorios.sql
 -- Sprint 4: PKG_RELATORIOS -- relatorios exigidos pela rubrica
 -- ================================================================================
 
@@ -5601,7 +5868,7 @@ END pkg_relatorios;
 /
 
 -- ================================================================================
--- PASSO 26/26 - sql/packages/05_pkg_auditoria.sql
+-- PASSO 28/28 - sql/packages/05_pkg_auditoria.sql
 -- Sprint 4: PKG_AUDITORIA -- logica do trigger, e o TRG_AUDITORIA_TUTOR reescrito
 -- ================================================================================
 

@@ -97,6 +97,8 @@ PETCARE-HUB-DATABASE
 │   │   ├── 01_export_pets.sql
 │   │   ├── 02_export_telemetria.sql
 │   │   └── 03_export_alertas.sql
+│   ├── manutencao                  ← correções de dado, fora do fluxo normal
+│   │   └── 01_limpar_alertas_duplicados.sql
 │   └── relatorios
 │       ├── 01_joins_group_order.sql
 │       ├── 02_lag_lead.sql
@@ -558,6 +560,24 @@ WHERE name IN ('PKG_LOG', 'PKG_UTIL', 'PKG_CARGA', 'PKG_RELATORIOS', 'PKG_AUDITO
 > compartilhado entre as disciplinas: além dos nossos, ele tem `PKG_AULA_01`, `PKG_ESTOQUE`,
 > `PKG_PEDIDOS` e `PKG_PHYCOCARBON` de outras matérias, e o `LIKE` traz 18 linhas em vez de 10.
 > Vale o mesmo para as tabelas — há `CLIENTE`, `CIDADE` e a família `CP3_*` no mesmo schema.
+
+### 23b. Limpar alertas duplicados (Sprint 4)
+
+```txt
+sql/manutencao/01_limpar_alertas_duplicados.sql
+```
+
+Roda **antes** do export. Até 30/10/2026 cada leitura IoT fora do limite abria uma linha nova
+em `ALERTA_SAUDE`; com o simulador mandando leitura a cada poucos segundos, o pet 9 acumulou
+197 alertas `BAIXA_ALIMENTACAO` idênticos em cerca de uma hora. O bug já está corrigido dos
+dois lados — `PKG_CARGA.PRC_INS_ALERTA_SAUDE` no banco e `AlertaSaudeService.criarInterno` na
+API Java atualizam o alerta aberto do mesmo tipo em vez de duplicar — mas o dado antigo
+continua lá e vai junto no export: 197 dos 204 documentos de `mongodb/alertas.json` são a
+mesma ocorrência repetida.
+
+O script não dá `COMMIT`. Ele diagnostica, apaga e manda conferir antes de você efetivar.
+Alertas já resolvidos não são tocados: dois episódios do mesmo tipo em meses diferentes são
+dois fatos, não duplicata.
 
 ### 24. Exportar para JSON e importar no MongoDB (Sprint 4)
 

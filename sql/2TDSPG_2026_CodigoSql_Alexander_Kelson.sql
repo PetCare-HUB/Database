@@ -9,8 +9,13 @@
 -- Output" apos cada bloco.
 --
 -- Os arquivos originais continuam em sql/ddl, sql/procedures,
--- sql/triggers, sql/functions, sql/inserts e sql/relatorios,
--- caso seja necessario executar/conferir um passo isoladamente.
+-- sql/triggers, sql/functions, sql/inserts, sql/relatorios e
+-- sql/packages, caso seja necessario executar/conferir um passo
+-- isoladamente.
+--
+-- Os passos 22 a 26 sao da Sprint 4: o empacotamento em packages
+-- PL/SQL. Vem no fim de proposito -- ver o bloco explicativo logo
+-- antes do passo 22.
 --
 -- ORDEM:
 --  1. sql/ddl/01_create_tables.sql
@@ -34,12 +39,17 @@
 -- 19. sql/relatorios/01_joins_group_order.sql
 -- 20. sql/relatorios/02_lag_lead.sql
 -- 21. sql/relatorios/03_cursores.sql
+-- 22. sql/packages/01_pkg_log.sql
+-- 23. sql/packages/02_pkg_util.sql
+-- 24. sql/packages/03_pkg_carga.sql
+-- 25. sql/packages/04_pkg_relatorios.sql
+-- 26. sql/packages/05_pkg_auditoria.sql
 ------------------------------------------------------------------------------
 
 SET SERVEROUTPUT ON;
 
 -- ================================================================================
--- PASSO 1/21 - sql/ddl/01_create_tables.sql
+-- PASSO 1/26 - sql/ddl/01_create_tables.sql
 -- Cria as 11 tabelas principais do banco (com o nome original RESPONSAVEL)
 -- ================================================================================
 
@@ -513,7 +523,7 @@ WHERE table_name IN (
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 2/21 - sql/ddl/02_create_sequences.sql
+-- PASSO 2/26 - sql/ddl/02_create_sequences.sql
 -- Cria as sequences utilizadas para gerar os IDs das tabelas
 -- ================================================================================
 
@@ -723,7 +733,7 @@ WHERE sequence_name IN (
 ORDER BY sequence_name;
 
 -- ================================================================================
--- PASSO 3/21 - sql/ddl/03_create_indexes.sql
+-- PASSO 3/26 - sql/ddl/03_create_indexes.sql
 -- Cria índices auxiliares para FKs e filtros frequentes
 -- ================================================================================
 
@@ -906,7 +916,7 @@ WHERE index_name IN (
 ORDER BY table_name, index_name;
 
 -- ================================================================================
--- PASSO 4/21 - sql/ddl/04_add_defaults_sequences.sql
+-- PASSO 4/26 - sql/ddl/04_add_defaults_sequences.sql
 -- Adiciona DEFAULT seq_xxx.NEXTVAL em cada coluna de PK
 -- ================================================================================
 
@@ -938,7 +948,7 @@ WHERE column_name LIKE 'ID\_%' ESCAPE '\'
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 5/21 - sql/ddl/05_rename_responsavel_to_tutor.sql
+-- PASSO 5/26 - sql/ddl/05_rename_responsavel_to_tutor.sql
 -- Renomeia RESPONSAVEL -> TUTOR (tabela, PK, constraints, FK, sequence)
 -- ================================================================================
 
@@ -966,7 +976,7 @@ SELECT column_name FROM user_tab_columns WHERE table_name = 'PET' AND column_nam
 SELECT sequence_name FROM user_sequences WHERE sequence_name = 'SEQ_TUTOR';
 
 -- ================================================================================
--- PASSO 6/21 - sql/ddl/06_add_auth_fields.sql
+-- PASSO 6/26 - sql/ddl/06_add_auth_fields.sql
 -- Adiciona senha_hash e status_acesso em TUTOR, e senha_hash em CLINICA
 -- ================================================================================
 
@@ -994,7 +1004,7 @@ FROM user_tab_columns
 WHERE table_name = 'TUTOR' AND column_name IN ('SENHA_HASH', 'STATUS_ACESSO');
 
 -- ================================================================================
--- PASSO 7/21 - sql/ddl/07_fix_defaults_sequences.sql
+-- PASSO 7/26 - sql/ddl/07_fix_defaults_sequences.sql
 -- Reaplica DEFAULT seq_xxx.NEXTVAL apos o rename (passo 5 invalida o passo 4)
 -- ================================================================================
 
@@ -1022,7 +1032,7 @@ WHERE column_name LIKE 'ID\_%' ESCAPE '\'
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 8/21 - sql/ddl/08_split_leitura_sensor.sql
+-- PASSO 8/26 - sql/ddl/08_split_leitura_sensor.sql
 -- Separa LEITURA_SENSOR em LEITURA_COLEIRA, LEITURA_COMEDOURO, LEITURA_AMBIENTE
 -- ================================================================================
 
@@ -1174,7 +1184,7 @@ WHERE table_name IN ('LEITURA_COLEIRA', 'LEITURA_COMEDOURO', 'LEITURA_AMBIENTE',
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 9/21 - sql/procedures/01_log_erros.sql
+-- PASSO 9/26 - sql/procedures/01_log_erros.sql
 -- Cria a procedure PRC_REGISTRAR_LOG_ERRO
 -- ================================================================================
 
@@ -1219,7 +1229,7 @@ FROM user_objects
 WHERE object_name = 'PRC_REGISTRAR_LOG_ERRO';
 
 -- ================================================================================
--- PASSO 10/21 - sql/procedures/03_prc_ins_tutor.sql
+-- PASSO 10/26 - sql/procedures/03_prc_ins_tutor.sql
 -- Cria a procedure PRC_INS_TUTOR (pré-cadastro, feito pela clínica, sem senha)
 -- ================================================================================
 
@@ -1282,7 +1292,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 11/21 - sql/procedures/02_procedures_carga.sql
+-- PASSO 11/26 - sql/procedures/02_procedures_carga.sql
 -- Cria as demais procedures de insercao de dados por parametro
 -- ================================================================================
 
@@ -2094,7 +2104,7 @@ WHERE object_name IN (
 ORDER BY object_name;
 
 -- ================================================================================
--- PASSO 12/21 - sql/triggers/01_trg_auditoria_tutor.sql
+-- PASSO 12/26 - sql/triggers/01_trg_auditoria_tutor.sql
 -- Cria AUDITORIA_TUTOR, a sequence dela e o trigger TRG_AUDITORIA_TUTOR
 -- ================================================================================
 
@@ -2214,7 +2224,7 @@ ORDER BY data_hora;
 -- id_tutor/email preenchidos em todas as 5 linhas.
 
 -- ================================================================================
--- PASSO 13/21 - sql/functions/01_functions.sql
+-- PASSO 13/26 - sql/functions/01_functions.sql
 -- Cria fn_calcular_idade_pet e fn_score_medio_pet
 -- ================================================================================
 
@@ -2280,7 +2290,7 @@ END;
 -- SELECT fn_score_medio_pet(1, 30) FROM DUAL;
 
 -- ================================================================================
--- PASSO 14/21 - sql/functions/02_functions_json_senha.sql
+-- PASSO 14/26 - sql/functions/02_functions_json_senha.sql
 -- Cria fn_pet_para_json e fn_validar_forca_senha (rubrica Sprint 3)
 -- ================================================================================
 
@@ -2436,7 +2446,7 @@ SELECT fn_validar_forca_senha('abc') AS resultado FROM DUAL;
 SELECT fn_validar_forca_senha('semnumero') AS resultado FROM DUAL;
 
 -- ================================================================================
--- PASSO 15/21 - sql/inserts/01_insert_testes.sql
+-- PASSO 15/26 - sql/inserts/01_insert_testes.sql
 -- Executa a carga inicial de dados usando as procedures
 -- ================================================================================
 
@@ -2953,7 +2963,7 @@ UNION ALL
 SELECT 'LOG_ERROS', COUNT(*) FROM LOG_ERROS;
 
 -- ================================================================================
--- PASSO 16/21 - sql/inserts/02_insert_extra_sprint3.sql
+-- PASSO 16/26 - sql/inserts/02_insert_extra_sprint3.sql
 -- Garante que TUTOR, CLINICA e PET cheguem a 5 registros cada
 -- ================================================================================
 
@@ -3081,7 +3091,7 @@ UNION ALL
 SELECT 'PET', COUNT(*) FROM PET;
 
 -- ================================================================================
--- PASSO 17/21 - sql/inserts/03_insert_complemento_carga.sql
+-- PASSO 17/26 - sql/inserts/03_insert_complemento_carga.sql
 -- Completa >= 5 registros em PROTOCOLO_PREVENTIVO, DISPOSITIVO_IOT,
 -- LEITURA_COMEDOURO, LEITURA_AMBIENTE e SCORE_SAUDE (ALERTA_SAUDE
 -- chega a 5 automaticamente por efeito das procedures)
@@ -3274,7 +3284,7 @@ UNION ALL
 SELECT 'AUDITORIA_TUTOR', COUNT(*) FROM AUDITORIA_TUTOR;
 
 -- ================================================================================
--- PASSO 18/21 - sql/procedures/04_procedures_relatorios_sprint3.sql
+-- PASSO 18/26 - sql/procedures/04_procedures_relatorios_sprint3.sql
 -- Cria prc_rel_pets_tutor_clinica_json e prc_rel_consultas_subtotal
 -- (as 2 procedures da rubrica Sprint 3), ja executando sucesso + excecao
 -- ================================================================================
@@ -3573,7 +3583,7 @@ COMMIT;
 SELECT * FROM LOG_ERROS ORDER BY data_ocorrencia DESC;
 
 -- ================================================================================
--- PASSO 19/21 - sql/relatorios/01_joins_group_order.sql
+-- PASSO 19/26 - sql/relatorios/01_joins_group_order.sql
 -- Relatorios com JOIN, GROUP BY e ORDER BY
 -- ================================================================================
 
@@ -3830,7 +3840,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 20/21 - sql/relatorios/02_lag_lead.sql
+-- PASSO 20/26 - sql/relatorios/02_lag_lead.sql
 -- Relatorio com LAG e LEAD (leituras de bateria da coleira do Rex)
 -- ================================================================================
 
@@ -3904,7 +3914,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 21/21 - sql/relatorios/03_cursores.sql
+-- PASSO 21/26 - sql/relatorios/03_cursores.sql
 -- Relatorios com cursores explicitos e tomada de decisao
 -- ================================================================================
 
@@ -4176,3 +4186,1544 @@ BEGIN
     );
 END;
 /
+
+-- ================================================================================
+-- SPRINT 4 -- EMPACOTAMENTO EM PACKAGES PL/SQL
+--
+-- Os passos 22 a 26 reorganizam em cinco packages as procedures, as funcoes e
+-- a logica do trigger criados nos passos 9 a 14 e 18.
+--
+-- Por que os objetos soltos continuam sendo criados antes: os passos de carga
+-- (15 a 17) chamam PRC_INS_* diretamente e formam a massa de teste do projeto.
+-- Apagar as versoes soltas quebraria a carga. A aplicacao Java, essa sim, ja
+-- nao usa mais nenhuma delas -- o PlSqlRepository chama
+-- PKG_CARGA.PRC_INS_LEITURA_COLEIRA, PKG_UTIL.FN_SCORE_MEDIO_PET e
+-- PKG_UTIL.FN_CALCULAR_IDADE_PET, passando o package como catalog no
+-- SimpleJdbcCall.
+--
+-- O passo 26 substitui o TRG_AUDITORIA_TUTOR criado no passo 12. Oracle nao
+-- aceita trigger dentro de package: o corpo virou
+-- PKG_AUDITORIA.PRC_REGISTRAR_TUTOR e o trigger ficou com uma chamada so.
+-- ================================================================================
+
+-- ================================================================================
+-- PASSO 22/26 - sql/packages/01_pkg_log.sql
+-- Sprint 4: PKG_LOG -- registro de erros, base dos demais packages
+-- ================================================================================
+
+------------------------------------------------------------
+-- PKG_LOG -- Registro de erros das rotinas do PetCare Hub.
+------------------------------------------------------------
+
+CREATE OR REPLACE PACKAGE pkg_log AS
+
+    -- Fica sozinho de proposito: todos os outros packages dependem dele, e nada
+    -- aqui depende de ninguem. Assim ele compila primeiro e nunca entra em
+    -- dependencia circular com quem o chama.
+
+    PROCEDURE prc_registrar_log_erro (
+        p_nome_procedure IN VARCHAR2,
+        p_codigo_erro    IN NUMBER,
+        p_mensagem_erro  IN VARCHAR2
+    );
+
+END pkg_log;
+/
+
+CREATE OR REPLACE PACKAGE BODY pkg_log AS
+
+    -- Origem: 01_log_erros.sql:8
+    PROCEDURE prc_registrar_log_erro (
+        p_nome_procedure IN VARCHAR2,
+        p_codigo_erro    IN NUMBER,
+        p_mensagem_erro  IN VARCHAR2
+    ) AS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+    BEGIN
+        INSERT INTO LOG_ERROS (
+            id_log,
+            nome_procedure,
+            nome_usuario,
+            data_ocorrencia,
+            codigo_erro,
+            mensagem_erro
+        ) VALUES (
+            seq_log_erros.NEXTVAL,
+            p_nome_procedure,
+            USER,
+            SYSTIMESTAMP,
+            p_codigo_erro,
+            SUBSTR(p_mensagem_erro, 1, 1000)
+        );
+
+        COMMIT;
+    END;
+
+END pkg_log;
+/
+
+-- ================================================================================
+-- PASSO 23/26 - sql/packages/02_pkg_util.sql
+-- Sprint 4: PKG_UTIL -- funcoes de calculo, duas delas chamadas pela API Java
+-- ================================================================================
+
+------------------------------------------------------------
+-- PKG_UTIL -- Funcoes de calculo e formatacao reutilizadas pelo resto do sistema.
+------------------------------------------------------------
+
+CREATE OR REPLACE PACKAGE pkg_util AS
+
+    -- Sao funcoes puras de leitura: recebem parametros, consultam e devolvem um
+    -- valor, sem gravar nada. Duas delas (fn_score_medio_pet e
+    -- fn_calcular_idade_pet) sao chamadas pela API Java em
+    -- GET /pets/{id}/score-saude/media.
+
+    FUNCTION fn_calcular_idade_pet (
+        p_id_pet IN NUMBER
+    ) RETURN NUMBER;
+
+    FUNCTION fn_score_medio_pet (
+        p_id_pet IN NUMBER,
+        p_dias   IN NUMBER
+    ) RETURN NUMBER;
+
+    FUNCTION fn_pet_para_json (
+        p_id_pet        IN NUMBER,
+        p_nome_pet      IN VARCHAR2,
+        p_especie_pet   IN VARCHAR2,
+        p_nome_tutor    IN VARCHAR2,
+        p_email_tutor   IN VARCHAR2,
+        p_nome_clinica  IN VARCHAR2
+    ) RETURN VARCHAR2;
+
+    FUNCTION fn_validar_forca_senha (
+        p_senha IN VARCHAR2
+    ) RETURN VARCHAR2;
+
+END pkg_util;
+/
+
+CREATE OR REPLACE PACKAGE BODY pkg_util AS
+
+    -- Origem: 01_functions.sql:7
+    FUNCTION fn_calcular_idade_pet (
+        p_id_pet IN NUMBER
+    ) RETURN NUMBER AS
+        v_data_nascimento DATE;
+        v_idade_meses      NUMBER;
+    BEGIN
+        SELECT data_nascimento
+        INTO v_data_nascimento
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        IF v_data_nascimento IS NULL THEN
+            RETURN NULL;
+        END IF;
+
+        v_idade_meses := MONTHS_BETWEEN(SYSDATE, v_data_nascimento);
+
+        RETURN TRUNC(v_idade_meses);
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RETURN NULL;
+    END;
+
+    -- Origem: 01_functions.sql:37
+    FUNCTION fn_score_medio_pet (
+        p_id_pet IN NUMBER,
+        p_dias   IN NUMBER
+    ) RETURN NUMBER AS
+        v_media NUMBER;
+    BEGIN
+        SELECT AVG(score_total)
+        INTO v_media
+        FROM SCORE_SAUDE
+        WHERE id_pet = p_id_pet
+          AND data_calculo >= SYSTIMESTAMP - p_dias;
+
+        RETURN ROUND(NVL(v_media, 0), 1);
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RETURN NULL;
+    END;
+
+    -- Origem: 02_functions_json_senha.sql:14
+    FUNCTION fn_pet_para_json (
+        p_id_pet        IN NUMBER,
+        p_nome_pet      IN VARCHAR2,
+        p_especie_pet   IN VARCHAR2,
+        p_nome_tutor    IN VARCHAR2,
+        p_email_tutor   IN VARCHAR2,
+        p_nome_clinica  IN VARCHAR2
+    ) RETURN VARCHAR2 AS
+        e_id_pet_nulo    EXCEPTION;
+        e_nome_pet_nulo  EXCEPTION;
+        v_json           VARCHAR2(4000);
+
+        -- Escapa manualmente os caracteres que quebrariam o JSON:
+        -- barra invertida, aspas, quebra de linha e tabulacao.
+        -- A ordem importa: a barra invertida precisa ser escapada
+        -- primeiro, senao as barras inseridas pelos escapes
+        -- seguintes seriam escapadas de novo.
+        FUNCTION escapar_json(p_valor IN VARCHAR2) RETURN VARCHAR2 IS
+            v_escapado VARCHAR2(4000);
+        BEGIN
+            v_escapado := REPLACE(p_valor, '\', '\\');
+            v_escapado := REPLACE(v_escapado, '"', '\"');
+            v_escapado := REPLACE(v_escapado, CHR(10), '\n');
+            v_escapado := REPLACE(v_escapado, CHR(13), '');
+            v_escapado := REPLACE(v_escapado, CHR(9), '\t');
+            RETURN v_escapado;
+        END escapar_json;
+    BEGIN
+        IF p_id_pet IS NULL THEN
+            RAISE e_id_pet_nulo;
+        END IF;
+
+        IF p_nome_pet IS NULL THEN
+            RAISE e_nome_pet_nulo;
+        END IF;
+
+        v_json :=
+            '{"id_pet":' || p_id_pet
+            || ',"nome_pet":"' || escapar_json(p_nome_pet) || '"'
+            || ',"especie":"' || escapar_json(NVL(p_especie_pet, '')) || '"'
+            || ',"tutor":{'
+                || '"nome":"' || escapar_json(NVL(p_nome_tutor, '')) || '"'
+                || ',"email":"' || escapar_json(NVL(p_email_tutor, '')) || '"'
+            || '}'
+            || ',"clinica":"' || escapar_json(NVL(p_nome_clinica, '')) || '"'
+            || '}';
+
+        RETURN v_json;
+
+    EXCEPTION
+        WHEN e_id_pet_nulo THEN
+            RETURN '{"erro":"id_pet obrigatorio para gerar JSON"}';
+        WHEN e_nome_pet_nulo THEN
+            RETURN '{"erro":"nome_pet obrigatorio para gerar JSON"}';
+        WHEN VALUE_ERROR THEN
+            RETURN '{"erro":"valor invalido ao montar JSON"}';
+        WHEN OTHERS THEN
+            RETURN '{"erro":"erro inesperado ao montar JSON"}';
+    END;
+
+    -- Origem: 02_functions_json_senha.sql:82
+    FUNCTION fn_validar_forca_senha (
+        p_senha IN VARCHAR2
+    ) RETURN VARCHAR2 AS
+        e_senha_nula        EXCEPTION;
+        e_senha_curta       EXCEPTION;
+        e_senha_sem_numero  EXCEPTION;
+    BEGIN
+        IF p_senha IS NULL THEN
+            RAISE e_senha_nula;
+        END IF;
+
+        IF LENGTH(p_senha) < 8 THEN
+            RAISE e_senha_curta;
+        END IF;
+
+        IF NOT REGEXP_LIKE(p_senha, '[0-9]') THEN
+            RAISE e_senha_sem_numero;
+        END IF;
+
+        IF NOT REGEXP_LIKE(p_senha, '[A-Za-z]') THEN
+            RETURN 'INVALIDA: senha precisa conter ao menos uma letra.';
+        END IF;
+
+        RETURN 'VALIDA';
+
+    EXCEPTION
+        WHEN e_senha_nula THEN
+            RETURN 'INVALIDA: senha nao informada.';
+        WHEN e_senha_curta THEN
+            RETURN 'INVALIDA: senha deve ter no minimo 8 caracteres.';
+        WHEN e_senha_sem_numero THEN
+            RETURN 'INVALIDA: senha deve conter ao menos um numero.';
+        WHEN OTHERS THEN
+            RETURN 'INVALIDA: erro inesperado na validacao.';
+    END;
+
+END pkg_util;
+/
+
+-- ================================================================================
+-- PASSO 24/26 - sql/packages/03_pkg_carga.sql
+-- Sprint 4: PKG_CARGA -- insercao validada e alerta automatico de IoT
+-- ================================================================================
+
+------------------------------------------------------------
+-- PKG_CARGA -- Insercao validada nas tabelas do dominio.
+------------------------------------------------------------
+
+CREATE OR REPLACE PACKAGE pkg_carga AS
+
+    -- Cada rotina valida o que recebe, insere usando a sequence da tabela e
+    -- registra o erro em LOG_ERROS quando algo falha. As de leitura IoT ainda
+    -- abrem alerta automatico quando o valor sai da faixa segura -- e por isso
+    -- que prc_ins_leitura_coleira e chamada pela API Java em
+    -- POST /leituras/coleira: a regra mora aqui, nao no Java.
+
+    PROCEDURE prc_ins_clinica (
+        p_nome      IN VARCHAR2,
+        p_cnpj      IN VARCHAR2,
+        p_email     IN VARCHAR2,
+        p_telefone  IN VARCHAR2,
+        p_endereco  IN VARCHAR2
+    );
+
+    PROCEDURE prc_ins_tutor (
+        p_nome      IN VARCHAR2,
+        p_email     IN VARCHAR2,
+        p_telefone  IN VARCHAR2,
+        p_cpf       IN VARCHAR2
+    );
+
+    PROCEDURE prc_ins_pet (
+        p_id_tutor            IN NUMBER,
+        p_id_clinica          IN NUMBER,
+        p_nome                IN VARCHAR2,
+        p_especie             IN VARCHAR2,
+        p_raca                IN VARCHAR2,
+        p_data_nascimento     IN DATE,
+        p_peso_kg             IN NUMBER,
+        p_sexo                IN CHAR,
+        p_condicoes_cronicas  IN VARCHAR2
+    );
+
+    PROCEDURE prc_ins_consulta (
+        p_id_pet               IN NUMBER,
+        p_id_clinica           IN NUMBER,
+        p_data_consulta        IN DATE,
+        p_tipo_consulta        IN VARCHAR2,
+        p_descricao            IN VARCHAR2,
+        p_diagnostico          IN VARCHAR2,
+        p_valor                IN NUMBER,
+        p_retorno_recomendado  IN CHAR,
+        p_data_retorno         IN DATE
+    );
+
+    PROCEDURE prc_ins_protocolo_preventivo (
+        p_especie                  IN VARCHAR2,
+        p_raca                     IN VARCHAR2,
+        p_tipo_evento              IN VARCHAR2,
+        p_descricao                IN VARCHAR2,
+        p_idade_meses_recomendada  IN NUMBER,
+        p_intervalo_dias           IN NUMBER
+    );
+
+    PROCEDURE prc_ins_evento_preventivo (
+        p_id_pet           IN NUMBER,
+        p_id_protocolo     IN NUMBER,
+        p_tipo_evento      IN VARCHAR2,
+        p_descricao        IN VARCHAR2,
+        p_data_prevista    IN DATE,
+        p_data_realizacao  IN DATE,
+        p_status           IN VARCHAR2
+    );
+
+    PROCEDURE prc_ins_dispositivo_iot (
+        p_id_pet            IN NUMBER,
+        p_tipo_dispositivo  IN VARCHAR2,
+        p_codigo_serie      IN VARCHAR2,
+        p_data_ativacao     IN DATE
+    );
+
+    PROCEDURE prc_ins_alerta_saude (
+        p_id_pet             IN NUMBER,
+        p_tipo_alerta        IN VARCHAR2,
+        p_nivel_alerta       IN VARCHAR2,
+        p_mensagem           IN VARCHAR2,
+        p_valor_detectado    IN NUMBER,
+        p_limite_referencia  IN NUMBER
+    );
+
+    PROCEDURE prc_ins_leitura_coleira (
+        p_id_pet             IN NUMBER,
+        p_status_atividade   IN VARCHAR2,
+        p_nivel_bateria      IN NUMBER,
+        p_timestamp_leitura  IN TIMESTAMP
+    );
+
+    PROCEDURE prc_ins_leitura_comedouro (
+        p_id_pet             IN NUMBER,
+        p_nivel_racao_pct    IN NUMBER,
+        p_peso_consumido_g   IN NUMBER,
+        p_timestamp_leitura  IN TIMESTAMP
+    );
+
+    PROCEDURE prc_ins_leitura_ambiente (
+        p_id_pet              IN NUMBER,
+        p_temperatura_ambiente IN NUMBER,
+        p_umidade_pct         IN NUMBER,
+        p_qualidade_ar_ppm    IN NUMBER,
+        p_pet_presente        IN NUMBER,
+        p_timestamp_leitura   IN TIMESTAMP
+    );
+
+    PROCEDURE prc_ins_score_saude (
+        p_id_pet             IN NUMBER,
+        p_score_total        IN NUMBER,
+        p_score_atividade    IN NUMBER,
+        p_score_alimentacao  IN NUMBER,
+        p_score_ambiente     IN NUMBER,
+        p_score_consulta     IN NUMBER,
+        p_score_preventivo   IN NUMBER
+    );
+
+END pkg_carga;
+/
+
+CREATE OR REPLACE PACKAGE BODY pkg_carga AS
+
+    -- Origem: 02_procedures_carga.sql:12
+    PROCEDURE prc_ins_clinica (
+        p_nome      IN VARCHAR2,
+        p_cnpj      IN VARCHAR2,
+        p_email     IN VARCHAR2,
+        p_telefone  IN VARCHAR2,
+        p_endereco  IN VARCHAR2
+    ) AS
+    BEGIN
+        IF p_nome IS NULL OR p_cnpj IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20002, 'Nome e CNPJ da clinica sao obrigatorios.');
+        END IF;
+
+        INSERT INTO CLINICA (
+            id_clinica,
+            nome,
+            cnpj,
+            email,
+            telefone,
+            endereco,
+            ativo
+        ) VALUES (
+            seq_clinica.NEXTVAL,
+            p_nome,
+            p_cnpj,
+            p_email,
+            p_telefone,
+            p_endereco,
+            'S'
+        );
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_CLINICA', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_CLINICA', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_CLINICA', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 03_prc_ins_tutor.sql:16
+    PROCEDURE prc_ins_tutor (
+        p_nome      IN VARCHAR2,
+        p_email     IN VARCHAR2,
+        p_telefone  IN VARCHAR2,
+        p_cpf       IN VARCHAR2
+    ) AS
+    BEGIN
+        IF p_nome IS NULL OR p_email IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20001, 'Nome e email do tutor sao obrigatorios.');
+        END IF;
+
+        INSERT INTO TUTOR (
+            id_tutor,
+            nome,
+            email,
+            telefone,
+            cpf,
+            data_cadastro,
+            ativo,
+            status_acesso
+        ) VALUES (
+            seq_tutor.NEXTVAL,
+            p_nome,
+            p_email,
+            p_telefone,
+            p_cpf,
+            SYSDATE,
+            'S',
+            'PRE_CADASTRADO'
+        );
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_TUTOR', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_TUTOR', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_TUTOR', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:60
+    PROCEDURE prc_ins_pet (
+        p_id_tutor            IN NUMBER,
+        p_id_clinica          IN NUMBER,
+        p_nome                IN VARCHAR2,
+        p_especie             IN VARCHAR2,
+        p_raca                IN VARCHAR2,
+        p_data_nascimento     IN DATE,
+        p_peso_kg             IN NUMBER,
+        p_sexo                IN CHAR,
+        p_condicoes_cronicas  IN VARCHAR2
+    ) AS
+        v_total_tutor    NUMBER;
+        v_total_clinica  NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_tutor
+        FROM TUTOR
+        WHERE id_tutor = p_id_tutor;
+
+        SELECT COUNT(*)
+        INTO v_total_clinica
+        FROM CLINICA
+        WHERE id_clinica = p_id_clinica;
+
+        IF v_total_tutor = 0 THEN
+            RAISE_APPLICATION_ERROR(-20003, 'Tutor nao encontrado.');
+        END IF;
+
+        IF v_total_clinica = 0 THEN
+            RAISE_APPLICATION_ERROR(-20004, 'Clinica nao encontrada.');
+        END IF;
+
+        IF p_nome IS NULL OR p_especie IS NULL OR p_peso_kg IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20005, 'Nome, especie e peso do pet sao obrigatorios.');
+        END IF;
+
+        INSERT INTO PET (
+            id_pet,
+            id_tutor,
+            id_clinica,
+            nome,
+            especie,
+            raca,
+            data_nascimento,
+            peso_kg,
+            sexo,
+            condicoes_cronicas,
+            data_cadastro,
+            ativo
+        ) VALUES (
+            seq_pet.NEXTVAL,
+            p_id_tutor,
+            p_id_clinica,
+            p_nome,
+            p_especie,
+            p_raca,
+            p_data_nascimento,
+            p_peso_kg,
+            p_sexo,
+            p_condicoes_cronicas,
+            SYSDATE,
+            'S'
+        );
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_PET', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_PET', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_PET', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:142
+    PROCEDURE prc_ins_consulta (
+        p_id_pet               IN NUMBER,
+        p_id_clinica           IN NUMBER,
+        p_data_consulta        IN DATE,
+        p_tipo_consulta        IN VARCHAR2,
+        p_descricao            IN VARCHAR2,
+        p_diagnostico          IN VARCHAR2,
+        p_valor                IN NUMBER,
+        p_retorno_recomendado  IN CHAR,
+        p_data_retorno         IN DATE
+    ) AS
+        v_total_pet      NUMBER;
+        v_total_clinica  NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_pet
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        SELECT COUNT(*)
+        INTO v_total_clinica
+        FROM CLINICA
+        WHERE id_clinica = p_id_clinica;
+
+        IF v_total_pet = 0 THEN
+            RAISE_APPLICATION_ERROR(-20006, 'Pet nao encontrado.');
+        END IF;
+
+        IF v_total_clinica = 0 THEN
+            RAISE_APPLICATION_ERROR(-20007, 'Clinica nao encontrada.');
+        END IF;
+
+        IF p_data_consulta IS NULL OR p_tipo_consulta IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20008, 'Data e tipo da consulta sao obrigatorios.');
+        END IF;
+
+        INSERT INTO CONSULTA (
+            id_consulta,
+            id_pet,
+            id_clinica,
+            data_consulta,
+            tipo_consulta,
+            descricao,
+            diagnostico,
+            valor,
+            retorno_recomendado,
+            data_retorno
+        ) VALUES (
+            seq_consulta.NEXTVAL,
+            p_id_pet,
+            p_id_clinica,
+            p_data_consulta,
+            p_tipo_consulta,
+            p_descricao,
+            p_diagnostico,
+            p_valor,
+            p_retorno_recomendado,
+            p_data_retorno
+        );
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_CONSULTA', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_CONSULTA', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_CONSULTA', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:220
+    PROCEDURE prc_ins_protocolo_preventivo (
+        p_especie                  IN VARCHAR2,
+        p_raca                     IN VARCHAR2,
+        p_tipo_evento              IN VARCHAR2,
+        p_descricao                IN VARCHAR2,
+        p_idade_meses_recomendada  IN NUMBER,
+        p_intervalo_dias           IN NUMBER
+    ) AS
+    BEGIN
+        IF p_especie IS NULL OR p_tipo_evento IS NULL OR p_descricao IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20009, 'Especie, tipo de evento e descricao sao obrigatorios.');
+        END IF;
+
+        INSERT INTO PROTOCOLO_PREVENTIVO (
+            id_protocolo,
+            especie,
+            raca,
+            tipo_evento,
+            descricao,
+            idade_meses_recomendada,
+            intervalo_dias,
+            ativo
+        ) VALUES (
+            seq_protocolo_preventivo.NEXTVAL,
+            p_especie,
+            p_raca,
+            p_tipo_evento,
+            p_descricao,
+            p_idade_meses_recomendada,
+            p_intervalo_dias,
+            'S'
+        );
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_PROTOCOLO_PREVENTIVO', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_PROTOCOLO_PREVENTIVO', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_PROTOCOLO_PREVENTIVO', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:271
+    PROCEDURE prc_ins_evento_preventivo (
+        p_id_pet           IN NUMBER,
+        p_id_protocolo     IN NUMBER,
+        p_tipo_evento      IN VARCHAR2,
+        p_descricao        IN VARCHAR2,
+        p_data_prevista    IN DATE,
+        p_data_realizacao  IN DATE,
+        p_status           IN VARCHAR2
+    ) AS
+        v_total_pet        NUMBER;
+        v_total_protocolo  NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_pet
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        IF v_total_pet = 0 THEN
+            RAISE_APPLICATION_ERROR(-20010, 'Pet nao encontrado.');
+        END IF;
+
+        IF p_id_protocolo IS NOT NULL THEN
+            SELECT COUNT(*)
+            INTO v_total_protocolo
+            FROM PROTOCOLO_PREVENTIVO
+            WHERE id_protocolo = p_id_protocolo;
+
+            IF v_total_protocolo = 0 THEN
+                RAISE_APPLICATION_ERROR(-20011, 'Protocolo preventivo nao encontrado.');
+            END IF;
+        END IF;
+
+        IF p_tipo_evento IS NULL OR p_descricao IS NULL OR p_data_prevista IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20012, 'Tipo, descricao e data prevista sao obrigatorios.');
+        END IF;
+
+        INSERT INTO EVENTO_PREVENTIVO (
+            id_evento,
+            id_pet,
+            id_protocolo,
+            tipo_evento,
+            descricao,
+            data_prevista,
+            data_realizacao,
+            status
+        ) VALUES (
+            seq_evento_preventivo.NEXTVAL,
+            p_id_pet,
+            p_id_protocolo,
+            p_tipo_evento,
+            p_descricao,
+            p_data_prevista,
+            p_data_realizacao,
+            p_status
+        );
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_EVENTO_PREVENTIVO', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_EVENTO_PREVENTIVO', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_EVENTO_PREVENTIVO', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:345
+    PROCEDURE prc_ins_dispositivo_iot (
+        p_id_pet            IN NUMBER,
+        p_tipo_dispositivo  IN VARCHAR2,
+        p_codigo_serie      IN VARCHAR2,
+        p_data_ativacao     IN DATE
+    ) AS
+        v_total_pet NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_pet
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        IF v_total_pet = 0 THEN
+            RAISE_APPLICATION_ERROR(-20013, 'Pet nao encontrado.');
+        END IF;
+
+        IF p_tipo_dispositivo IS NULL OR p_codigo_serie IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20014, 'Tipo do dispositivo e codigo de serie sao obrigatorios.');
+        END IF;
+
+        INSERT INTO DISPOSITIVO_IOT (
+            id_dispositivo,
+            id_pet,
+            tipo_dispositivo,
+            codigo_serie,
+            data_ativacao,
+            ativo
+        ) VALUES (
+            seq_dispositivo_iot.NEXTVAL,
+            p_id_pet,
+            p_tipo_dispositivo,
+            p_codigo_serie,
+            NVL(p_data_ativacao, SYSDATE),
+            'S'
+        );
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_DISPOSITIVO_IOT', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_DISPOSITIVO_IOT', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_DISPOSITIVO_IOT', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:403
+    PROCEDURE prc_ins_alerta_saude (
+        p_id_pet             IN NUMBER,
+        p_tipo_alerta        IN VARCHAR2,
+        p_nivel_alerta       IN VARCHAR2,
+        p_mensagem           IN VARCHAR2,
+        p_valor_detectado    IN NUMBER,
+        p_limite_referencia  IN NUMBER
+    ) AS
+        v_total_pet      NUMBER;
+        v_total_aberto   NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_pet
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        IF v_total_pet = 0 THEN
+            RAISE_APPLICATION_ERROR(-20015, 'Pet nao encontrado.');
+        END IF;
+
+        IF p_tipo_alerta IS NULL OR p_nivel_alerta IS NULL OR p_mensagem IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20017, 'Tipo, nivel e mensagem do alerta sao obrigatorios.');
+        END IF;
+
+        --------------------------------------------------------
+        -- Ja existe alerta ABERTO deste tipo para este pet?
+        --
+        -- Sem esta checagem, cada leitura fora do limite criava
+        -- uma linha nova. Um pet sedentario com o simulador
+        -- mandando leitura a cada 15 minutos gerava quase cem
+        -- alertas identicos por dia, e a tela de alertas do app
+        -- virava uma parede de repeticao.
+        --
+        -- "Pet sedentario" e UM fato, nao um por leitura. Quando
+        -- o alerta ja existe, o que muda e a leitura que o
+        -- sustenta: atualizamos valor, limite, mensagem, nivel e
+        -- data, mantendo o mesmo id_alerta - assim quem ja viu o
+        -- alerta nao recebe outro, e quem abrir ve o dado atual.
+        --------------------------------------------------------
+        SELECT COUNT(*)
+        INTO v_total_aberto
+        FROM ALERTA_SAUDE
+        WHERE id_pet      = p_id_pet
+          AND tipo_alerta = p_tipo_alerta
+          AND resolvido   = 'N';
+
+        IF v_total_aberto > 0 THEN
+            UPDATE ALERTA_SAUDE
+               SET nivel_alerta      = p_nivel_alerta,
+                   mensagem          = p_mensagem,
+                   valor_detectado   = p_valor_detectado,
+                   limite_referencia = p_limite_referencia,
+                   data_alerta       = SYSTIMESTAMP
+             WHERE id_pet      = p_id_pet
+               AND tipo_alerta = p_tipo_alerta
+               AND resolvido   = 'N';
+        ELSE
+            INSERT INTO ALERTA_SAUDE (
+                id_alerta,
+                id_pet,
+                tipo_alerta,
+                nivel_alerta,
+                mensagem,
+                valor_detectado,
+                limite_referencia,
+                resolvido,
+                data_alerta,
+                data_resolucao
+            ) VALUES (
+                seq_alerta_saude.NEXTVAL,
+                p_id_pet,
+                p_tipo_alerta,
+                p_nivel_alerta,
+                p_mensagem,
+                p_valor_detectado,
+                p_limite_referencia,
+                'N',
+                SYSTIMESTAMP,
+                NULL
+            );
+        END IF;
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_ALERTA_SAUDE', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_ALERTA_SAUDE', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_ALERTA_SAUDE', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:503
+    PROCEDURE prc_ins_leitura_coleira (
+        p_id_pet             IN NUMBER,
+        p_status_atividade   IN VARCHAR2,
+        p_nivel_bateria      IN NUMBER,
+        p_timestamp_leitura  IN TIMESTAMP
+    ) AS
+        v_total_pet  NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_pet
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        IF v_total_pet = 0 THEN
+            RAISE_APPLICATION_ERROR(-20018, 'Pet nao encontrado.');
+        END IF;
+
+        IF p_status_atividade IS NULL OR p_nivel_bateria IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20020, 'Status de atividade e nivel de bateria sao obrigatorios.');
+        END IF;
+
+        INSERT INTO LEITURA_COLEIRA (
+            id_leitura_coleira,
+            id_pet,
+            status_atividade,
+            nivel_bateria,
+            timestamp_leitura
+        ) VALUES (
+            seq_leitura_coleira.NEXTVAL,
+            p_id_pet,
+            p_status_atividade,
+            p_nivel_bateria,
+            NVL(p_timestamp_leitura, SYSTIMESTAMP)
+        );
+
+        IF p_status_atividade = 'SEDENTARIO' THEN
+            prc_ins_alerta_saude(
+                p_id_pet,
+                'ATIVIDADE_BAIXA',
+                'ALTO',
+                'Nivel de atividade abaixo do esperado.',
+                NULL,
+                NULL
+            );
+        END IF;
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_COLEIRA', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_COLEIRA', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_COLEIRA', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:567
+    PROCEDURE prc_ins_leitura_comedouro (
+        p_id_pet             IN NUMBER,
+        p_nivel_racao_pct    IN NUMBER,
+        p_peso_consumido_g   IN NUMBER,
+        p_timestamp_leitura  IN TIMESTAMP
+    ) AS
+        v_total_pet  NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_pet
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        IF v_total_pet = 0 THEN
+            RAISE_APPLICATION_ERROR(-20018, 'Pet nao encontrado.');
+        END IF;
+
+        IF p_nivel_racao_pct IS NULL OR p_peso_consumido_g IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20020, 'Nivel de racao e peso consumido sao obrigatorios.');
+        END IF;
+
+        INSERT INTO LEITURA_COMEDOURO (
+            id_leitura_comedouro,
+            id_pet,
+            nivel_racao_pct,
+            peso_consumido_g,
+            timestamp_leitura
+        ) VALUES (
+            seq_leitura_comedouro.NEXTVAL,
+            p_id_pet,
+            p_nivel_racao_pct,
+            p_peso_consumido_g,
+            NVL(p_timestamp_leitura, SYSTIMESTAMP)
+        );
+
+        IF p_nivel_racao_pct < 20 THEN
+            prc_ins_alerta_saude(
+                p_id_pet,
+                'RACAO_BAIXA',
+                'MEDIO',
+                'Nivel de racao abaixo do recomendado.',
+                p_nivel_racao_pct,
+                20
+            );
+        END IF;
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_COMEDOURO', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_COMEDOURO', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_COMEDOURO', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:631
+    PROCEDURE prc_ins_leitura_ambiente (
+        p_id_pet              IN NUMBER,
+        p_temperatura_ambiente IN NUMBER,
+        p_umidade_pct         IN NUMBER,
+        p_qualidade_ar_ppm    IN NUMBER,
+        p_pet_presente        IN NUMBER,
+        p_timestamp_leitura   IN TIMESTAMP
+    ) AS
+        v_total_pet  NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_pet
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        IF v_total_pet = 0 THEN
+            RAISE_APPLICATION_ERROR(-20018, 'Pet nao encontrado.');
+        END IF;
+
+        IF p_temperatura_ambiente IS NULL OR p_umidade_pct IS NULL
+           OR p_qualidade_ar_ppm IS NULL OR p_pet_presente IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20020, 'Temperatura, umidade, qualidade do ar e presenca do pet sao obrigatorios.');
+        END IF;
+
+        INSERT INTO LEITURA_AMBIENTE (
+            id_leitura_ambiente,
+            id_pet,
+            temperatura_ambiente,
+            umidade_pct,
+            qualidade_ar_ppm,
+            pet_presente,
+            timestamp_leitura
+        ) VALUES (
+            seq_leitura_ambiente.NEXTVAL,
+            p_id_pet,
+            p_temperatura_ambiente,
+            p_umidade_pct,
+            p_qualidade_ar_ppm,
+            p_pet_presente,
+            NVL(p_timestamp_leitura, SYSTIMESTAMP)
+        );
+
+        IF p_temperatura_ambiente < 10 OR p_temperatura_ambiente > 35 THEN
+            prc_ins_alerta_saude(
+                p_id_pet,
+                'AMBIENTE_INADEQUADO',
+                'MEDIO',
+                'Temperatura ambiente fora da faixa recomendada.',
+                p_temperatura_ambiente,
+                CASE WHEN p_temperatura_ambiente < 10 THEN 10 ELSE 35 END
+            );
+        END IF;
+
+        IF p_qualidade_ar_ppm > 500 THEN
+            prc_ins_alerta_saude(
+                p_id_pet,
+                'QUALIDADE_AR_RUIM',
+                'MEDIO',
+                'Qualidade do ar acima do limite recomendado.',
+                p_qualidade_ar_ppm,
+                500
+            );
+        END IF;
+
+        IF p_umidade_pct < 30 OR p_umidade_pct > 80 THEN
+            prc_ins_alerta_saude(
+                p_id_pet,
+                'UMIDADE_INADEQUADA',
+                'MEDIO',
+                'Umidade ambiente fora da faixa recomendada.',
+                p_umidade_pct,
+                CASE WHEN p_umidade_pct < 30 THEN 30 ELSE 80 END
+            );
+        END IF;
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_AMBIENTE', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_AMBIENTE', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_LEITURA_AMBIENTE', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 02_procedures_carga.sql:724
+    PROCEDURE prc_ins_score_saude (
+        p_id_pet             IN NUMBER,
+        p_score_total        IN NUMBER,
+        p_score_atividade    IN NUMBER,
+        p_score_alimentacao  IN NUMBER,
+        p_score_ambiente     IN NUMBER,
+        p_score_consulta     IN NUMBER,
+        p_score_preventivo   IN NUMBER
+    ) AS
+        v_total_pet  NUMBER;
+        v_categoria  VARCHAR2(20);
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_total_pet
+        FROM PET
+        WHERE id_pet = p_id_pet;
+
+        IF v_total_pet = 0 THEN
+            RAISE_APPLICATION_ERROR(-20021, 'Pet nao encontrado.');
+        END IF;
+
+        IF p_score_total IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20022, 'Score total e obrigatorio.');
+        END IF;
+
+        IF p_score_total >= 80 THEN
+            v_categoria := 'VERDE';
+
+        ELSIF p_score_total >= 50 THEN
+            v_categoria := 'AMARELO';
+
+        ELSE
+            v_categoria := 'VERMELHO';
+        END IF;
+
+        INSERT INTO SCORE_SAUDE (
+            id_score,
+            id_pet,
+            score_total,
+            score_atividade,
+            score_alimentacao,
+            score_ambiente,
+            score_consulta,
+            score_preventivo,
+            categoria,
+            data_calculo
+        ) VALUES (
+            seq_score_saude.NEXTVAL,
+            p_id_pet,
+            p_score_total,
+            p_score_atividade,
+            p_score_alimentacao,
+            p_score_ambiente,
+            p_score_consulta,
+            p_score_preventivo,
+            v_categoria,
+            SYSTIMESTAMP
+        );
+
+        IF p_score_total < 50 THEN
+            INSERT INTO ALERTA_SAUDE (
+                id_alerta,
+                id_pet,
+                tipo_alerta,
+                nivel_alerta,
+                mensagem,
+                valor_detectado,
+                limite_referencia,
+                resolvido,
+                data_alerta,
+                data_resolucao
+            ) VALUES (
+                seq_alerta_saude.NEXTVAL,
+                p_id_pet,
+                'SCORE_BAIXO',
+                'ALTO',
+                'Score de saude abaixo do limite recomendado.',
+                p_score_total,
+                50,
+                'N',
+                SYSTIMESTAMP,
+                NULL
+            );
+        END IF;
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_SCORE_SAUDE', SQLCODE, SQLERRM);
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_SCORE_SAUDE', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_CARGA.PRC_INS_SCORE_SAUDE', SQLCODE, SQLERRM);
+    END;
+
+END pkg_carga;
+/
+
+-- ================================================================================
+-- PASSO 25/26 - sql/packages/04_pkg_relatorios.sql
+-- Sprint 4: PKG_RELATORIOS -- relatorios exigidos pela rubrica
+-- ================================================================================
+
+------------------------------------------------------------
+-- PKG_RELATORIOS -- Relatorios exigidos pela rubrica, com saida por DBMS_OUTPUT.
+------------------------------------------------------------
+
+CREATE OR REPLACE PACKAGE pkg_relatorios AS
+
+    -- Separado da carga porque so le: nenhuma rotina daqui escreve em tabela do
+    -- dominio. Quem precisa de relatorio nao precisa de permissao de escrita.
+
+    PROCEDURE prc_rel_pets_tutor_clinica_json;
+
+    PROCEDURE prc_rel_consultas_subtotal;
+
+END pkg_relatorios;
+/
+
+CREATE OR REPLACE PACKAGE BODY pkg_relatorios AS
+
+    -- Origem: 04_procedures_relatorios_sprint3.sql:16
+    PROCEDURE prc_rel_pets_tutor_clinica_json AS
+        CURSOR c_pets IS
+            SELECT p.id_pet,
+                   p.nome AS nome_pet,
+                   p.especie,
+                   t.nome AS nome_tutor,
+                   t.email AS email_tutor,
+                   c.nome AS nome_clinica
+            FROM PET p
+            JOIN TUTOR t ON t.id_tutor = p.id_tutor
+            JOIN CLINICA c ON c.id_clinica = p.id_clinica
+            ORDER BY p.id_pet;
+
+        v_json_array    VARCHAR2(32767) := '[';
+        v_primeiro      BOOLEAN := TRUE;
+        v_total_linhas  NUMBER := 0;
+
+        e_sem_registros     EXCEPTION;
+        e_dados_incompletos EXCEPTION;
+    BEGIN
+        FOR r IN c_pets LOOP
+            IF TRIM(r.nome_pet) IS NULL OR TRIM(r.nome_tutor) IS NULL OR TRIM(r.nome_clinica) IS NULL THEN
+                RAISE e_dados_incompletos;
+            END IF;
+
+            IF NOT v_primeiro THEN
+                v_json_array := v_json_array || ',';
+            END IF;
+
+            v_json_array := v_json_array || pkg_util.fn_pet_para_json(
+                r.id_pet, r.nome_pet, r.especie, r.nome_tutor, r.email_tutor, r.nome_clinica
+            );
+
+            v_primeiro := FALSE;
+            v_total_linhas := v_total_linhas + 1;
+        END LOOP;
+
+        v_json_array := v_json_array || ']';
+
+        IF v_total_linhas = 0 THEN
+            RAISE e_sem_registros;
+        END IF;
+
+        DBMS_OUTPUT.PUT_LINE('===== JSON GERADO (PET + TUTOR + CLINICA) =====');
+        DBMS_OUTPUT.PUT_LINE(v_json_array);
+        DBMS_OUTPUT.PUT_LINE('Total de registros: ' || v_total_linhas);
+
+    EXCEPTION
+        WHEN e_sem_registros THEN
+            pkg_log.prc_registrar_log_erro('PKG_RELATORIOS.PRC_REL_PETS_TUTOR_CLINICA_JSON', -20201, 'Nenhum pet encontrado para gerar JSON.');
+            DBMS_OUTPUT.PUT_LINE('Nenhum registro encontrado para gerar o JSON.');
+
+        WHEN e_dados_incompletos THEN
+            pkg_log.prc_registrar_log_erro('PKG_RELATORIOS.PRC_REL_PETS_TUTOR_CLINICA_JSON', -20204, 'Registro com nome de pet, tutor ou clinica em branco.');
+            DBMS_OUTPUT.PUT_LINE('Registro com dado obrigatorio em branco encontrado ao montar o JSON.');
+
+        WHEN VALUE_ERROR THEN
+            pkg_log.prc_registrar_log_erro('PKG_RELATORIOS.PRC_REL_PETS_TUTOR_CLINICA_JSON', SQLCODE, SQLERRM);
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_RELATORIOS.PRC_REL_PETS_TUTOR_CLINICA_JSON', SQLCODE, SQLERRM);
+    END;
+
+    -- Origem: 04_procedures_relatorios_sprint3.sql:103
+    PROCEDURE prc_rel_consultas_subtotal AS
+        CURSOR c_consultas IS
+            SELECT c.id_clinica,
+                   c.nome AS categoria1_clinica,
+                   co.tipo_consulta AS categoria2_tipo,
+                   co.valor
+            FROM CONSULTA co
+            JOIN CLINICA c ON c.id_clinica = co.id_clinica
+            ORDER BY c.id_clinica, co.tipo_consulta;
+
+        v_id_clinica_atual   NUMBER := NULL;
+        v_tipo_atual         VARCHAR2(30);
+        v_nome_clinica_atual VARCHAR2(120);
+        v_valor              NUMBER;
+        v_valor_combo        NUMBER := 0;
+        v_subtotal           NUMBER := 0;
+        v_total_geral        NUMBER := 0;
+        v_qtd_linhas         NUMBER := 0;
+
+        e_sem_registros      EXCEPTION;
+        e_valor_negativo     EXCEPTION;
+        e_clinica_sem_nome   EXCEPTION;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('===== RELATORIO - CONSULTAS POR CLINICA E TIPO (SUBTOTAL MANUAL) =====');
+        DBMS_OUTPUT.PUT_LINE(RPAD('CLINICA', 28) || RPAD('TIPO', 15) || 'VALOR');
+        DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------------');
+
+        FOR r IN c_consultas LOOP
+            IF TRIM(r.categoria1_clinica) IS NULL THEN
+                RAISE e_clinica_sem_nome;
+            END IF;
+
+            v_valor := NVL(r.valor, 0);
+
+            IF v_valor < 0 THEN
+                RAISE e_valor_negativo;
+            END IF;
+
+            IF v_id_clinica_atual IS NOT NULL AND r.id_clinica <> v_id_clinica_atual THEN
+                -- QUEBRA DE CATEGORIA 1 (clinica): fecha a ultima
+                -- combinacao (categoria1+categoria2) pendente da
+                -- clinica anterior e imprime o Sub Total dela. O
+                -- rotulo "Sub Total" ocupa a 1a coluna (categoria1)
+                -- e a 2a coluna (categoria2) fica em branco, igual
+                -- ao exemplo oficial da rubrica.
+                DBMS_OUTPUT.PUT_LINE(
+                    RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
+                );
+                DBMS_OUTPUT.PUT_LINE(
+                    RPAD('Sub Total', 28) || RPAD(' ', 15) || TO_CHAR(v_subtotal, '999G990D00')
+                );
+                v_valor_combo := 0;
+                v_subtotal := 0;
+            ELSIF v_tipo_atual IS NOT NULL AND r.categoria2_tipo <> v_tipo_atual THEN
+                -- QUEBRA DE CATEGORIA 2 (tipo) dentro da mesma
+                -- clinica: fecha a combinacao anterior e imprime a
+                -- soma completa dela (categoria1 continua repetida,
+                -- nunca em branco numa linha de combinacao).
+                DBMS_OUTPUT.PUT_LINE(
+                    RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
+                );
+                v_valor_combo := 0;
+            END IF;
+
+            -- ACUMULACAO MANUAL (sem SUM/GROUP BY): soma o valor
+            -- desta linha na combinacao categoria1+categoria2 atual,
+            -- no subtotal da categoria 1 (clinica) e no total geral.
+            -- Varias consultas da mesma clinica+tipo (ex.: 3 do tipo
+            -- CHECKUP na mesma clinica) se acumulam na mesma
+            -- combinacao e saem como uma unica linha somada.
+            v_valor_combo := v_valor_combo + v_valor;
+            v_subtotal := v_subtotal + v_valor;
+            v_total_geral := v_total_geral + v_valor;
+
+            v_id_clinica_atual := r.id_clinica;
+            v_tipo_atual := r.categoria2_tipo;
+            v_nome_clinica_atual := r.categoria1_clinica;
+            v_qtd_linhas := v_qtd_linhas + 1;
+        END LOOP;
+
+        IF v_qtd_linhas = 0 THEN
+            RAISE e_sem_registros;
+        END IF;
+
+        -- Fecha a ultima combinacao e o ultimo subtotal pendentes,
+        -- depois imprime o total geral.
+        DBMS_OUTPUT.PUT_LINE(
+            RPAD(v_nome_clinica_atual, 28) || RPAD(v_tipo_atual, 15) || TO_CHAR(v_valor_combo, '999G990D00')
+        );
+        DBMS_OUTPUT.PUT_LINE(
+            RPAD('Sub Total', 28) || RPAD(' ', 15) || TO_CHAR(v_subtotal, '999G990D00')
+        );
+        DBMS_OUTPUT.PUT_LINE(
+            RPAD('Total Geral', 28) || RPAD(' ', 15) || TO_CHAR(v_total_geral, '999G990D00')
+        );
+
+    EXCEPTION
+        WHEN e_sem_registros THEN
+            pkg_log.prc_registrar_log_erro('PKG_RELATORIOS.PRC_REL_CONSULTAS_SUBTOTAL', -20202, 'Nenhuma consulta encontrada para o relatorio.');
+            DBMS_OUTPUT.PUT_LINE('Nenhuma consulta encontrada.');
+
+        WHEN e_valor_negativo THEN
+            pkg_log.prc_registrar_log_erro('PKG_RELATORIOS.PRC_REL_CONSULTAS_SUBTOTAL', -20203, 'Valor de consulta negativo detectado.');
+            DBMS_OUTPUT.PUT_LINE('Valor de consulta invalido (negativo) encontrado.');
+
+        WHEN e_clinica_sem_nome THEN
+            pkg_log.prc_registrar_log_erro('PKG_RELATORIOS.PRC_REL_CONSULTAS_SUBTOTAL', -20205, 'Clinica sem nome valido (em branco) encontrada.');
+            DBMS_OUTPUT.PUT_LINE('Clinica com nome em branco encontrada no relatorio.');
+
+        WHEN OTHERS THEN
+            pkg_log.prc_registrar_log_erro('PKG_RELATORIOS.PRC_REL_CONSULTAS_SUBTOTAL', SQLCODE, SQLERRM);
+    END;
+
+END pkg_relatorios;
+/
+
+-- ================================================================================
+-- PASSO 26/26 - sql/packages/05_pkg_auditoria.sql
+-- Sprint 4: PKG_AUDITORIA -- logica do trigger, e o TRG_AUDITORIA_TUTOR reescrito
+-- ================================================================================
+
+------------------------------------------------------------
+-- PKG_AUDITORIA -- Trilha de auditoria das tabelas do dominio.
+------------------------------------------------------------
+-- Oracle nao aceita trigger dentro de package: trigger e sempre
+-- objeto de schema, preso a uma tabela e a um evento. O que da
+-- para empacotar e a logica dele -- e e o que foi feito aqui.
+--
+-- O corpo do TRG_AUDITORIA_TUTOR virou PRC_REGISTRAR_TUTOR, e o
+-- trigger ficou com uma chamada so. A diferenca pratica: a regra
+-- de auditoria passa a ser testavel sem disparar DML na TUTOR
+-- (da para chamar a procedure direto), e quando a trilha for
+-- estendida para PET ou CONSULTA, o segundo trigger reaproveita
+-- este package em vez de copiar o INSERT.
+------------------------------------------------------------
+
+CREATE OR REPLACE PACKAGE pkg_auditoria AS
+
+    -- Grava uma linha na trilha de auditoria de TUTOR.
+    -- Os valores anteriores/novos chegam do trigger (:OLD/:NEW);
+    -- num INSERT os "anteriores" vem nulos, num DELETE os "novos".
+    PROCEDURE prc_registrar_tutor (
+        p_id_tutor         IN NUMBER,
+        p_operacao         IN VARCHAR2,
+        p_status_anterior  IN VARCHAR2,
+        p_status_novo      IN VARCHAR2,
+        p_email_anterior   IN VARCHAR2,
+        p_email_novo       IN VARCHAR2
+    );
+
+END pkg_auditoria;
+/
+
+CREATE OR REPLACE PACKAGE BODY pkg_auditoria AS
+
+    -- Origem: 01_trg_auditoria_tutor.sql:40 (corpo do trigger)
+    PROCEDURE prc_registrar_tutor (
+        p_id_tutor         IN NUMBER,
+        p_operacao         IN VARCHAR2,
+        p_status_anterior  IN VARCHAR2,
+        p_status_novo      IN VARCHAR2,
+        p_email_anterior   IN VARCHAR2,
+        p_email_novo       IN VARCHAR2
+    ) AS
+    BEGIN
+        INSERT INTO AUDITORIA_TUTOR (
+            id_auditoria, id_tutor, operacao, usuario_bd, data_hora,
+            status_anterior, status_novo, email_anterior, email_novo
+        ) VALUES (
+            seq_auditoria_tutor.NEXTVAL,
+            p_id_tutor,
+            p_operacao,
+            USER,
+            SYSTIMESTAMP,
+            p_status_anterior,
+            p_status_novo,
+            p_email_anterior,
+            p_email_novo
+        );
+
+    -- Sem COMMIT e sem WHEN OTHERS de proposito: a auditoria faz parte da
+    -- mesma transacao da alteracao que a gerou. Se a alteracao der rollback,
+    -- a linha de auditoria tem que sumir junto -- uma trilha que registra o
+    -- que nao aconteceu e pior do que nenhuma trilha.
+    END prc_registrar_tutor;
+
+END pkg_auditoria;
+/
+
+------------------------------------------------------------
+-- TRIGGER ENXUTO: so decide a operacao e delega ao package
+------------------------------------------------------------
+
+CREATE OR REPLACE TRIGGER trg_auditoria_tutor
+AFTER INSERT OR UPDATE OR DELETE ON TUTOR
+FOR EACH ROW
+DECLARE
+    v_operacao VARCHAR2(10);
+BEGIN
+    IF INSERTING THEN
+        v_operacao := 'INSERT';
+    ELSIF UPDATING THEN
+        v_operacao := 'UPDATE';
+    ELSE
+        v_operacao := 'DELETE';
+    END IF;
+
+    pkg_auditoria.prc_registrar_tutor(
+        p_id_tutor        => NVL(:NEW.id_tutor, :OLD.id_tutor),
+        p_operacao        => v_operacao,
+        p_status_anterior => :OLD.status_acesso,
+        p_status_novo     => :NEW.status_acesso,
+        p_email_anterior  => :OLD.email,
+        p_email_novo      => :NEW.email
+    );
+END;
+/
+
+------------------------------------------------------------
+-- CONFERENCIA
+------------------------------------------------------------
+
+SELECT object_name, object_type, status
+FROM user_objects
+WHERE object_name IN ('PKG_AUDITORIA', 'TRG_AUDITORIA_TUTOR')
+ORDER BY object_type, object_name;
+
+
+-- ================================================================================
+-- CONFERENCIA FINAL - SPRINT 4
+--
+-- Os cinco packages (spec + body) e o trigger, todos VALID. Qualquer linha
+-- marcada INVALID aqui significa que algum passo anterior nao rodou.
+-- ================================================================================
+
+SELECT object_name,
+       object_type,
+       status
+FROM user_objects
+WHERE object_name IN ('PKG_LOG', 'PKG_UTIL', 'PKG_CARGA',
+                      'PKG_RELATORIOS', 'PKG_AUDITORIA',
+                      'TRG_AUDITORIA_TUTOR')
+ORDER BY object_name, object_type;

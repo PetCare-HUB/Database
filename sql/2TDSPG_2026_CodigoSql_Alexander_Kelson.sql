@@ -13,9 +13,9 @@
 -- sql/packages, caso seja necessario executar/conferir um passo
 -- isoladamente.
 --
--- Os passos 24 a 28 sao da Sprint 4: o empacotamento em packages
--- PL/SQL. Vem no fim de proposito -- ver o bloco explicativo logo
--- antes do passo 24.
+-- Os passos 24 a 29 sao da Sprint 4: o empacotamento em packages
+-- PL/SQL e a remocao dos objetos soltos que eles substituem. Vem no
+-- fim de proposito -- ver o bloco explicativo logo antes do passo 24.
 --
 -- ORDEM:
 --  1. sql/ddl/01_create_tables.sql
@@ -46,12 +46,13 @@
 -- 26. sql/packages/03_pkg_carga.sql
 -- 27. sql/packages/04_pkg_relatorios.sql
 -- 28. sql/packages/05_pkg_auditoria.sql
+-- 29. sql/packages/06_remover_objetos_soltos.sql
 ------------------------------------------------------------------------------
 
 SET SERVEROUTPUT ON;
 
 -- ================================================================================
--- PASSO 1/28 - sql/ddl/01_create_tables.sql
+-- PASSO 1/29 - sql/ddl/01_create_tables.sql
 -- Cria as 11 tabelas principais do banco (com o nome original RESPONSAVEL)
 -- ================================================================================
 
@@ -525,7 +526,7 @@ WHERE table_name IN (
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 2/28 - sql/ddl/02_create_sequences.sql
+-- PASSO 2/29 - sql/ddl/02_create_sequences.sql
 -- Cria as sequences utilizadas para gerar os IDs das tabelas
 -- ================================================================================
 
@@ -735,7 +736,7 @@ WHERE sequence_name IN (
 ORDER BY sequence_name;
 
 -- ================================================================================
--- PASSO 3/28 - sql/ddl/03_create_indexes.sql
+-- PASSO 3/29 - sql/ddl/03_create_indexes.sql
 -- Cria índices auxiliares para FKs e filtros frequentes
 -- ================================================================================
 
@@ -918,7 +919,7 @@ WHERE index_name IN (
 ORDER BY table_name, index_name;
 
 -- ================================================================================
--- PASSO 4/28 - sql/ddl/04_add_defaults_sequences.sql
+-- PASSO 4/29 - sql/ddl/04_add_defaults_sequences.sql
 -- Adiciona DEFAULT seq_xxx.NEXTVAL em cada coluna de PK
 -- ================================================================================
 
@@ -950,7 +951,7 @@ WHERE column_name LIKE 'ID\_%' ESCAPE '\'
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 5/28 - sql/ddl/05_rename_responsavel_to_tutor.sql
+-- PASSO 5/29 - sql/ddl/05_rename_responsavel_to_tutor.sql
 -- Renomeia RESPONSAVEL -> TUTOR (tabela, PK, constraints, FK, sequence)
 -- ================================================================================
 
@@ -978,7 +979,7 @@ SELECT column_name FROM user_tab_columns WHERE table_name = 'PET' AND column_nam
 SELECT sequence_name FROM user_sequences WHERE sequence_name = 'SEQ_TUTOR';
 
 -- ================================================================================
--- PASSO 6/28 - sql/ddl/06_add_auth_fields.sql
+-- PASSO 6/29 - sql/ddl/06_add_auth_fields.sql
 -- Adiciona senha_hash e status_acesso em TUTOR, e senha_hash em CLINICA
 -- ================================================================================
 
@@ -1006,7 +1007,7 @@ FROM user_tab_columns
 WHERE table_name = 'TUTOR' AND column_name IN ('SENHA_HASH', 'STATUS_ACESSO');
 
 -- ================================================================================
--- PASSO 7/28 - sql/ddl/07_fix_defaults_sequences.sql
+-- PASSO 7/29 - sql/ddl/07_fix_defaults_sequences.sql
 -- Reaplica DEFAULT seq_xxx.NEXTVAL apos o rename (passo 5 invalida o passo 4)
 -- ================================================================================
 
@@ -1034,7 +1035,7 @@ WHERE column_name LIKE 'ID\_%' ESCAPE '\'
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 8/28 - sql/ddl/08_split_leitura_sensor.sql
+-- PASSO 8/29 - sql/ddl/08_split_leitura_sensor.sql
 -- Separa LEITURA_SENSOR em LEITURA_COLEIRA, LEITURA_COMEDOURO, LEITURA_AMBIENTE
 -- ================================================================================
 
@@ -1186,7 +1187,7 @@ WHERE table_name IN ('LEITURA_COLEIRA', 'LEITURA_COMEDOURO', 'LEITURA_AMBIENTE',
 ORDER BY table_name;
 
 -- ================================================================================
--- PASSO 9/28 - sql/procedures/01_log_erros.sql
+-- PASSO 9/29 - sql/procedures/01_log_erros.sql
 -- Cria a procedure PRC_REGISTRAR_LOG_ERRO
 -- ================================================================================
 
@@ -1231,7 +1232,7 @@ FROM user_objects
 WHERE object_name = 'PRC_REGISTRAR_LOG_ERRO';
 
 -- ================================================================================
--- PASSO 10/28 - sql/procedures/03_prc_ins_tutor.sql
+-- PASSO 10/29 - sql/procedures/03_prc_ins_tutor.sql
 -- Cria a procedure PRC_INS_TUTOR (pré-cadastro, feito pela clínica, sem senha)
 -- ================================================================================
 
@@ -1294,7 +1295,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 11/28 - sql/procedures/02_procedures_carga.sql
+-- PASSO 11/29 - sql/procedures/02_procedures_carga.sql
 -- Cria as demais procedures de insercao de dados por parametro
 -- ================================================================================
 
@@ -2106,7 +2107,7 @@ WHERE object_name IN (
 ORDER BY object_name;
 
 -- ================================================================================
--- PASSO 12/28 - sql/triggers/01_trg_auditoria_tutor.sql
+-- PASSO 12/29 - sql/triggers/01_trg_auditoria_tutor.sql
 -- Cria AUDITORIA_TUTOR, a sequence dela e o trigger TRG_AUDITORIA_TUTOR
 -- ================================================================================
 
@@ -2226,7 +2227,7 @@ ORDER BY data_hora;
 -- id_tutor/email preenchidos em todas as 5 linhas.
 
 -- ================================================================================
--- PASSO 13/28 - sql/functions/01_functions.sql
+-- PASSO 13/29 - sql/functions/01_functions.sql
 -- Cria fn_calcular_idade_pet e fn_score_medio_pet
 -- ================================================================================
 
@@ -2292,7 +2293,7 @@ END;
 -- SELECT fn_score_medio_pet(1, 30) FROM DUAL;
 
 -- ================================================================================
--- PASSO 14/28 - sql/functions/02_functions_json_senha.sql
+-- PASSO 14/29 - sql/functions/02_functions_json_senha.sql
 -- Cria fn_pet_para_json e fn_validar_forca_senha (rubrica Sprint 3)
 -- ================================================================================
 
@@ -2448,7 +2449,7 @@ SELECT fn_validar_forca_senha('abc') AS resultado FROM DUAL;
 SELECT fn_validar_forca_senha('semnumero') AS resultado FROM DUAL;
 
 -- ================================================================================
--- PASSO 15/28 - sql/inserts/01_insert_testes.sql
+-- PASSO 15/29 - sql/inserts/01_insert_testes.sql
 -- Executa a carga inicial de dados usando as procedures
 -- ================================================================================
 
@@ -2965,7 +2966,7 @@ UNION ALL
 SELECT 'LOG_ERROS', COUNT(*) FROM LOG_ERROS;
 
 -- ================================================================================
--- PASSO 16/28 - sql/inserts/02_insert_extra_sprint3.sql
+-- PASSO 16/29 - sql/inserts/02_insert_extra_sprint3.sql
 -- Garante que TUTOR, CLINICA e PET cheguem a 5 registros cada
 -- ================================================================================
 
@@ -3093,7 +3094,7 @@ UNION ALL
 SELECT 'PET', COUNT(*) FROM PET;
 
 -- ================================================================================
--- PASSO 17/28 - sql/inserts/03_insert_complemento_carga.sql
+-- PASSO 17/29 - sql/inserts/03_insert_complemento_carga.sql
 -- Completa >= 5 registros em PROTOCOLO_PREVENTIVO, DISPOSITIVO_IOT,
 -- LEITURA_COMEDOURO, LEITURA_AMBIENTE e SCORE_SAUDE (ALERTA_SAUDE
 -- chega a 5 automaticamente por efeito das procedures)
@@ -3286,7 +3287,7 @@ UNION ALL
 SELECT 'AUDITORIA_TUTOR', COUNT(*) FROM AUDITORIA_TUTOR;
 
 -- ================================================================================
--- PASSO 18/28 - sql/inserts/04_insert_movimento_ana.sql
+-- PASSO 18/29 - sql/inserts/04_insert_movimento_ana.sql
 -- Carga complementar 3: equilibra as leituras de coleira do Rex e da
 -- Luna, os dois pets da tutora Ana Souza, e completa comedouro e
 -- ambiente da Luna
@@ -3450,7 +3451,7 @@ FROM CLINICA
 WHERE ID_CLINICA = 10;
 
 -- ================================================================================
--- PASSO 19/28 - sql/inserts/05_insert_leituras_recentes.sql
+-- PASSO 19/29 - sql/inserts/05_insert_leituras_recentes.sql
 -- Carga complementar 4: leituras de ontem e de hoje, com timestamp
 -- relativo a SYSDATE, para o dado aparecer como recente em qualquer
 -- data em que o script for executado
@@ -3551,7 +3552,7 @@ LEFT JOIN pet p ON p.id_tutor = t.id_tutor
 ORDER BY t.id_tutor, p.id_pet;
 
 -- ================================================================================
--- PASSO 20/28 - sql/procedures/04_procedures_relatorios_sprint3.sql
+-- PASSO 20/29 - sql/procedures/04_procedures_relatorios_sprint3.sql
 -- Cria prc_rel_pets_tutor_clinica_json e prc_rel_consultas_subtotal
 -- (as 2 procedures da rubrica Sprint 3), ja executando sucesso + excecao
 -- ================================================================================
@@ -3850,7 +3851,7 @@ COMMIT;
 SELECT * FROM LOG_ERROS ORDER BY data_ocorrencia DESC;
 
 -- ================================================================================
--- PASSO 21/28 - sql/relatorios/01_joins_group_order.sql
+-- PASSO 21/29 - sql/relatorios/01_joins_group_order.sql
 -- Relatorios com JOIN, GROUP BY e ORDER BY
 -- ================================================================================
 
@@ -4107,7 +4108,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 22/28 - sql/relatorios/02_lag_lead.sql
+-- PASSO 22/29 - sql/relatorios/02_lag_lead.sql
 -- Relatorio com LAG e LEAD (leituras de bateria da coleira do Rex)
 -- ================================================================================
 
@@ -4181,7 +4182,7 @@ END;
 /
 
 -- ================================================================================
--- PASSO 23/28 - sql/relatorios/03_cursores.sql
+-- PASSO 23/29 - sql/relatorios/03_cursores.sql
 -- Relatorios com cursores explicitos e tomada de decisao
 -- ================================================================================
 
@@ -4462,11 +4463,15 @@ END;
 --
 -- Por que os objetos soltos continuam sendo criados antes: os passos de carga
 -- (15 a 19) chamam PRC_INS_* diretamente e formam a massa de teste do projeto.
--- Apagar as versoes soltas quebraria a carga. A aplicacao Java, essa sim, ja
--- nao usa mais nenhuma delas -- o PlSqlRepository chama
+-- Sem as versoes soltas a carga nao roda. A aplicacao Java, essa sim, ja nao
+-- usa mais nenhuma delas -- o PlSqlRepository chama
 -- PKG_CARGA.PRC_INS_LEITURA_COLEIRA, PKG_UTIL.FN_SCORE_MEDIO_PET e
 -- PKG_UTIL.FN_CALCULAR_IDADE_PET, passando o package como catalog no
 -- SimpleJdbcCall.
+--
+-- Por isso elas so saem no fim: o passo 29 remove as 19 versoes soltas depois
+-- que a carga ja rodou e os cinco packages ja compilaram. O estado final do
+-- schema fica so com os packages e o trigger.
 --
 -- O passo 28 substitui o TRG_AUDITORIA_TUTOR criado no passo 12. Oracle nao
 -- aceita trigger dentro de package: o corpo virou
@@ -4474,7 +4479,7 @@ END;
 -- ================================================================================
 
 -- ================================================================================
--- PASSO 24/28 - sql/packages/01_pkg_log.sql
+-- PASSO 24/29 - sql/packages/01_pkg_log.sql
 -- Sprint 4: PKG_LOG -- registro de erros, base dos demais packages
 -- ================================================================================
 
@@ -4530,7 +4535,7 @@ END pkg_log;
 /
 
 -- ================================================================================
--- PASSO 25/28 - sql/packages/02_pkg_util.sql
+-- PASSO 25/29 - sql/packages/02_pkg_util.sql
 -- Sprint 4: PKG_UTIL -- funcoes de calculo, duas delas chamadas pela API Java
 -- ================================================================================
 
@@ -4719,7 +4724,7 @@ END pkg_util;
 /
 
 -- ================================================================================
--- PASSO 26/28 - sql/packages/03_pkg_carga.sql
+-- PASSO 26/29 - sql/packages/03_pkg_carga.sql
 -- Sprint 4: PKG_CARGA -- insercao validada e alerta automatico de IoT
 -- ================================================================================
 
@@ -5664,7 +5669,7 @@ END pkg_carga;
 /
 
 -- ================================================================================
--- PASSO 27/28 - sql/packages/04_pkg_relatorios.sql
+-- PASSO 27/29 - sql/packages/04_pkg_relatorios.sql
 -- Sprint 4: PKG_RELATORIOS -- relatorios exigidos pela rubrica
 -- ================================================================================
 
@@ -5868,7 +5873,7 @@ END pkg_relatorios;
 /
 
 -- ================================================================================
--- PASSO 28/28 - sql/packages/05_pkg_auditoria.sql
+-- PASSO 28/29 - sql/packages/05_pkg_auditoria.sql
 -- Sprint 4: PKG_AUDITORIA -- logica do trigger, e o TRG_AUDITORIA_TUTOR reescrito
 -- ================================================================================
 
@@ -5980,17 +5985,113 @@ ORDER BY object_type, object_name;
 
 
 -- ================================================================================
--- CONFERENCIA FINAL - SPRINT 4
---
--- Os cinco packages (spec + body) e o trigger, todos VALID. Qualquer linha
--- marcada INVALID aqui significa que algum passo anterior nao rodou.
+-- PASSO 29/29 - sql/packages/06_remover_objetos_soltos.sql
+-- Sprint 4: remove as 19 versoes soltas, ja substituidas pelos packages
 -- ================================================================================
 
-SELECT object_name,
-       object_type,
-       status
+------------------------------------------------------------
+-- REMOCAO DOS OBJETOS SOLTOS -- fecha o empacotamento.
+------------------------------------------------------------
+-- Os passos 9 a 14 e 20 criaram as procedures e funcoes soltas da
+-- Sprint 3, e as cargas (passos 15 a 19) usaram essas versoes para
+-- montar a massa de teste. Com a carga feita e os cinco packages
+-- compilados, cada objeto solto virou duplicata de um membro de
+-- package -- mesma assinatura, mesma regra.
+--
+-- Nada mais depende deles:
+--   - os packages se chamam entre si sempre com prefixo
+--     (pkg_log.prc_registrar_log_erro, pkg_util.fn_pet_para_json),
+--     entao nenhum resolve para a versao solta;
+--   - a API Java chama PKG_CARGA e PKG_UTIL (catalog no SimpleJdbcCall);
+--   - o export para JSON (sql/export) e os relatorios (sql/relatorios)
+--     nao chamam nenhum deles;
+--   - nao ha view, sinonimo ou job no schema que os referencie.
+--
+-- A lista e explicita de proposito. O schema da FIAP e compartilhado
+-- com outras disciplinas, e um filtro por prefixo (LIKE 'PRC_%')
+-- apagaria objetos que nao sao deste projeto.
+--
+-- Idempotente: so remove o que existe, entao rodar de novo nao gera
+-- ORA-04043.
+--
+-- O TRG_AUDITORIA_TUTOR fica: trigger nao entra em package, e o passo
+-- 28 ja o recriou delegando ao PKG_AUDITORIA.
+------------------------------------------------------------
+
+DECLARE
+    v_removidos PLS_INTEGER := 0;
+BEGIN
+    FOR r IN (
+        SELECT object_name, object_type
+        FROM user_objects
+        WHERE object_type IN ('PROCEDURE', 'FUNCTION')
+          AND object_name IN (
+              -- substituida por PKG_LOG
+              'PRC_REGISTRAR_LOG_ERRO',
+              -- substituidas por PKG_UTIL
+              'FN_CALCULAR_IDADE_PET', 'FN_SCORE_MEDIO_PET',
+              'FN_PET_PARA_JSON', 'FN_VALIDAR_FORCA_SENHA',
+              -- substituidas por PKG_CARGA
+              'PRC_INS_CLINICA', 'PRC_INS_TUTOR', 'PRC_INS_PET',
+              'PRC_INS_CONSULTA', 'PRC_INS_PROTOCOLO_PREVENTIVO',
+              'PRC_INS_EVENTO_PREVENTIVO', 'PRC_INS_DISPOSITIVO_IOT',
+              'PRC_INS_ALERTA_SAUDE', 'PRC_INS_LEITURA_COLEIRA',
+              'PRC_INS_LEITURA_COMEDOURO', 'PRC_INS_LEITURA_AMBIENTE',
+              'PRC_INS_SCORE_SAUDE',
+              -- substituidas por PKG_RELATORIOS
+              'PRC_REL_PETS_TUTOR_CLINICA_JSON', 'PRC_REL_CONSULTAS_SUBTOTAL'
+          )
+        ORDER BY object_type, object_name
+    ) LOOP
+        EXECUTE IMMEDIATE 'DROP ' || r.object_type || ' "' || r.object_name || '"';
+        DBMS_OUTPUT.PUT_LINE('Removido: ' || r.object_type || ' ' || r.object_name);
+        v_removidos := v_removidos + 1;
+    END LOOP;
+
+    DBMS_OUTPUT.PUT_LINE('Objetos soltos removidos: ' || v_removidos);
+END;
+/
+
+
+-- ================================================================================
+-- CONFERENCIA FINAL - SPRINT 4
+--
+-- O schema termina so com os cinco packages e o trigger. Qualquer linha na
+-- primeira consulta, ou marcada INVALID na segunda, significa que algum passo
+-- anterior nao rodou.
+-- ================================================================================
+
+-- 1) Nenhum objeto solto sobrou. Esperado: 0 linhas.
+SELECT object_name, object_type
+FROM user_objects
+WHERE object_type IN ('PROCEDURE', 'FUNCTION')
+  AND object_name IN (
+      'PRC_REGISTRAR_LOG_ERRO',
+      'FN_CALCULAR_IDADE_PET', 'FN_SCORE_MEDIO_PET',
+      'FN_PET_PARA_JSON', 'FN_VALIDAR_FORCA_SENHA',
+      'PRC_INS_CLINICA', 'PRC_INS_TUTOR', 'PRC_INS_PET',
+      'PRC_INS_CONSULTA', 'PRC_INS_PROTOCOLO_PREVENTIVO',
+      'PRC_INS_EVENTO_PREVENTIVO', 'PRC_INS_DISPOSITIVO_IOT',
+      'PRC_INS_ALERTA_SAUDE', 'PRC_INS_LEITURA_COLEIRA',
+      'PRC_INS_LEITURA_COMEDOURO', 'PRC_INS_LEITURA_AMBIENTE',
+      'PRC_INS_SCORE_SAUDE',
+      'PRC_REL_PETS_TUTOR_CLINICA_JSON', 'PRC_REL_CONSULTAS_SUBTOTAL'
+  );
+
+-- 2) Os cinco packages (spec + body) e o trigger continuam VALID.
+--    Esperado: 11 linhas, todas VALID. Se algum package tivesse
+--    dependencia escondida de um objeto solto, ele apareceria
+--    INVALID aqui.
+SELECT object_name, object_type, status
 FROM user_objects
 WHERE object_name IN ('PKG_LOG', 'PKG_UTIL', 'PKG_CARGA',
                       'PKG_RELATORIOS', 'PKG_AUDITORIA',
                       'TRG_AUDITORIA_TUTOR')
 ORDER BY object_name, object_type;
+
+-- 3) Nada em USER_ERRORS. Esperado: 0 linhas.
+SELECT name, type, line, text
+FROM user_errors
+WHERE name IN ('PKG_LOG', 'PKG_UTIL', 'PKG_CARGA',
+               'PKG_RELATORIOS', 'PKG_AUDITORIA',
+               'TRG_AUDITORIA_TUTOR');

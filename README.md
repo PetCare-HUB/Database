@@ -92,7 +92,8 @@ PETCARE-HUB-DATABASE
 │   │   ├── 02_pkg_util.sql         ← 4 functions de cálculo e formatação
 │   │   ├── 03_pkg_carga.sql        ← 12 procedures de inserção validada
 │   │   ├── 04_pkg_relatorios.sql   ← 2 procedures de relatório (só leitura)
-│   │   └── 05_pkg_auditoria.sql    ← lógica do trigger + o trigger enxuto
+│   │   ├── 05_pkg_auditoria.sql    ← lógica do trigger + o trigger enxuto
+│   │   └── 06_remover_objetos_soltos.sql ← remove as 19 versões soltas já empacotadas
 │   ├── export                      ← Sprint 4: geram o JSON via SQL/JSON do Oracle
 │   │   ├── 01_export_pets.sql
 │   │   ├── 02_export_telemetria.sql
@@ -224,6 +225,10 @@ Arquivo: `sql/functions/01_functions.sql`
 | `fn_calcular_idade_pet(p_id_pet)`         | Idade do pet em meses, calculada a partir de `data_nascimento` |
 | `fn_score_medio_pet(p_id_pet, p_dias)`    | Score de saúde médio do pet nos últimos N dias                |
 
+> Desde a Sprint 4 estas functions vivem no `PKG_UTIL`, e as versões soltas são removidas no
+> fim do script (ver o [passo 23](#23-criar-os-packages-sprint-4)). Chame pelo package:
+> `pkg_util.fn_calcular_idade_pet(9)`.
+
 ---
 
 ## Requisitos da Rubrica Oficial — Sprint 3 (Mastering Relational and Non-Relational Database)
@@ -276,65 +281,49 @@ Lê `CONSULTA` (tabela de fatos) categorizada por `CLINICA` (categoria 1) e `tip
 
 ## Integração com Java
 
-A API Java será responsável pela regra principal do sistema, incluindo:
+A API Java ([PetCare-HUB/java](https://github.com/PetCare-HUB/java), publicada em
+https://petcare-hub-gokt.onrender.com) usa **este mesmo schema Oracle** e chama os packages
+direto. A regra mora no banco e não é reescrita em Java: a inserção de leitura e o disparo de
+alerta são o `PKG_CARGA`; o score médio e a idade do pet são o `PKG_UTIL`.
 
-- Autenticação de tutor e clínica;
-- Cadastro do tutor (pré-cadastro feito pela clínica) e ativação de conta;
-- Cadastro de clínica;
-- Cadastro de pet;
-- Registro de leituras de sensores;
-- Cálculo do score de saúde;
-- Geração de alertas;
-- Consulta do histórico longitudinal do pet.
+A ponte é o `PlSqlRepository`, com `SimpleJdbcCall` recebendo o package como *catalog*:
 
-Entidades esperadas na API Java:
+| Chamada no Java | Objeto no Oracle | Disparada por |
+|---|---|---|
+| `withCatalogName("PKG_CARGA")` `.withProcedureName("PRC_INS_LEITURA_COLEIRA")` | `PKG_CARGA.PRC_INS_LEITURA_COLEIRA` | `POST /leituras/coleira` — grava a leitura e, fora da faixa segura, abre o alerta por `PKG_CARGA.PRC_INS_ALERTA_SAUDE` |
+| `withCatalogName("PKG_UTIL")` `.withFunctionName("FN_SCORE_MEDIO_PET")` | `PKG_UTIL.FN_SCORE_MEDIO_PET` | `GET /pets/{id}/score-saude/media` |
+| `withCatalogName("PKG_UTIL")` `.withFunctionName("FN_CALCULAR_IDADE_PET")` | `PKG_UTIL.FN_CALCULAR_IDADE_PET` | `GET /pets/{id}/score-saude/media` |
+
+Para mostrar que é chamada real e não reimplementação, o endpoint de média devolve quem fez o
+cálculo. Conferido contra a API publicada em 04/11/2026:
 
 ```txt
-Tutor
-Clinica
-Pet
-Consulta
-ProtocoloPreventivo
-EventoPreventivo
-DispositivoIot
-LeituraSensor
-AlertaSaude
-ScoreSaude
+GET /pets/9/score-saude/media?dias=365
+
+{ "petId": 9, "periodoDias": 365, "scoreMedio": 70.3, "idadeMeses": 66.0,
+  "calculadoPor": "PKG_UTIL.FN_SCORE_MEDIO_PET / PKG_UTIL.FN_CALCULAR_IDADE_PET (Oracle PL/SQL)" }
 ```
 
-> A entidade JPA deve se chamar `Tutor`, mapeada para a tabela `tutor`, com a coluna de PK `id_tutor`.
+O `idadeMeses: 66` é o mesmo do Rex em `mongodb/pets.json`: os dois números saem da mesma
+function, um pela API e o outro pelo export.
+
+As contas de demonstração para chamar esses endpoints estão no README da API Java.
 
 ---
 
 ## Integração com .NET
 
-A API .NET será usada como base para o dashboard da clínica (B2B).
+A API .NET ([PetCare-HUB/.NET](https://github.com/PetCare-HUB/.NET), publicada em
+https://petcarehub-dotnet.onrender.com) é o dashboard B2B da clínica, sobre **o mesmo schema
+Oracle**. Pelo EF Core ela consulta pets, tutores, scores, alertas, consultas e indicadores por
+clínica, e mantém alertas e consultas. Não chama PL/SQL.
 
-Ela poderá consultar:
+Cadastro de clínica e de tutor não passa por ela: o credenciamento da clínica e o pré-cadastro
+do tutor são fluxos da API Java. E a .NET não autentica ninguém — valida a assinatura dos
+tokens emitidos pelo Java, com a mesma chave pública RSA.
 
-- Pets da clínica;
-- Pets em risco;
-- Alertas abertos;
-- Consultas realizadas;
-- Eventos preventivos;
-- Scores de saúde;
-- Métricas por clínica.
-
-O cadastro de clínica é feito direto pelo .NET via EF Core. O cadastro de tutor é feito via chamada HTTP para a API Java, para não duplicar regra de negócio.
-
-Entidades principais esperadas na API .NET:
-
-```txt
-Clinica
-Pet
-Consulta
-EventoPreventivo
-LeituraColeira
-LeituraComedouro
-LeituraAmbiente
-AlertaSaude
-ScoreSaude
-```
+No MongoDB as duas disciplinas dividem a instância e o database `petcarehub`, em coleções
+separadas — ver [Instância compartilhada com o .NET](#instância-compartilhada-com-o-net).
 
 ---
 
@@ -536,18 +525,25 @@ sql/packages/02_pkg_util.sql
 sql/packages/03_pkg_carga.sql
 sql/packages/04_pkg_relatorios.sql
 sql/packages/05_pkg_auditoria.sql
+sql/packages/06_remover_objetos_soltos.sql
 ```
 
 Empacota os objetos dos passos 9 a 14 e 19. **A ordem importa**: `pkg_log` compila primeiro
 porque todos os outros chamam a procedure de log, e `pkg_util` vem antes de `pkg_relatorios`
 porque `prc_rel_pets_tutor_clinica_json` usa `fn_pet_para_json`.
 
-Os objetos soltos continuam no banco em paralelo — a remoção deles acompanha a troca das
-chamadas no lado da API Java, que hoje chama `PRC_INS_LEITURA_COLEIRA`, `FN_SCORE_MEDIO_PET`
-e `FN_CALCULAR_IDADE_PET` pelo nome antigo.
+Depois dos cinco packages, `06_remover_objetos_soltos.sql` remove as **19 versões soltas** que
+eles substituem. Elas existem até ali porque as cargas de teste (passos 15 a 18b) as usam para
+montar a massa de dados; com a carga feita, viram duplicata. Nada mais depende delas: os
+packages se chamam entre si sempre com prefixo (`pkg_log.prc_registrar_log_erro`), a API Java
+chama `PKG_CARGA` e `PKG_UTIL`, e o export para JSON não usa nenhuma. O schema termina só com os
+packages e o trigger.
+
+A lista de remoção é explícita, nunca `LIKE 'PRC_%'` — pelo mesmo motivo da conferência abaixo.
 
 Conferência — precisa voltar **10 linhas** (5 specs + 5 bodies), todas `VALID`, e nada em
-`USER_ERRORS`:
+`USER_ERRORS`. O próprio `06_remover_objetos_soltos.sql` termina com uma terceira consulta, que
+precisa voltar **vazia**: nenhuma das 19 versões soltas pode ter sobrado.
 
 ```sql
 SELECT object_name, object_type, status
@@ -642,7 +638,7 @@ Cada linha deve mostrar `seq_xxx.NEXTVAL` na coluna `DATA_DEFAULT`.
 Para validar o trigger de auditoria de ponta a ponta:
 
 ```sql
-EXEC prc_ins_tutor('Teste Final', 'teste.final@petcare.com', '11988887777', '11122233344');
+EXEC pkg_carga.prc_ins_tutor('Teste Final', 'teste.final@petcare.com', '11988887777', '11122233344');
 SELECT id_tutor, nome, status_acesso, senha_hash FROM TUTOR WHERE email = 'teste.final@petcare.com';
 UPDATE TUTOR SET senha_hash = 'hash_fake_teste', status_acesso = 'ATIVO' WHERE email = 'teste.final@petcare.com';
 COMMIT;
@@ -709,6 +705,10 @@ operacao: INSERT, UPDATE ou DELETE
 ---
 
 ## Procedures Criadas
+
+> Estas são as procedures da Sprint 3, documentadas como foram criadas. Na Sprint 4 todas foram
+> para packages — `PKG_LOG`, `PKG_CARGA` e `PKG_RELATORIOS` — e as versões soltas são removidas
+> no fim do script. Chame sempre pelo package: `pkg_carga.prc_ins_tutor(...)`.
 
 ### Procedure de log
 
@@ -1049,6 +1049,22 @@ Dados de teste inseridos com sucesso (5+ registros em cada tabela exigida pela r
 Relatórios executados com sucesso
 ```
 
+Na Sprint 4, conferido em 04/11/2026:
+
+```txt
+5 packages no script consolidado: PKG_LOG, PKG_UTIL, PKG_CARGA, PKG_RELATORIOS, PKG_AUDITORIA
+Trigger de auditoria reescrito para delegar ao PKG_AUDITORIA
+Passo 29 rodado no schema: 19 objetos soltos removidos, sem nenhum ORA-
+Depois da remoção: os 5 packages (spec + body) e o trigger VALID -- 11 linhas
+PKG_UTIL chamado pela API Java em produção: GET /pets/9/score-saude/media -> 200, scoreMedio 70.3
+A mesma chamada seguiu respondendo depois da remoção: sem a versão solta da function, o que
+  responde só pode ser o PKG_UTIL
+3 arquivos JSON gerados pelo Oracle: 7 pets, 120 buckets de telemetria, 8 alertas
+924 leituras dentro dos buckets = 325 coleira + 301 comedouro + 298 ambiente
+MongoDB importado: as 7 consultas de 02_consultas.mongodb.js passam
+Nenhum hash de senha no JSON exportado
+```
+
 ---
 
 ## Observação sobre o Oracle Data Modeler
@@ -1066,7 +1082,10 @@ Para a entrega acadêmica, o modelo deverá ser representado também no Oracle D
 - Constraints;
 - DDL gerado pelo Data Modeler.
 
-> O modelo no Data Modeler já reflete o rename `TUTOR` e os campos de autenticação (`senha_hash`/`status_acesso`). Ainda falta adicionar a tabela `AUDITORIA_TUTOR` (criada pelo trigger) ao diagrama e reexportar o DER/MER em `docs/MER e DER/`.
+> Em `docs/MER e DER/`, o `DER.png` é o **modelo lógico** (notação Barker) e o `MER.png` é o
+> **modelo físico** (tipos, chaves primárias e estrangeiras, índices). Os dois já refletem o
+> rename `TUTOR`, os campos de autenticação (`senha_hash`/`status_acesso`) e a tabela
+> `AUDITORIA_TUTOR`.
 
 ---
 

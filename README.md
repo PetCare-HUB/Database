@@ -8,6 +8,32 @@ O banco foi modelado para servir como base para as APIs Java e .NET do projeto.
 
 ---
 
+## Entrega da Sprint 4
+
+**Vídeo demonstrativo:** https://youtu.be/iOoGd27AwiE
+
+| Entregável | Pts | Onde está |
+| ---------- | --- | --------- |
+| Modelos lógico e físico (PDF) e codificação (SQL) | 20 | [`docs/2TDSPG_2026_Proj_BD.pdf`](docs/2TDSPG_2026_Proj_BD.pdf) · [`sql/2TDSPG_2026_CodigoSql_Alexander_Kelson.sql`](sql/2TDSPG_2026_CodigoSql_Alexander_Kelson.sql) |
+| Packages com tratamento de exceções | 25 | [`sql/packages/`](sql/packages) — `PKG_LOG`, `PKG_UTIL`, `PKG_CARGA`, `PKG_RELATORIOS`, `PKG_AUDITORIA` |
+| JSON gerado a partir do banco relacional | 20 | [`mongodb/pets.json`](mongodb/pets.json), [`telemetria.json`](mongodb/telemetria.json), [`alertas.json`](mongodb/alertas.json) — gerados por [`sql/export/`](sql/export) |
+| Estrutura MongoDB (criação e importação) | 25 | [`mongodb/01_importar.ps1`](mongodb/01_importar.ps1) · [`mongodb/02_consultas.mongodb.js`](mongodb/02_consultas.mongodb.js) |
+| Vídeo demonstrativo | 10 | link acima |
+
+O que o vídeo mostra:
+
+| Tempo | Parte |
+| ----- | ----- |
+| 0:40 | Os cinco packages e o trigger compilados, todos `VALID` |
+| 1:20 | Exportação Oracle → JSON: 7 pets, 120 buckets de telemetria, 8 alertas |
+| 2:00 | Importação no MongoDB, com criação dos índices |
+| 2:45 | Consultas no `mongosh` provando a importação |
+| 3:00 | `POST /leituras/coleira` na API Java, que chama `PKG_CARGA.PRC_INS_LEITURA_COLEIRA` |
+| 3:35 | A linha nova gravada no Oracle pela procedure |
+| 3:50 | As functions do `PKG_UTIL` que a API usa para o score médio |
+
+---
+
 ## Objetivo
 
 O banco de dados tem como objetivo centralizar as informações do ecossistema PetCare Hub, permitindo:
@@ -48,6 +74,10 @@ O PetCare Hub contribui com esse objetivo ao estruturar dados clínicos, prevent
 - Indexes
 - Cursores explícitos
 - Funções analíticas `LAG` e `LEAD`
+- Packages PL/SQL
+- SQL/JSON do Oracle (`JSON_OBJECT`, `JSON_ARRAYAGG`) para a exportação
+- MongoDB (`mongoimport` e `mongosh`)
+- Java (`tools/ExportarJson.java`, que grava em disco o JSON montado pelo Oracle)
 
 ---
 
@@ -117,12 +147,13 @@ PETCARE-HUB-DATABASE
 
 > `sql/2TDSPG_2026_CodigoSql_Alexander_Kelson.sql` é os arquivos modulares acima concatenados
 > numa ordem só, para quem preferir rodar tudo de uma vez em vez de arquivo por arquivo — os
-> comentários `-- PASSO N/28 - ...` dentro dele apontam de volta pro arquivo modular
+> comentários `-- PASSO N/29 - ...` dentro dele apontam de volta pro arquivo modular
 > correspondente. Os dois precisam ficar em sincronia; se editar um lado, replique no outro.
 >
-> Os passos 24 a 28 são os packages da Sprint 4, e vêm no fim de propósito: os passos de carga
-> (15 a 19) chamam as procedures soltas, então elas precisam existir antes. O passo 28 ainda
-> substitui o `TRG_AUDITORIA_TUTOR` do passo 12 pela versão que delega ao `PKG_AUDITORIA`.
+> Os passos 24 a 29 são da Sprint 4, e vêm no fim de propósito: os passos de carga (15 a 19)
+> chamam as procedures soltas, então elas precisam existir antes. Os passos 24 a 28 criam os
+> packages — o 28 ainda substitui o `TRG_AUDITORIA_TUTOR` do passo 12 pela versão que delega ao
+> `PKG_AUDITORIA` — e o 29 remove as 19 versões soltas que os packages substituíram.
 
 ---
 
